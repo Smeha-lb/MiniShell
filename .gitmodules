@@ -1,0 +1,6 @@
+[submodule "lib/42-libft"]
+        path = lib/42-libft
+        url = git@vogsphere.42beirut.com:vogsphere/intra-uuid-84e57a58-7e8c-4fe7-ae9c-8e823c785aa9-5719185-csamaha
+[submodule "lib/ft_printf"]
+        path = lib/ft_printf
+        url = git@vogsphere.42beirut.com:vogsphere/intra-uuid-ef2c0c6d-a140-4421-a683-377024c608f5-5895895-csamaha

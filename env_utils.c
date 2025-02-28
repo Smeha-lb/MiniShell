@@ -1,0 +1,290 @@
+#include "mini_shell.h"
+#include <stdio.h>
+
+size_t	ft_strlen(const char *s)
+{
+	size_t	i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
+}
+
+int ft_strcmp(char *s1, char *s2)
+{
+	while(s1)
+	{
+		while(s2)
+		{
+			if(s2 != s1)
+				return (0);
+			s2++;
+		}
+		s1++;
+	}
+	return (1);
+}
+
+static char **ft_alloc_split(char const *s, char c)
+{
+	size_t	i;
+	char	**split;
+	size_t	total;
+
+	i = 0;
+	total = 0;
+	while (s[i])
+	{
+		if (s[i] == c)
+			total++;
+		i++;
+	}
+	split = (char**)malloc(sizeof(s) * (total + 2));
+	if (!split)
+		return (NULL);
+	return (split);
+}
+
+void	*ft_free_all_split_alloc(char **split, size_t elts)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < elts)
+	{
+		free(split[i]);
+		i++;
+	}
+	free(split);
+	return (NULL);
+}
+
+static void *ft_split_range(char **split, char const *s,
+		t_split_next *st, t_split_next *lt)
+{
+	split[lt->length] = ft_substr(s, st->start, st->length);
+	if (!split[lt->length])
+		return (ft_free_all_split_alloc(split, lt->length));
+	lt->length++;
+	return (split);
+}
+
+static void *ft_split_by_char(char **split, char const *s, char c)
+{
+	size_t			i;
+	t_split_next	st;
+	t_split_next	lt;
+    int break_flag;
+
+	i = 0;
+    break_flag = 0;
+	lt.length = 0;
+	lt.start = 0;
+	while (s[i] && break_flag != 1)
+	{
+		if (s[i] == c)
+		{
+			st.start = lt.start;
+			st.length = (i - lt.start);
+			if (i > lt.start && !ft_split_range(split, s, &st, &lt))
+				return (NULL);
+			lt.start = i + 1;
+            break_flag = 1;
+		}
+		i++;
+	}
+	st.start = lt.start;
+	st.length = (ft_strlen(s) - lt.start);
+	if (ft_strlen(s) > lt.start && ft_strlen(s) > 0 && !ft_split_range(split, s, &st, &lt))
+		return (NULL);
+	split[lt.length] = 0;
+	return (split);
+}
+
+char
+	**ft_split_once(char const *s, char c)
+{
+	char	**split;
+
+	if (!(split = ft_alloc_split(s, c)))
+		return (NULL);
+	if (!ft_split_by_char(split, s, c))
+		return (NULL);
+	return (split);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	size_t	i;
+	size_t	j;
+	char	*str;
+
+	str = (char*)malloc(sizeof(*s) * (len + 1));
+	if (!str)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (s[i])
+	{
+		if (i >= start && j < len)
+		{
+			str[j] = s[i];
+			j++;
+		}
+		i++;
+	}
+	str[j] = 0;
+	return (str);
+}
+
+char	*ft_strdup(const char *s1)
+{
+	char	*str;
+	size_t	i;
+
+	if (!s1)
+		return (NULL);
+	str = (char*)malloc(sizeof(*s1) * (ft_strlen(s1) + 1));
+	if (!str)
+		return (NULL);
+	i = 0;
+	while (s1[i])
+	{
+		str[i] = s1[i];
+		i++;
+	}
+	str[i] = 0;
+	return (str);
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	char	*str;
+	size_t	i;
+	size_t	j;
+
+	str = (char*)malloc(
+		sizeof(*s1) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!str)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (s1[i])
+	{
+		str[j++] = s1[i];
+		i++;
+	}
+	i = 0;
+	while (s2[i])
+	{
+		str[j++] = s2[i];
+		i++;
+	}
+	str[j] = 0;
+	return (str);
+}
+
+//! TO_REVIEW		All functions below do not check for input validity
+
+int	env_var_count(char **env)
+{
+	int	i;
+
+	i = 0;
+	while (env && env[i])
+		i++;
+	return (i);
+}
+
+env_list *make_linked_list(char **env) {
+    env_list *head;
+    env_list *current;
+    int i;
+    char **data;
+
+    i = 0;
+    head = NULL;
+    while (env[i]) {
+        data = ft_split_once(env[i], '=');
+        current = (env_list *)malloc(sizeof(env_list));
+        current->name = ft_strdup(data[0]);
+        current->value = ft_strdup(data[1]);
+        current->data = ft_strdup(env[i]);
+        current->next = head;
+        head = current;
+        i++;
+    }
+    return head;
+}
+
+void print_env(env_list *head)
+{
+	env_list *current = head;
+	while (current->next) {
+		printf("name: %s\n", current->name);
+		printf("value: %s\n", current->value);
+		printf("data: %s\n", current->data);
+        current = current->next;
+    }
+	printf("name: %s\n", current->name);
+	printf("value: %s\n", current->value);
+	printf("data: %s\n", current->data);
+}
+
+env_list *find_env_var(char *name, env_list *head) {
+    env_list *current;
+
+    current = head;
+    while (current) {
+        if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+int check_list_dup(char *data, env_list *head)
+{
+	env_list *current;
+
+	current = head;
+	while (current)
+	{
+		if (ft_strcmp(current->data, data) == 0)
+			return (1);
+		current = current->next;
+	}
+}
+
+void add_env_var(char *data, env_list *head)
+{
+    env_list *current;
+    env_list *new;
+	char *temp;
+
+    current = head;
+    new = (env_list *)malloc(sizeof(env_list));
+	temp = strdup(data);
+    data = ft_split_once(data, '=');
+	if(find_env_var(data[0], head) == NULL)
+	{
+		new->name = ft_strdup(data[0]);
+		new->value = ft_strdup(data[1]);
+		new->data = ft_strdup(temp);
+		new->next = NULL;
+		while (current->next) {
+			current = current->next;
+		}
+		current->next = new;
+	}
+}
+
+int main(int argc, char **argv, char **envp){
+    env_list *head = make_linked_list(envp);
+    add_env_var("CARL=MyNameIsCarl", head);
+    printf("env var: %s\n", find_env_var("carllllslsl", head));
+	print_env(head);
+    return(0);
+}
