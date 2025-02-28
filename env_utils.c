@@ -237,7 +237,7 @@ env_list *find_env_var(char *name, env_list *head) {
 
     current = head;
     while (current) {
-        if (strcmp(current->name, name) == 0) {
+        if (ft_strcmp(current->name, name) == 1) {
             return current;
         }
         current = current->next;
@@ -262,17 +262,16 @@ void add_env_var(char *data, env_list *head)
 {
     env_list *current;
     env_list *new;
-	char *temp;
+	char **temp;
 
     current = head;
     new = (env_list *)malloc(sizeof(env_list));
-	temp = strdup(data);
-    data = ft_split_once(data, '=');
-	if(find_env_var(data[0], head) == NULL)
+    temp = ft_split_once(data, '=');
+	if(find_env_var(temp[0], head) == NULL)
 	{
-		new->name = ft_strdup(data[0]);
-		new->value = ft_strdup(data[1]);
-		new->data = ft_strdup(temp);
+		new->name = ft_strdup(temp[0]);
+		new->value = ft_strdup(temp[1]);
+		new->data = ft_strdup(data);
 		new->next = NULL;
 		while (current->next) {
 			current = current->next;
@@ -281,10 +280,19 @@ void add_env_var(char *data, env_list *head)
 	}
 }
 
+char *ft_expand(char *name, env_list *head)
+{
+	env_list *current;
+
+	current = find_env_var(name, head);
+	if(current != NULL)
+		return current->value;
+	return NULL;
+}
+
 int main(int argc, char **argv, char **envp){
     env_list *head = make_linked_list(envp);
-    add_env_var("CARL=MyNameIsCarl", head);
-    printf("env var: %s\n", find_env_var("carllllslsl", head));
+	add_env_var("TEST=123", head);
 	print_env(head);
     return(0);
 }
