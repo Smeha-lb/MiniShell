@@ -183,6 +183,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (str);
 }
 
+env_list *sort_by_alpha(env_list *head)
+{
+
+}
+
 //! TO_REVIEW		All functions below do not check for input validity
 
 int	env_var_count(char **env)
@@ -219,7 +224,7 @@ env_list *make_linked_list(char **env) {
 void print_env(env_list *head)
 {
 	env_list *current;
-	
+
 	current = head;
 	while (current->next) {
 		printf("%s=", current->name);
@@ -233,7 +238,7 @@ void print_env(env_list *head)
 void print_env_export(env_list *head)
 {
 	env_list *current;
-	
+
 	current = head;
 	while (current->next) {
 		printf("declare -x %s=", current->name);
@@ -302,76 +307,6 @@ char *expand(char *name, env_list *head)
 		return current->value;
 	return NULL;
 	//! check if the expanded string is a file/command/dir
-<<<<<<< HEAD:src/env_utils.c
-=======
-}
-
-int is_less_than(char *s1 , char *s2)
-{
-	int i;
-
-	i=0;
-	while(s1[i] && s2[i])
-	{
-		if(s1[i] < s2[i])
-			return 1;
-		else if(s1[i] > s2[i])
-			return 0;
-		i++;
-	}
-	return(1);
-}
-
-//! OPTI_ANGLE : Needs to get slightly quicker with the checking of if the list is sorted or not and maybe only calling it once every few iterations
-int check_if_sorted(env_list *head)
-{
-	env_list *current;
-
-	current = head;
-	while (current->next)
-	{
-		if (!is_less_than(current->name, current->next->name))
-			return (0);
-		current = current->next;
-	}
-	return (1);
-}
-
-env_list *sort_env_list(env_list *head)
-{
-	env_list *current;
-	char *temp_name;
-	char *temp_value;
-	char *temp_data;
-
-	current = head;
-	while (!check_if_sorted(head))
-	{
-		if(!current->next)
-			current = head;
-		if (!is_less_than(current->name, current->next->name))
-		{
-			temp_name = current->next->name;
-			temp_value = current->next->value;
-			temp_data = current->next->data;
-			current->next->name = current->name;
-			current->next->value = current->value;
-			current->next->data = current->data;
-			current->name = temp_name;
-			current->value = temp_value;
-			current->data = temp_data;
-			current = head;
-		}
-		current = current->next;
-	}
-	return (head);
-}
-
-void export(env_list *head)
-{
-	sort_env_list(head);
-	print_env_export(head);
->>>>>>> 40893fbd894187c9bc8b97e773e97fd7d53b9158:env_utils.c
 }
 
 int is_less_than(char *s1 , char *s2)
@@ -441,20 +376,10 @@ void export(env_list *head)
 	print_env_export(head);
 }
 
-<<<<<<< HEAD:src/env_utils.c
 // int main(int argc, char **argv, char **envp){
 //     env_list *head = make_linked_list(envp);
 // 	add_env_var("TEST=123", head);
 // 	print_env(head);
 //     return(0);
 // }
-=======
-int main(int argc, char **argv, char **envp){
-    (void) argv;
-    (void) argc;
-	env_list *head = make_linked_list(envp);
-	env_list *head2 = make_linked_list(envp);
-	export(head2);
-    return(0);
-}
->>>>>>> 0f15d9e (Added export function):env_utils.c
+

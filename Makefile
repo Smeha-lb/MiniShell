@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
@@ -8,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/03/19 15:16:11 by moabdels         ###   ########.fr        #
+#    Updated: 2025/03/24 16:06:08 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -77,52 +75,3 @@ norm:
 		@norminette $(SRC) $(INCLUDE) | grep -v Norme -B1 || true
 
 .PHONY: all test bonus lib_clean clean fclean re norm
-=======
-=======
->>>>>>> 40893fbd894187c9bc8b97e773e97fd7d53b9158
-# Compiler
-CC = gcc
-
-# Compiler flags
-CFLAGS = -Wall -Wextra -Werror
-
-# Target executable
-TARGET = MiniShell
-
-# Source files
-SRCS = main.c env_utils.c
-
-INCLUDES = mini_shell.h
-
-# Object files
-OBJS = $(SRCS:.c=.o)
-
-# Default target
-all: $(TARGET)
-
-# Link object files to create the executable
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
-
-# Compile source files to object files
-%.o: %.c
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
-# Clean up build files
-clean:
-	rm -f $(OBJS)
-
-# Clean up build files and executable
-fclean: clean
-	rm -f $(TARGET)
-
-# Rebuild the project
-re: fclean all
-
-# Phony targets
-<<<<<<< HEAD
-.PHONY: all clean fclean re
->>>>>>> 0f15d9e (Added export function)
-=======
-.PHONY: all clean fclean re
->>>>>>> 40893fbd894187c9bc8b97e773e97fd7d53b9158
