@@ -8,7 +8,7 @@ typedef struct env_list{
 }env_list;
 
 
-env_list *create_env_list(char **env);
+env_list *make_linked_list(char **env);
 
 
 int check_list_dup(char *data, env_list *head);
