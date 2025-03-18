@@ -6,11 +6,11 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/18 13:02:05 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/18 13:34:45 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libs/libft/libft.h"
+#include "lib/libft/libft.h"
 
 typedef struct env_list{
     char *name;
