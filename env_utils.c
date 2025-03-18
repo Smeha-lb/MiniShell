@@ -1,4 +1,4 @@
-#include "mini_shell.h"
+#include "minishell.h"
 #include <stdio.h>
 
 size_t	ft_strlen(const char *s)
