@@ -1,4 +1,4 @@
-#include "inc/minishell.h"
+#include "../inc/minishell.h"
 #include <stdio.h>
 
 size_t	ft_strlen(const char *s)
@@ -256,6 +256,7 @@ int check_list_dup(char *data, env_list *head)
 			return (1);
 		current = current->next;
 	}
+	return (0);
 }
 
 void add_env_var(char *data, env_list *head)
@@ -290,9 +291,9 @@ char *ft_expand(char *name, env_list *head)
 	return NULL;
 }
 
-int main(int argc, char **argv, char **envp){
-    env_list *head = make_linked_list(envp);
-	add_env_var("TEST=123", head);
-	print_env(head);
-    return(0);
-}
+// int main(int argc, char **argv, char **envp){
+//     env_list *head = make_linked_list(envp);
+// 	add_env_var("TEST=123", head);
+// 	print_env(head);
+//     return(0);
+// }

@@ -6,14 +6,15 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/03/18 13:47:25 by moabdels         ###   ########.fr        #
+#    Updated: 2025/03/19 15:16:11 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:= minishell
 
 CC				:= cc
-SRC				:= src/
+SRC_DIR			:= src/
+OBJ_DIR			:= obj/
 CFLAGS			:= -g -O3 -Wall -Werror -Wextra
 FSANITIZE		:= -fsanitize=address -fsanitize=leak -fsanitize=undefined
 RM				:= rm -f
@@ -38,6 +39,8 @@ all:	makelibs
 
 makelibs:
 	@$(MAKE) -C $(PRINTF_DIR)
+
+# if you want to test for leaks make sure to uncomment the value of FSANITIZE
 
 -include	${DEPS}
 $(NAME):	$(OBJ)
