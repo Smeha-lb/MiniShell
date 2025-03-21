@@ -183,11 +183,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (str);
 }
 
-env_list *sort_by_alpha(env_list *head)
-{
-
-}
-
 //! TO_REVIEW		All functions below do not check for input validity
 
 int	env_var_count(char **env)
