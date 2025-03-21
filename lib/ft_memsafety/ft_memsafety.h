@@ -1,17 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   memsfty.h                                          :+:      :+:    :+:   */
+/*   ft_memsafety.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 15:24:35 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/19 15:50:38 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/21 17:41:32 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MEMSFTY_H
-# define MEMSFTY_H
+#ifndef FT_MEMSAFETY_H
+# define FT_MEMSAFETY_H
+
+# include <stdarg.h>
+# include <stdint.h>
+# include <sys/types.h>
+# include <stdlib.h>
 
 // ! How to Define Arrays
 // typedef struct {
