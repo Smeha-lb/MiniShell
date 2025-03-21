@@ -60,8 +60,7 @@ void	*ft_free_all_split_alloc(char **split, size_t elts)
 	return (NULL);
 }
 
-static void *ft_split_range(char **split, char const *s,
-		t_split_next *st, t_split_next *lt)
+static void *ft_split_range(char **split, char const *s, t_split_next *st, t_split_next *lt)
 {
 	split[lt->length] = ft_substr(s, st->start, st->length);
 	if (!split[lt->length])
@@ -102,8 +101,7 @@ static void *ft_split_by_char(char **split, char const *s, char c)
 	return (split);
 }
 
-char
-	**ft_split_once(char const *s, char c)
+char	**ft_split_once(char const *s, char c)
 {
 	char	**split;
 
@@ -183,11 +181,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	}
 	str[j] = 0;
 	return (str);
-}
-
-env_list *sort_by_alpha(env_list *head)
-{
-
 }
 
 //! TO_REVIEW		All functions below do not check for input validity
