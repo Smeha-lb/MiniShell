@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
@@ -77,6 +78,8 @@ norm:
 
 .PHONY: all test bonus lib_clean clean fclean re norm
 =======
+=======
+>>>>>>> 40893fbd894187c9bc8b97e773e97fd7d53b9158
 # Compiler
 CC = gcc
 
@@ -117,5 +120,9 @@ fclean: clean
 re: fclean all
 
 # Phony targets
+<<<<<<< HEAD
 .PHONY: all clean fclean re
 >>>>>>> 0f15d9e (Added export function)
+=======
+.PHONY: all clean fclean re
+>>>>>>> 40893fbd894187c9bc8b97e773e97fd7d53b9158
