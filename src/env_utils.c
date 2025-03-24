@@ -372,9 +372,10 @@ void export(env_list *head)
 }
 
 // int main(int argc, char **argv, char **envp){
-//     env_list *head = make_linked_list(envp);
-// 	add_env_var("TEST=123", head);
-// 	print_env(head);
+//     (void) argv;
+//     (void) argc;
+// 	// env_list *head = make_linked_list(envp);
+// 	env_list *head2 = make_linked_list(envp);
+// 	export(head2);
 //     return(0);
 // }
-

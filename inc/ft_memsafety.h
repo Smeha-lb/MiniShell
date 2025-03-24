@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/19 15:24:35 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/21 17:41:32 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:08:14 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdint.h>
 # include <sys/types.h>
 # include <stdlib.h>
+# include <stdbool.h>
 
 // ! How to Define Arrays
 // typedef struct {
@@ -47,10 +48,12 @@
 //	int friendIndex; // the index of User in the friends array of other user
 //}
 
-typedef struct
+typedef struct String
 {
 	char*	chars;
 	int		length;
 }	String;
+
+bool	is_power_of_two(uintptr_t ptr);
 
 #endif

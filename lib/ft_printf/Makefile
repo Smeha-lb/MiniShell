@@ -6,12 +6,12 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/11 10:16:16 by moabdels          #+#    #+#              #
-#    Updated: 2024/12/19 16:28:38 by moabdels         ###   ########.fr        #
+#    Updated: 2025/03/24 15:26:25 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -g -O3 -Wall -Wextra -Werror
 AR = ar
 ARFLAGS = rcs
 RM = rm -rf

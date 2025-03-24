@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/19 15:45:41 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:00:30 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MINISHELL_H
 
 #include "../lib/libft/libft.h"
+#include "../lib/ft_printf/ft_printf.h"
 
 typedef struct env_list{
     char *name;

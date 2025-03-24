@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/03/24 16:06:08 by moabdels         ###   ########.fr        #
+#    Updated: 2025/03/24 16:10:47 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ PRINTF_DIR		:= $(LIB)ft_printf/
 PRINTF			:= $(PRINTF_DIR)libftprintf.a
 HEADER			:= -I$(INC) -I$(LIBFT_DIR)
 
-SRC_FILES		= main env_utils
+SRC_FILES		= main env_utils ft_memsafety
 
 SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
