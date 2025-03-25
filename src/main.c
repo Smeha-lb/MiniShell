@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/24 15:03:16 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/25 16:17:53 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,6 @@ int main(int argc, char **argv, char **envp) {
     (void)argv;
     (void)envp;
     ft_printf("is 16 a power of 2: %d", is_power_of_two(16));
+    ft_printf("size of void? %d", sizeof(void *));
     return 0;
 }
