@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/27 14:52:11 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/03/27 16:00:51 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int main(int argc, char **argv, char **envp) {
 	shell_init(envp, &fd_in, &fd_out); // <- handles env variables
 	while (true)
 	{
-		// TODO: Handle Interrupts: Ctrl+D etc
+		// TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
 		// TODO: Capture heredoc if it exists
 		// ? 1) get line
 		input = readline("minishell$>");
