@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/03/25 17:36:43 by moabdels         ###   ########.fr        #
+#    Updated: 2025/03/27 15:52:31 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,11 @@ PRINTF_DIR		:= $(LIB)ft_printf/
 PRINTF			:= $(PRINTF_DIR)libftprintf.a
 HEADER			:= -I$(INC) -I$(LIBFT_DIR)
 
-SRC_FILES		= main env_utils ft_memsafety_one ft_memsafety_two
+# ? replace this with any required libraries present in path
+
+LIBS			:= -lreadline -lhistory
+
+SRC_FILES		= main env_utils init ft_memsafety_one ft_memsafety_two
 
 SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
