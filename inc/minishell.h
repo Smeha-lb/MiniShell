@@ -64,6 +64,19 @@ typedef struct	s_redir_node
 	struct s_redir_node	right;
 }	t_redir_node;
 
+typedef struct s_data
+{
+	bool		interactive;
+	t_token		*token;
+	char		*user_input;
+	char		**env;
+	char		*working_dir;
+	char		*old_working_dir;
+//	t_command	*cmd;
+	pid_t		pid;
+}	t_data;
+
+
 env_list	*create_env_list(char **env);
 
 int	check_list_dup(char *data, env_list *head);
