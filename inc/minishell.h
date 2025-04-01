@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/27 17:17:37 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/02 13:53:50 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ typedef struct	s_redir_node
 	int					fd[2];
 	t_token				token;
 	t_redirection		*redirections;
-	struct s_redir_node	left;
-	struct s_redir_node	right;
+	struct s_redir_node	*left;
+	struct s_redir_node	*right;
 }	t_redir_node;
 
 typedef struct s_data
