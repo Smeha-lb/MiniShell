@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/03/27 15:52:31 by moabdels         ###   ########.fr        #
+#    Updated: 2025/04/02 18:10:21 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,6 +64,7 @@ $(OBJF):
 $(PRINTF):
 	@make -C $(PRINTF_DIR)
 	@echo "🟢 ft_printf compiled!"
+
 
 clean:
 		@make clean -s -C $(PRINTF_DIR)

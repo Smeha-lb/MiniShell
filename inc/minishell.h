@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/02 13:53:50 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/07 12:18:53 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,6 @@
 # include <stdio.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-
-typedef struct env_list{
-	char *name;
-	char *value;
-	char *data;
-	struct env_list *next;
-}	env_list;
 
 typedef enum e_token
 {
@@ -42,40 +35,12 @@ typedef enum e_token
 	END
 }	t_token;
 
-typedef struct s_redirection
+typedef struct s_minishell
 {
-	t_token					token;
-	char					*file;
-	bool					flg;
-	int						fd;
-	struct s_redirection	*left;
-	struct s_redirection	*right;
-}	t_redirection;
-
-typedef struct	s_redir_node
-{
-	char				*prev_cmd;
-	char				**cmd;
-	int					precedence;
-	int					fd[2];
-	t_token				token;
-	t_redirection		*redirections;
-	struct s_redir_node	*left;
-	struct s_redir_node	*right;
-}	t_redir_node;
-
-typedef struct s_data
-{
-	bool		interactive;
-	t_token		*token;
-	char		*user_input;
-	char		**env;
-	char		*working_dir;
-	char		*old_working_dir;
-//	t_command	*cmd;
-	pid_t		pid;
-}	t_data;
-
+	bool	is_executing;
+	int		exit_status;
+	t_env_list	*env;
+}	t_minishell;
 
 env_list	*create_env_list(char **env);
 

@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/03/27 16:17:04 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/02 18:12:22 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int main(int argc, char **argv, char **envp) {
 			break ;
 		// TODO: Add history - see {using|add|free}_history
 		// ? 2> get tokens
+		parse_input(input)
 		// TODO: Create syntax tree
 		// ? 3) lexing
 		// ? 4) parsing
