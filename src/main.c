@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/24 15:06:10 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:32:40 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static pid_t	get_pid(void)
 		file = readdir(dir);
 	}
 	closedir(dir);
-	return (pid);	
+	return (pid);
 }
 
 static void	shell_init(t_minishell *minishell)
@@ -70,7 +70,7 @@ static bool	get_input(char **line, bool update_hist, bool is_tty)
 		{
 			*line = ft_strtrim(temp, "\n");
 			free(temp);
-		}		
+		}
 	}
 	if (errno == EINTR)
 		errno = OK;
@@ -87,7 +87,7 @@ int	main(void)
 {
 	bool		valid_input;
 	t_minishell	minishell;
-	
+
 	shell_init(&minishell);
 	while (true)
 	{
