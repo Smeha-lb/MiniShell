@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:19:44 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:24:33 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,26 +87,15 @@ typedef struct s_minishell
 	t_env_list	*env;
 }	t_minishell;
 
-typedef struct s_signal_handler
-{
-	int			exit_code;
-	int			executing;
-	t_env_list	*env;
-}	t_signal_handler;
-
-extern	t_signal_handler	signal_handler;
-
 t_env_list	*create_env_list(char **env);
 
-bool	token_is_redir(t_token token);
-
-int		check_list_dup(char *data, t_env_list *head);
+int	check_list_dup(char *data, t_env_list *head);
 
 void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
 
-char	*ft_expand(char *name, t_env_list *head);
+bool	token_is_redir(t_token token);
 
-void	print_error(char *str);
+char	*ft_expand(char *name, t_env_list *head);
 
 #endif
