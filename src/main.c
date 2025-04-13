@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:26:11 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:27:00 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ int	main(void)
 	bool		valid_input;
 	t_minishell	minishell;
 	
+	minishell = NULL;
 	shell_init(&minishell);
 	while (true)
 	{
