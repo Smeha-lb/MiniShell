@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:49:27 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:49:52 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ int	main(void)
 		// TODO: Handle input line not read by exiting with proper err code
 		// TODO: Add history - see {using|add|free}_history
 		// ? 2> get tokens
-		parse_input(input);
+		// parse_input(input);
 		// TODO: Create syntax tree
 		// ? 3) lexing
 		// ? 4) parsing
