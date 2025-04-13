@@ -6,9 +6,10 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/04/16 17:20:29 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/16 17:22:32 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 
 #ifndef LIBFT_H
@@ -18,6 +19,7 @@
 # include <unistd.h>
 # include "get_next_line_bonus.h"
 # include <stdbool.h>
+# include "get_next_line_bonus.h"
 
 typedef	struct	s_list
 {
