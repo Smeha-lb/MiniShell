@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:24:09 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:25:00 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@ t_signal_handler	signal_handler;
 
 // ? we're saying here that we don't care about interrupts,
 // ?  but we do care about other errors.
-bool	get_input(char **line, char *input, bool update_hist, bool is_tty)
+static bool	get_input(char **line, bool update_hist, bool is_tty)
 {
 	char	*temp;
 
 	errno = OK;
 	if (is_tty)
-		*line = readline(input);
+		*line = readline("minishell%%> ");
 	else
 	{
 		temp = get_next_line(STDIN_FILENO);
@@ -46,7 +46,8 @@ bool	get_input(char **line, char *input, bool update_hist, bool is_tty)
 }
 
 // TODO: create a function to turn env to a linked list
-int	main(int argc, char **argv, char **envp)
+// ! should main take envp?
+int	main(void)
 {
 	char	*input;
 	int		fd_in;
@@ -127,6 +128,10 @@ int	main(void)
 	t_minishell	minishell;
 	
 	shell_init(&minishell);
+	bool		valid_input;
+	t_minishell	*minishell;
+	
+	shell_init(minishell);
 	while (true)
 	{
 		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
@@ -140,7 +145,7 @@ int	main(void)
 		// TODO: Handle input line not read by exiting with proper err code
 		// TODO: Add history - see {using|add|free}_history
 		// ? 2> get tokens
-		parse_input(input);
+		// parse_input(input);
 		// TODO: Create syntax tree
 		// ? 3) lexing
 		// ? 4) parsing
