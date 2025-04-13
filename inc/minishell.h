@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:33:08 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:33:51 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,10 @@ typedef enum e_token
 
 typedef struct s_minishell
 {
-	bool	is_executing;
+	bool	is_tty;
+	pid_t	shell_pid;
+	pid_t	subshell_pid;
+	char	*user_input;
 	int		exit_status;
 	t_env_list	*env;
 }	t_minishell;
