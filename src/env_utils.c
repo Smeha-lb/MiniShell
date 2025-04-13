@@ -195,9 +195,9 @@ int	env_var_count(char **env)
 	return (i);
 }
 
-env_list *make_linked_list(char **env) {
-    env_list *head;
-    env_list *current;
+t_env_list *make_linked_list(char **env) {
+    t_env_list *head;
+    t_env_list *current;
     int i;
     char **data;
 
@@ -205,7 +205,7 @@ env_list *make_linked_list(char **env) {
     head = NULL;
     while (env[i]) {
         data = ft_split_once(env[i], '=');
-        current = (env_list *)malloc(sizeof(env_list));
+        current = (t_env_list *)malloc(sizeof(t_env_list));
         current->name = ft_strdup(data[0]);
         current->value = ft_strdup(data[1]);
         current->data = ft_strdup(env[i]);
@@ -216,9 +216,9 @@ env_list *make_linked_list(char **env) {
     return head;
 }
 
-void print_env(env_list *head)
+void print_env(t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 
 	current = head;
 	while (current->next) {
@@ -230,9 +230,9 @@ void print_env(env_list *head)
 	printf("%s\n", current->value);
 }
 
-void print_env_export(env_list *head)
+void print_env_export(t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 
 	current = head;
 	while (current->next) {
@@ -244,8 +244,8 @@ void print_env_export(env_list *head)
 	printf("\"%s\"\n", current->value);
 }
 
-env_list *find_env_var(char *name, env_list *head) {
-    env_list *current;
+t_env_list *find_env_var(char *name, t_env_list *head) {
+    t_env_list *current;
 
     current = head;
     while (current) {
@@ -257,9 +257,9 @@ env_list *find_env_var(char *name, env_list *head) {
     return NULL;
 }
 
-int check_list_dup(char *data, env_list *head)
+int check_list_dup(char *data, t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 
 	current = head;
 	while (current)
@@ -271,14 +271,14 @@ int check_list_dup(char *data, env_list *head)
 	return (0);
 }
 
-void add_env_var(char *data, env_list *head)
+void add_env_var(char *data, t_env_list *head)
 {
-    env_list *current;
-    env_list *new;
+    t_env_list *current;
+    t_env_list *new;
 	char **temp;
 
     current = head;
-    new = (env_list *)malloc(sizeof(env_list));
+    new = (t_env_list *)malloc(sizeof(t_env_list));
     temp = ft_split_once(data, '=');
 	if(find_env_var(temp[0], head) == NULL)
 	{
@@ -293,9 +293,9 @@ void add_env_var(char *data, env_list *head)
 	}
 }
 
-char *expand(char *name, env_list *head)
+char *expand(char *name, t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 
 	current = find_env_var(name, head);
 	if(current != NULL)
@@ -321,9 +321,9 @@ int is_less_than(char *s1 , char *s2)
 }
 
 //! OPTI_ANGLE : Needs to get slightly quicker with the checking of if the list is sorted or not and maybe only calling it once every few iterations
-int check_if_sorted(env_list *head)
+int check_if_sorted(t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 
 	current = head;
 	while (current->next)
@@ -335,9 +335,9 @@ int check_if_sorted(env_list *head)
 	return (1);
 }
 
-env_list *sort_env_list(env_list *head)
+t_env_list *sort_env_list(t_env_list *head)
 {
-	env_list *current;
+	t_env_list *current;
 	char *temp_name;
 	char *temp_value;
 	char *temp_data;
@@ -365,7 +365,7 @@ env_list *sort_env_list(env_list *head)
 	return (head);
 }
 
-void export(env_list *head)
+void export(t_env_list *head)
 {
 	sort_env_list(head);
 	print_env_export(head);
@@ -374,8 +374,8 @@ void export(env_list *head)
 // int main(int argc, char **argv, char **envp){
 //     (void) argv;
 //     (void) argc;
-// 	// env_list *head = make_linked_list(envp);
-// 	env_list *head2 = make_linked_list(envp);
+// 	// t_env_list *head = make_linked_list(envp);
+// 	t_env_list *head2 = make_linked_list(envp);
 // 	export(head2);
 //     return(0);
 // }

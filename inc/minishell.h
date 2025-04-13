@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/11 13:59:24 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/13 15:30:59 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef struct s_env_list{
 	char *name;
 	char *value;
 	char *data;
-	struct env_list *next;
+	struct s_env_list *next;
 }	t_env_list;
 
 typedef enum e_token
@@ -62,8 +62,6 @@ int	check_list_dup(char *data, t_env_list *head);
 
 void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
-
-void	shell_init(char **envp, int *fd_in, int *fd_out);
 
 char	*ft_expand(char *name, t_env_list *head);
 

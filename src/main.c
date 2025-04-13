@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/13 14:12:58 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/13 15:13:59 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ int	main(void)
 	bool		valid_input;
 	t_minishell	*minishell;
 	
+	minishell = NULL;
 	shell_init(minishell);
 	while (true)
 	{
@@ -90,7 +91,7 @@ int	main(void)
 		valid_input = get_input(&minishell->user_input, true, minishell->is_tty);
 		if (!valid_input)
 			continue;
-		printf("User Input Was %s", &minishell->user_input);
+		printf("User Input Was %s", minishell->user_input);
 		// TODO: Handle input line not read by exiting with proper err code
 		// TODO: Add history - see {using|add|free}_history
 		// ? 2> get tokens
