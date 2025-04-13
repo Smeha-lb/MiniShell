@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:33:51 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:34:48 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ int	check_list_dup(char *data, t_env_list *head);
 
 void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
-
-void	shell_init(char **envp, int *fd_in, int *fd_out);
 
 char	*ft_expand(char *name, t_env_list *head);
 
