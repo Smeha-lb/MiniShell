@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:43:21 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:48:41 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ typedef struct s_astree
 	struct	s_astree	*left;
 	struct	s_astree	*right;
 } t_astree;
+
+
 
 
 typedef enum e_token
