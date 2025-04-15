@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/07 12:18:53 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 15:05:36 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,23 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
+
+
 typedef enum e_token
 {
+	WORD = 0,
+	ERR = -1,
+	END = -2,
+	ASSIGN,
 	PIPE,
 	HEREDOC,
-	LPR,
-	RPR,
+	LEFT_PAREN,
+	RIGHT_PAREN,
 	AND,
 	OR,
 	APPEND,
 	OUT,
 	IN,
-	NOT,
-	END
 }	t_token;
 
 typedef struct s_minishell
