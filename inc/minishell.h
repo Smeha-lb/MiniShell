@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:34:48 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:38:03 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,22 @@
 # include <readline/history.h>
 
 
+# include <errno.h>
+# include <dirent.h>
+# include "../lib/ft_printf/ft_printf.h"
+# include "../lib/libft/libft.h"
+# include "../inc/ft_memsafety.h"
+
+# define OK 0
+
+typedef struct s_env_list{
+	char *name;
+	char *value;
+	char *data;
+	struct s_env_list *next;
+}	t_env_list;
+
+
 
 typedef enum e_token
 {
@@ -25,8 +41,14 @@ typedef enum e_token
 	ERR = -1,
 	END = -2,
 	ASSIGN,
+	WORD = 0,
+	ERR = -1,
+	END = -2,
+	ASSIGN,
 	PIPE,
 	HEREDOC,
+	LEFT_PAREN,
+	RIGHT_PAREN,
 	LEFT_PAREN,
 	RIGHT_PAREN,
 	AND,
