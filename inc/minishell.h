@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/13 15:30:59 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/15 18:05:55 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,23 @@ typedef struct s_env_list{
 	struct s_env_list *next;
 }	t_env_list;
 
+
+
 typedef enum e_token
 {
+	WORD = 0,
+	ERR = -1,
+	END = -2,
+	ASSIGN,
 	PIPE,
 	HEREDOC,
-	LPR,
-	RPR,
+	LEFT_PAREN,
+	RIGHT_PAREN,
 	AND,
 	OR,
 	APPEND,
 	OUT,
 	IN,
-	NOT,
-	END
 }	t_token;
 
 typedef struct s_minishell
