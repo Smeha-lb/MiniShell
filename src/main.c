@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:27:00 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:27:30 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ t_signal_handler	signal_handler;
 
 // ? we're saying here that we don't care about interrupts,
 // ?  but we do care about other errors.
-// * `return (free(temp), false)` this works because:
+// * `return (free(temp), false)` -> this works because:
 // * 1 - return takes any expression
 // * 2 - comma is an operator that takes any number of expressions, evaluates
 // * them, then discards everything but the rightmost expression.
