@@ -6,7 +6,11 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 17:31:33 by ncolomer          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2025/04/25 14:25:12 by moabdels         ###   ########.fr       */
+=======
+/*   Updated: 2025/04/25 14:12:08 by moabdels         ###   ########.fr       */
+>>>>>>> a00b3fc (Add ft_iswhitespace is libft)
 /*                                                                            */
 /* ************************************************************************** */
 
