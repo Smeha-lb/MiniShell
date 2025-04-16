@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/16 17:21:53 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/16 17:25:21 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static void	shell_init(t_minishell *minishell)
 
 // ? we're saying here that we don't care about interrupts,
 // ?  but we do care about other errors.
-// * `return (free(temp), false)` this works because:
+// * `return (free(temp), false)` -> this works because:
 // * 1 - return takes any expression
 // * 2 - comma is an operator that takes any number of expressions, evaluates
 // * them, then discards everything but the rightmost expression.
