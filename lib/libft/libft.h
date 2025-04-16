@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncolomer <ncolomer@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 17:31:33 by ncolomer          #+#    #+#             */
-/*   Updated: 2019/10/18 22:53:10 by ncolomer         ###   ########.fr       */
+/*   Updated: 2025/04/16 17:10:31 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdlib.h>
 # include <unistd.h>
+# include <stdbool.h>
 
 typedef	struct	s_list
 {
@@ -43,6 +44,8 @@ int				ft_isascii(int c);
 int				ft_isdigit(int c);
 
 int				ft_isprint(int c);
+
+bool			ft_iswhitespace(int c);
 
 char			*ft_itoa(int n);
 

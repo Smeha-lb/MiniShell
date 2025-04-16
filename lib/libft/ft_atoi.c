@@ -3,14 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncolomer <ncolomer@student.42.fr>          +#+  +:+       +#+        */
+/*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 11:17:02 by ncolomer          #+#    #+#             */
-/*   Updated: 2019/10/10 00:31:59 by ncolomer         ###   ########.fr       */
+/*   Updated: 2025/04/16 17:07:26 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+
+bool	ft_iswhitespace(int c)
+{
+	return ((c > 8 && c < 14) || (c == 32));
+}
 
 int
 	ft_atoi(const char *str)
