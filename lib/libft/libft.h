@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/10/07 17:31:33 by ncolomer          #+#    #+#             */
-/*   Updated: 2025/04/13 15:10:31 by moabdels         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/04/16 17:20:29 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef LIBFT_H
 # define LIBFT_H
@@ -16,6 +17,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include "get_next_line_bonus.h"
+# include <stdbool.h>
 
 typedef	struct	s_list
 {
@@ -44,6 +46,8 @@ int				ft_isascii(int c);
 int				ft_isdigit(int c);
 
 int				ft_isprint(int c);
+
+bool			ft_iswhitespace(int c);
 
 char			*ft_itoa(int n);
 
