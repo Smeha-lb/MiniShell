@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:39:09 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:40:14 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ typedef enum e_token
 	APPEND,
 	OUT,
 	IN,
+	END
 }	t_token;
 
 typedef struct s_minishell
