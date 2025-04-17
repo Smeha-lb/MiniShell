@@ -6,9 +6,34 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 16:22:06 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/17 16:22:27 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/17 16:34:35 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../headers/minishell.h"
+#include "../../inc/minishell.h"
+
+t_token	parse_token(char chr, char next)
+{
+	if (chr == '|' && next == '|')
+		return (OR);
+	if (chr == '&' && next == '&')
+		return (AND);
+	if (chr == '>' && next == '>')
+		return (APPEND);
+	if (chr == '<' && next == '<')
+		return (HEREDOC);
+	if (chr == '>')
+		return (OUT);
+	if (chr == '<')
+		return (IN);
+	if (chr == ')')
+		return (LEFT_PAREN);
+	if (chr == '(')
+		return (RIGHT_PAREN);
+	if (chr == '|')
+		return (PIPE);
+	if (!chr)
+		return (END);
+	return (TOKEN_ERR);
+}
 
