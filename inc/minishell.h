@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/17 16:24:18 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/21 14:27:47 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ typedef struct s_env_list{
 
 typedef enum e_token
 {
-	ERR,
+	TOKEN_ERR,
 	PIPE,
 	HEREDOC,
 	LEFT_PAREN,
@@ -60,11 +60,13 @@ typedef struct s_minishell
 
 t_env_list	*create_env_list(char **env);
 
-int	check_list_dup(char *data, t_env_list *head);
+int		check_list_dup(char *data, t_env_list *head);
 
 void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
 
 char	*ft_expand(char *name, t_env_list *head);
+
+t_token	parse_token(char chr, char next);
 
 #endif
