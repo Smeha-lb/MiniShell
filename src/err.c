@@ -1,16 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexing.c                                           :+:      :+:    :+:   */
+/*   err.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/17 16:18:33 by moabdels         ###   ########.fr       */
+/*   Created: 2025/04/17 15:51:55 by moabdels          #+#    #+#             */
+/*   Updated: 2025/04/17 16:11:42 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lexing.h"
+#include "../inc/minishell.h"
 
+void	print_error(char *str)
+{
+	ft_putstr_fd("🛑 Error: ", STDERR_FILENO);
+	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+}
 
-
+// TODO: Free stuff as needed.
+// ! this might double free user_input?
+void	clean_exit(t_minishell *minishell, int exit_code, char *str)
+{
+	if (str)
+		print_error(str);
+	free(&minishell->user_input);
+	rl_clear_history();
+}
