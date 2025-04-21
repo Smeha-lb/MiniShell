@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:40:27 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:40:48 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,27 @@ typedef struct s_env_list{
 	struct s_env_list *next;
 }	t_env_list;
 
+typedef struct s_redirect
+{
+	t_token	token;
+	char	*file;
+	bool	flag;
+	int		fd;
+	struct	s_redirect	*left;
+	struct	s_redirect	*right;
+}	t_redirect;
+
+typedef struct s_astree
+{
+	t_token		token;
+	t_redirect	*redir_tree;
+	int			fd_in;
+	int			fd_out;
+	char	**cmd;
+	char	*prev_cmd;
+	struct	s_astree	*left;
+	struct	s_astree	*right;
+} t_node;
 
 
 typedef enum e_token
@@ -77,7 +98,5 @@ void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
 
 char	*ft_expand(char *name, t_env_list *head);
-
-t_token	parse_token(char chr, char next);
 
 #endif
