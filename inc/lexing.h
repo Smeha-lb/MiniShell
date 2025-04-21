@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 16:04:00 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/16 16:04:42 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/21 14:30:38 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,7 @@
 # define LEXING_H
 
 # include "../inc/minishell.h"
+
+t_token	parse_token(char chr, char next);
 
 #endif
