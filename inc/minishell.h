@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/22 15:16:50 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/22 16:05:04 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@
 # include "../inc/ft_memsafety.h"
 
 # define OK 0
+# define EX_FATAL_SIGNAL 128
+# define EX_CMD_NOT_FOUND 127
+# define EX_NOT_EXECUTED 126
+# define EX_BAD_USAGE 258
 # define WHITESPACE " \t\n\v\r\f"
 
 typedef struct s_env_list{
@@ -99,5 +103,7 @@ void	add_env_var(char *data, t_env_list *head);
 void	print_env(t_env_list *head);
 
 char	*ft_expand(char *name, t_env_list *head);
+
+void	print_error(char *str);
 
 #endif
