@@ -6,11 +6,17 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 16:22:06 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:28:32 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:30:06 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
+
+bool	token_is_redir(t_token token)
+{
+	return (token == WORD || token == IN || token == OUT || token == APPEND \
+		|| token == HEREDOC);
+}
 
 t_token	parse_token(char chr, char next)
 {
@@ -34,7 +40,7 @@ t_token	parse_token(char chr, char next)
 		return (PIPE);
 	if (!chr)
 		return (END);
-	return (TOKEN_ERR);
+	return (WORD);
 }
 
 bool	token_is_redir(t_token token)
