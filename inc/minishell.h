@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/22 16:05:04 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/22 18:18:03 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ typedef struct s_astree
 
 typedef enum e_token
 {
-	WORD,
+	NOT,
 	PIPE,
 	HEREDOC,
 	LEFT_PAREN,
