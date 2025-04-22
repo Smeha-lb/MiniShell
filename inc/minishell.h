@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:40:48 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:41:03 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include "../inc/ft_memsafety.h"
 
 # define OK 0
+# define WHITESPACE " \t\n\v\r\f"
 
 typedef struct s_env_list{
 	char *name;
@@ -53,7 +54,7 @@ typedef struct s_astree
 	char	*prev_cmd;
 	struct	s_astree	*left;
 	struct	s_astree	*right;
-} t_node;
+} t_astree;
 
 
 typedef enum e_token
@@ -89,6 +90,15 @@ typedef struct s_minishell
 	int		exit_status;
 	t_env_list	*env;
 }	t_minishell;
+
+typedef struct s_signal_handler
+{
+	int			exit_code;
+	int			executing;
+	t_env_list	*env;
+}	t_signal_handler;
+
+extern	t_signal_handler	signal_handler;
 
 t_env_list	*create_env_list(char **env);
 
