@@ -6,11 +6,13 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/16 17:25:21 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/22 14:33:38 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
+
+t_signal_handler	signal_handler;
 
 static pid_t	get_pid(void)
 {
@@ -86,17 +88,17 @@ int	main(void)
 	bool		valid_input;
 	t_minishell	minishell;
 	
-	minishell = NULL;
 	shell_init(&minishell);
 	while (true)
 	{
 		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
 		// TODO: Capture heredoc if it exists
+		// TODO: Cleanup at each stage if errs happen
 		// ? 1) get line
 		valid_input = get_input(&minishell.user_input, true, &minishell.is_tty);
 		if (!valid_input)
 			continue;
-		printf("User Input Was %s", &minishell->user_input);
+		printf("User Input Was %s", &minishell.user_input);
 		// TODO: Handle input line not read by exiting with proper err code
 		// TODO: Add history - see {using|add|free}_history
 		// ? 2> get tokens
