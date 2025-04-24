@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/24 13:01:47 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 16:30:03 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,24 @@ static bool	no_token_syntax_errs(t_token token, char *input, \
 	return (true);
 }
 
+t_astree	*create_tree_node(char *input, t_redirect *redirect, \
+	t_token token, int precedence)
+{
+	t_astree	*node;
+	
+	node = malloc(sizeof(t_astree));
+	// TODO: change below to use ft_dprintf
+	if (!node)
+		return (NULL);
+	node->token = token;
+	node->left = NULL;
+	node->right = NULL;
+	node->prev_cmd = input;
+	node->redir_tree = redirect;
+	node->cmd = NULL;
+	return (node);
+}
+
 static bool	build_tree(t_astree **root, char *input, \
 		ssize_t *i, ssize_t *j_pair)
 {
@@ -112,8 +130,11 @@ static bool	build_tree(t_astree **root, char *input, \
 	{
 		if (!no_token_syntax_errs(token, input, i, j_pair))
 			return (false);
-		
+		// TODO: make it so that we don't call get_precedence here
+		node = create_tree_node(NULL, NULL, get_token_precedence(token));
 	}
+	else
+		node = build_tree_p(input, token, i);
 }
 
 t_astree	*generate_tree(char *input)
