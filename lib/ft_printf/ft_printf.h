@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 16:03:21 by moabdels          #+#    #+#             */
-/*   Updated: 2024/09/10 12:27:46 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 14:18:00 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdarg.h>
 # include "../libft/libft.h"
+# include <readline/readline.h>
 
 # define PRINTF_FLAGS	"+0 -#"
 # define PRINTF_SPECIFIERS	"cspdiuxX%"
@@ -72,6 +73,7 @@ typedef struct s_printf_data
 {
 	const char	*str;
 	va_list		ap;
+	int			fd;
 	int			chars_written;
 	t_format	format;
 }	t_printf_data;
@@ -94,5 +96,6 @@ void	print_str(t_printf_data *data, char *str);
 void	print_int(t_printf_data *data, t_u_int_wrapper int_values);
 
 int		ft_printf(const char *format, ...);
+int		ft_dprintf(int fd, const char *format, ...);
 
 #endif

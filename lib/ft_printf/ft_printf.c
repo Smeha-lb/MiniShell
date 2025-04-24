@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 11:32:08 by moabdels          #+#    #+#             */
-/*   Updated: 2024/07/15 13:59:06 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 14:24:34 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,30 @@ int	ft_printf(const char *format, ...)
 	va_start(data.ap, format);
 	if (init_data(&data, format))
 		return (PRINTF_MALLOC_ERROR);
+	data.fd = STDIN_FILENO;
+	while (*data.str)
+	{
+		if (*data.str == '%' && *(++data.str))
+		{
+			parse_format(&data);
+			render_format(&data);
+		}
+		else
+			write_data(&data, *data.str);
+		data.str++;
+	}
+	va_end(data.ap);
+	return (data.chars_written);
+}
+
+int	ft_dprintf(int fd, const char *format, ...)
+{
+	t_printf_data	data;
+
+	va_start(data.ap, format);
+	if (init_data(&data, format))
+		return (PRINTF_MALLOC_ERROR);
+	data.fd = fd;
 	while (*data.str)
 	{
 		if (*data.str == '%' && *(++data.str))

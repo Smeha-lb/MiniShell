@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 12:22:02 by moabdels          #+#    #+#             */
-/*   Updated: 2024/09/09 12:33:00 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 14:15:10 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,5 +31,5 @@ void	putstr_n(t_printf_data *data, char *str, int precision)
 
 void	write_data(t_printf_data *data, char chr)
 {
-	data->chars_written += write(STDOUT_FILENO, &chr, 1);
+	data->chars_written += write(data->fd, &chr, 1);
 }
