@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 16:43:08 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 16:43:21 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 # define EX_NOT_EXECUTED 126
 # define EX_BAD_USAGE 258
 # define WHITESPACE " \t\n\v\r\f"
+# define UNEX_TOKEN "Syntax Error near unexpected token"
 
 typedef struct s_env_list{
 	char *name;

@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 16:22:06 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/22 15:15:51 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/22 18:18:03 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	token_is_redir(t_token token)
 {
-	return (token == WORD || token == IN || token == OUT || token == APPEND \
+	return (token == NOT || token == IN || token == OUT || token == APPEND \
 		|| token == HEREDOC);
 }
 
@@ -40,6 +40,6 @@ t_token	parse_token(char chr, char next)
 		return (PIPE);
 	if (!chr)
 		return (END);
-	return (WORD);
+	return (NOT);
 }
 
