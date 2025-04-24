@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 16:22:06 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/22 18:18:03 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/24 16:18:29 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,3 +43,13 @@ t_token	parse_token(char chr, char next)
 	return (NOT);
 }
 
+int	get_token_precedence(t_token token)
+{
+	if (token == IN || token == OUT || token == APPEND || token == HEREDOC)
+		return (4);
+	if (token == PIPE)
+		return (3);
+	if (token == OR || token == AND)
+		return (2);
+	return (1);
+}
