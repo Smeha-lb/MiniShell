@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 15:47:16 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 16:30:55 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,45 @@ t_redirect	*create_redir_node(char **str, t_token token)
 	return (node);
 }
 
+ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
+{
+	ssize_t len;
+	ssize_t	keep;
+
+	len = 0;
+	while (input[i] && choose_str(input[i], flag))
+	{
+		if (input[i] == '"' || input[i] == '\'')
+		{
+			keep = check_next_quote(&input[i + 1], input[i]);
+			if (keep == -1)
+				return (-1)
+			len += keep + 1
+		}
+		
+	}
+	
+}
+
+char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
+{
+	ssize_t	len;
+
+	input[*i] = DEL;
+	(*i)++;
+	if (token == HEREDOC || token == APPEND)
+	{
+		s[*i] = DEL;
+		(*i)++;
+	}
+	while (ft_iswhitespace(input[*i]))
+		(*i)++;
+	if (!is_bad_pair(token, &input[*i]))
+		return (NULL);
+	len = get_cmd_len(input, *i, flag);
+	return (get_cmd(input, len, i, flag));
+}
+
 // TODO: this could be less ugly
 t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 {
@@ -152,7 +191,6 @@ t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 	redirect = NULL;
 	while (token_is_redir(token))
 	{
-		if (token != NOT && )
 	}
 	
 }
