@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 17:01:02 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 17:01:43 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include "../inc/ft_memsafety.h"
 
 # define OK 0
+# define DEL 127
 # define EX_FATAL_SIGNAL 128
 # define EX_CMD_NOT_FOUND 127
 # define EX_NOT_EXECUTED 126
