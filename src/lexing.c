@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:31:20 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 15:47:16 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,28 @@ t_astree	*create_tree_node(char *input, t_redirect *redirect, \
 	node->prev_cmd = input;
 	node->redir_tree = redirect;
 	node->cmd = NULL;
+	return (node);
+}
+
+t_redirect	*create_redir_node(char **str, t_token token)
+{
+	t_redirect	*node;
+
+	if (!str)
+		return (NULL);
+	node = malloc(sizeof(t_redirect));
+	if (!node)
+	{
+		exit_on_err(errno, "Malloc Error @ create_redir_node");
+		return (NULL);
+	}
+	node->token = token;
+	node->file = str[0];
+	node->flag = 1;
+	node->left = NULL;
+	node->right = NULL;
+	free(str);
+	str = NULL;
 	return (node);
 }
 
