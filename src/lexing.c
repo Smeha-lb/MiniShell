@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:30:51 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:31:20 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,22 @@ t_astree	*create_tree_node(char *input, t_redirect *redirect, \
 	node->redir_tree = redirect;
 	node->cmd = NULL;
 	return (node);
+}
+
+// TODO: this could be less ugly
+t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
+{
+	ssize_t		temp;
+	t_redirect	*redirect;
+	char		*str;
+
+	temp = *i;
+	redirect = NULL;
+	while (token_is_redir(token))
+	{
+		if (token != NOT && )
+	}
+	
 }
 
 static bool	build_tree(t_astree **root, char *input, \
