@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:30:38 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/25 14:55:55 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,6 @@ bool	token_is_redir(t_token token);
 
 char	*ft_expand(char *name, t_env_list *head);
 
-void	print_error(char *str);
+void	exit_on_err(int exit_code, char *str);
 
 #endif
