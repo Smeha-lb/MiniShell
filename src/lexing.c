@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 16:30:55 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/28 15:35:28 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static bool	no_unexpected_start(char *input)
 {
 	t_token	token;
-	
+
 	token = parse_token(input[0], input[1]);
 	if (token == OR || token == AND || token == PIPE || token == RIGHT_PAREN)
 	{
@@ -53,10 +53,10 @@ static bool	is_bad_pair_p(t_token current, t_token next)
 	if ((current == RIGHT_PAREN) && (next == AND || next == OR || next == PIPE
 		|| next == RIGHT_PAREN || next == END))
 			return (false);
-	if ((current == APPEND || current == HEREDOC 
+	if ((current == APPEND || current == HEREDOC
 		|| current == IN || current == OUT) && (next == NOT))
 			return (false);
-	return (true);	
+	return (true);
 }
 
 bool	is_bad_pair(t_token token, char *input)
@@ -105,7 +105,7 @@ t_astree	*create_tree_node(char *input, t_redirect *redirect, \
 	t_token token, int precedence)
 {
 	t_astree	*node;
-	
+
 	node = malloc(sizeof(t_astree));
 	// TODO: change below to use ft_dprintf
 	if (!node)
@@ -153,12 +153,17 @@ ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
 		{
 			keep = check_next_quote(&input[i + 1], input[i]);
 			if (keep == -1)
-				return (-1)
-			len += keep + 1
+				return (-1);
+			len += keep + 1;
+			i += keep + 1;
 		}
-		
+		len++;
+		i++;
 	}
-	
+	if (!flag)
+		while (ft_iswhitespace(input[i++]))
+			len++;
+	return (true);
 }
 
 char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
@@ -169,7 +174,7 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 	(*i)++;
 	if (token == HEREDOC || token == APPEND)
 	{
-		s[*i] = DEL;
+		input[*i] = DEL;
 		(*i)++;
 	}
 	while (ft_iswhitespace(input[*i]))
@@ -192,7 +197,7 @@ t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 	while (token_is_redir(token))
 	{
 	}
-	
+
 }
 
 static bool	build_tree(t_astree **root, char *input, \
@@ -207,7 +212,7 @@ static bool	build_tree(t_astree **root, char *input, \
 		if (!no_token_syntax_errs(token, input, i, j_pair))
 			return (false);
 		// TODO: make it so that we don't call get_precedence here
-		node = create_tree_node(NULL, NULL, get_token_precedence(token));
+		node = create_tree_node(NULL, NULL, token, get_token_precedence(token));
 	}
 	else
 		node = build_tree_p(input, token, i);
@@ -227,7 +232,7 @@ t_astree	*generate_tree(char *input)
 			return (free_tree(root), free(input), NULL);
 	free(input);
 	input = NULL;
-	return (root);	
+	return (root);
 }
 
 t_astree	*generate_astree(char *user_input)
@@ -243,6 +248,6 @@ t_astree	*generate_astree(char *user_input)
 	root = set_exec_order(&root);
 	while (root->right)
 		root = root->right;
-	root = prune_tree(root);	
+	root = prune_tree(root);
 	return (root);
 }
