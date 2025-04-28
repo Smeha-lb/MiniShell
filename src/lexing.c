@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/28 15:36:46 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/28 15:59:24 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ t_astree	*create_tree_node(char *input, t_redirect *redirect, \
 	node = malloc(sizeof(t_astree));
 	// TODO: change below to use ft_dprintf
 	if (!node)
-		return (NULL);
+		return (exit_on_err(1, strerror(errno)), NULL);
 	node->token = token;
 	node->left = NULL;
 	node->right = NULL;
@@ -154,11 +154,16 @@ ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
 			keep = check_next_quote(&input[i + 1], input[i]);
 			if (keep == -1)
 				return (-1);
-			len += keep + 1
+			len += keep + 1;
+			i += keep + 1;
 		}
-
+		len++;
+		i++;
 	}
-
+	if (!flag)
+		while(ft_iswhitespace(input[i++]))
+			len++;
+	return (len);
 }
 
 //TODO: might be able to refactor this based on
@@ -245,19 +250,35 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 	return (get_cmd(input, len, i, flag));
 }
 
-// TODO: this could be less ugly
+// TODO: HOLY SHIT PLEASE REFACTOR
 t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 {
 	ssize_t		temp;
-	t_redirect	*redirect;
+	t_redirect	*root;
 	char		*str;
+	char		**cmd;
 
 	temp = *i;
-	redirect = NULL;
+	root = NULL;
 	while (token_is_redir(token))
 	{
+		if (token != NOT)
+		{
+			cmd = format_cmd_string(input, &temp, false, token);
+			if (!append_redir_node(&root, create_redir_node(cmd, token)))
+				return (NULL);
+		}
+		else
+			temp++;
+		token = parse_token(input[temp], input[temp + 1]);
 	}
-
+	temp = get_cmd_len(input, *i, true);
+	if (temp < 0)
+		return (NULL);
+	str = ft_substr(input, *i, temp);
+	if (!str)
+		return (NULL);
+	return (incre(input, i), create_tree_node(str, root, NOT, 0));
 }
 
 static bool	build_tree(t_astree **root, char *input, \
