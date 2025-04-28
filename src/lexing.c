@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/28 15:35:59 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/28 15:36:46 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
 		{
 			keep = check_next_quote(&input[i + 1], input[i]);
 			if (keep == -1)
-				return (-1)
+				return (-1);
 			len += keep + 1
 		}
 
@@ -234,7 +234,7 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 	(*i)++;
 	if (token == HEREDOC || token == APPEND)
 	{
-		s[*i] = DEL;
+		input[*i] = DEL;
 		(*i)++;
 	}
 	while (ft_iswhitespace(input[*i]))
