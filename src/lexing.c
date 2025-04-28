@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/28 15:35:28 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/28 15:35:59 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,9 @@ bool	is_bad_pair(t_token token, char *input)
 	if (is_bad_pair_p(token, next))
 		return (true);
 	if (next == END)
-		ft_printf("\e[1;31minishell:\e[0m "UNEX_TOKEN"`newline`\n");
+		ft_printf("\e[1;31mminishell:\e[0m "UNEX_TOKEN"`newline`\n");
 	else
-		ft_printf("\e[1;31minishell:\e[0m "UNEX_TOKEN"`%c`\n", *input);
+		ft_printf("\e[1;31mminishell:\e[0m "UNEX_TOKEN"`%c`\n", *input);
 	signal_handler.exit_code = EX_BAD_USAGE;
 	return (false);
 }
@@ -90,7 +90,7 @@ static bool	no_token_syntax_errs(t_token token, char *input, \
 	}
 	else if (token == RIGHT_PAREN && *i > *j_pair)
 	{
-		ft_printf("minishell: Syntax Error near unexpected token ')'\n");
+		ft_printf(MSH_ERR"Syntax Error near unexpected token ')'\n");
 		signal_handler.exit_code = EX_BAD_USAGE;
 		return (false);
 	}
@@ -153,17 +153,77 @@ ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
 		{
 			keep = check_next_quote(&input[i + 1], input[i]);
 			if (keep == -1)
-				return (-1);
-			len += keep + 1;
-			i += keep + 1;
+				return (-1)
+			len += keep + 1
 		}
-		len++;
-		i++;
+
 	}
-	if (!flag)
-		while (ft_iswhitespace(input[i++]))
-			len++;
-	return (true);
+
+}
+
+//TODO: might be able to refactor this based on
+//TODO: how other functions are calling it
+// ? wtf is going on here
+ssize_t	get_closing_quote(char *input, char chr)
+{
+	int	i;
+
+	i = 0;
+	while (*input)
+	{
+		if (*input == chr)
+			return (i);
+		i++;
+		input++;
+	}
+	exit_on_err(EX_BAD_USAGE, MSH_ERR"Unclosed Quotes");
+	return (-1);
+}
+
+//TODO: refactor this ugliness 🤢
+char	get_cmd_p(char *input, ssize_t len, ssize_t *start, bool flag)
+{
+	ssize_t i;
+	ssize_t j;
+	char	*result;
+
+	i = 0;
+	result = ft_calloc(len + 1, sizeof(char));
+	while (i < len)
+	{
+		if (input[*start] == '"' ||  input[*start] == '\'')
+		{
+			j = get_closing_quote(&input[(*start) + 1], input[*start]) + i + 1;
+			while (i < j)
+			{
+				result[i++] = input[(*start)++];
+				if (!flag)
+					input[(*start) - 1] = DEL;
+			}
+		}
+		if (input[*start] == ' ')
+			input[*start] = DEL;
+		result[i++] = input[(*start)++];
+		if (!flag)
+			input[(*start) - 1] = DEL;
+	}
+	result[i] = 0;
+	return (result);
+}
+
+char	**get_cmd(char *input, ssize_t len, ssize_t *start, bool flag)
+{
+	char	*cmd_str;
+	char	**result;
+
+	if (len < 0)
+		return (NULL);
+
+	cmd_str = get_cmd_p(input, len, start, flag);
+	result = ft_split(cmd_str, DEL);
+	free(cmd_str);
+	cmd_str = NULL;
+	return (result);
 }
 
 char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
@@ -174,7 +234,7 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 	(*i)++;
 	if (token == HEREDOC || token == APPEND)
 	{
-		input[*i] = DEL;
+		s[*i] = DEL;
 		(*i)++;
 	}
 	while (ft_iswhitespace(input[*i]))
