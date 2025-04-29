@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/29 16:02:32 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/29 16:12:00 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,12 +95,12 @@ int	main(void)
 		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
 		// TODO: Capture heredoc if it exists
 		// TODO: Cleanup at each stage if errs happen
-		valid_input = get_input(&minishell.user_input, true, &minishell.is_tty);
+		valid_input = get_input(&minishell.user_input, true, minishell.is_tty);
 		if (!valid_input)
 			continue;
 		signal_handler.is_executing = true;
-		add_history(&minishell.user_input);
-		root = generate_astree(&minishell.user_input);
+		add_history(minishell.user_input);
+		root = generate_astree(minishell.user_input);
 		// ? 5) evaluation
 	}
 

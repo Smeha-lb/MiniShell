@@ -6,11 +6,11 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 16:22:06 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:31:05 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/29 16:31:45 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/minishell.h"
+#include "../inc/minishell.h"
 
 bool	token_is_redir(t_token token)
 {
