@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/25 14:31:03 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/29 16:02:32 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static pid_t	get_pid(void)
 		file = readdir(dir);
 	}
 	closedir(dir);
-	return (pid);	
+	return (pid);
 }
 
 static void	shell_init(t_minishell *minishell)
@@ -70,7 +70,7 @@ static bool	get_input(char **line, bool update_hist, bool is_tty)
 		{
 			*line = ft_strtrim(temp, "\n");
 			free(temp);
-		}		
+		}
 	}
 	if (errno == EINTR)
 		errno = OK;
@@ -87,26 +87,20 @@ int	main(void)
 {
 	bool		valid_input;
 	t_minishell	minishell;
-	
+	t_astree	*root;
+
 	shell_init(&minishell);
 	while (true)
 	{
 		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
 		// TODO: Capture heredoc if it exists
 		// TODO: Cleanup at each stage if errs happen
-		// ? 1) get line
 		valid_input = get_input(&minishell.user_input, true, &minishell.is_tty);
 		if (!valid_input)
 			continue;
-		printf("User Input Was %s", &minishell.user_input);
-		// TODO: Handle input line not read by exiting with proper err code
-		// TODO: Add history - see {using|add|free}_history
-		// ? 2> get tokens
-		// ? 3) lexing
-		// ? 4) parsing
-		// * if lexing or parsing fails, we need to :
-		// * set `subshell_level` to 0
-		// * set `subshell_pid` to -1
+		signal_handler.is_executing = true;
+		add_history(&minishell.user_input);
+		root = generate_astree(&minishell.user_input);
 		// ? 5) evaluation
 	}
 

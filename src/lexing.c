@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/28 15:59:24 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/29 15:51:22 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,6 +250,14 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 	return (get_cmd(input, len, i, flag));
 }
 
+// static void	incre(char *input, ssize_t *i)
+// {
+// 	ssize_t len;
+// 	len = get_cmd_len(input, *i, true);
+// 	while(len--)
+// 		(*i)++;
+// }
+
 // TODO: HOLY SHIT PLEASE REFACTOR
 t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 {
@@ -278,7 +286,28 @@ t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
 	str = ft_substr(input, *i, temp);
 	if (!str)
 		return (NULL);
-	return (incre(input, i), create_tree_node(str, root, NOT, 0));
+	while (temp--)
+		(*i)++;
+	return (create_tree_node(str, root, NOT, 0));
+}
+
+bool	append_astree_node(t_astree **root, t_astree *new)
+{
+	t_astree	*temp;
+
+	if (!root || !new)
+		return (false);
+	if (!*root)
+	{
+		*root = new;
+		return (true);
+	}
+	temp = *root;
+	while (temp->right)
+		temp = temp->right;
+	temp->right = new;
+	new->left = temp;
+	return (true);
 }
 
 static bool	build_tree(t_astree **root, char *input, \
@@ -292,11 +321,43 @@ static bool	build_tree(t_astree **root, char *input, \
 	{
 		if (!no_token_syntax_errs(token, input, i, j_pair))
 			return (false);
-		// TODO: make it so that we don't call get_precedence here
+		// TODO: make it so that we don't call get_precedence here?
 		node = create_tree_node(NULL, NULL, token, get_token_precedence(token));
 	}
 	else
 		node = build_tree_p(input, token, i);
+	if (!node)
+		return (false);
+	if (node->token == LEFT_PAREN && !paren_is_closed(root))
+		return (free(node), false);
+	return (true);
+}
+
+void	free_redir_tree(t_redirect *node)
+{
+	t_redirect *temp;
+	while (node)
+	{
+		free(node->file);
+		temp = node;
+		node = node->right;
+		free(temp);
+	}
+}
+
+void	free_astree(t_astree *root)
+{
+	t_astree *temp;
+	while (root)
+	{
+		if (root->prev_cmd)
+			free(root->prev_cmd);
+		if (root->redir_tree)
+			free_redir_tree(root->redir_tree);
+		temp = root;
+		root = root->right;
+		free(temp);
+	}
 }
 
 t_astree	*generate_tree(char *input)
@@ -316,6 +377,104 @@ t_astree	*generate_tree(char *input)
 	return (root);
 }
 
+// TODO: rename flag to what it actually represents
+static void	shunt_push(t_astree **root_a, t_astree **root_b, bool flag)
+{
+	t_astree	*temp;
+
+	if (!root_a || (*root_a))
+		return ;
+	temp = *root_a;
+	*root_a = (*root_a)->right;
+	temp->right = NULL;
+	if (*root_a)
+		(*root_a)->left = NULL;
+	if (flag = false)
+	{
+		append_astree_node(root_b, temp);
+		return ;
+	}
+	if (!temp)
+		return ;
+	else if (!*root_b)
+		*root_b = temp;
+	else
+	{
+		(*root_b)->left = temp;
+		temp->right = *root_b;
+		*root_b = temp;
+	}
+}
+
+static void	shunt_pop(t_astree **token_stack)
+{
+	if (!(*token_stack)->right)
+	{
+		free(*token_stack);
+		*token_stack = NULL;
+		return ;
+	}
+	*token_stack = (*token_stack)->right;
+	free((*token_stack)->left);
+	(*token_stack)->left = NULL;
+}
+
+// ? this uses the shunting yard algorithm
+t_astree	*set_exec_order(t_astree **root)
+{
+	t_astree	*token_stack;
+	t_astree	*new;
+
+	token_stack = NULL;
+	new = NULL;
+	while (*root)
+	{
+		if ((*root)->token == NOT)
+			shunt_push(root, new, false);
+		else if ((*root)->token != LEFT_PAREN && (*root)->token != RIGHT_PAREN)
+		{
+			while (token_stack && token_stack->precedence >= (*root)->precedence)
+				shunt_push(token_stack, new, false);
+			shunt_push(root, token_stack, true);
+		}
+		else if ((*root)->token == LEFT_PAREN)
+			shunt_push(root, token_stack, true);
+		else if ((*root)->token == RIGHT_PAREN)
+		{
+			shunt_pop(root);
+			while (token_stack->token != LEFT_PAREN)
+				shunt_push(token_stack, new, false);
+			shunt_pop(token_stack);
+		}
+	}
+	while (token_stack)
+		shunt_push(&token_stack, &new, false);
+	return (new);
+}
+
+t_astree	*balance_astree(t_astree *root)
+{
+	if (!root)
+		return (NULL);
+	if (root->token != NOT)
+	{
+		root->right = balance_astree(root->left);
+		root->left = balance_astree(root->left);
+		return (root);
+	}
+	if (root->left && root->right)
+	{
+		root->left->right = root->right;
+		root->right->left = root->left;
+		if (root->right->right)
+			root->left->right = root->right->right;
+	}
+	root->right = NULL;
+	root->left = NULL;
+	return (root);
+}
+
+// TODO: this and all it's subfunctions should be renamed, too unclear?
 t_astree	*generate_astree(char *user_input)
 {
 	char		*str;
@@ -326,9 +485,11 @@ t_astree	*generate_astree(char *user_input)
 	if (!str || !no_unexpected_start(str))
 		return (free(str), NULL);
 	root = generate_tree(str);
+	if (!root)
+		return (NULL);
 	root = set_exec_order(&root);
 	while (root->right)
 		root = root->right;
-	root = prune_tree(root);
+	root = balance_astree(root);
 	return (root);
 }
