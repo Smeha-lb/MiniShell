@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 17:02:34 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 17:03:23 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,21 @@ typedef struct s_env_list{
 	char *data;
 	struct s_env_list *next;
 }	t_env_list;
+
+typedef enum e_token
+{
+	NOT,
+	PIPE,
+	HEREDOC,
+	LEFT_PAREN,
+	RIGHT_PAREN,
+	AND,
+	OR,
+	APPEND,
+	OUT,
+	IN,
+	END
+}	t_token;
 
 typedef struct s_redirect
 {

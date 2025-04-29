@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/04/30 14:45:53 by moabdels         ###   ########.fr        #
+#    Updated: 2025/05/05 17:03:48 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ HEADER			:= -I$(INC) -I$(LIBFT_DIR)
 
 LIBS			:= -lreadline -lhistory
 
-SRC_FILES		= main env_utils init ft_memsafety_one ft_memsafety_two
+SRC_FILES		= main env_utils err init lexing pwd_builtin tokens
 
 SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))

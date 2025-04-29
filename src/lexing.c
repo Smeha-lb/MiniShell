@@ -6,11 +6,11 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/29 15:51:22 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/29 16:35:33 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lexing.h"
+#include "../inc/lexing.h"
 
 static bool	no_unexpected_start(char *input)
 {
@@ -34,9 +34,9 @@ static ssize_t get_right_paren_index(char *input, ssize_t i)
 			return (i);
 		i++;
 		input++;
+
 	}
-	print_error("Syntax Error: Unclosed Parentheses");
-	signal_handler.exit_code = EX_BAD_USAGE;
+	exit_on_err(EX_BAD_USAGE, "Syntax Error - Unclosed Parentheses");
 	return (-1);
 }
 
@@ -115,6 +115,7 @@ t_astree	*create_tree_node(char *input, t_redirect *redirect, \
 	node->right = NULL;
 	node->prev_cmd = input;
 	node->redir_tree = redirect;
+	node->precedence = precedence;
 	node->cmd = NULL;
 	return (node);
 }
@@ -141,29 +142,10 @@ t_redirect	*create_redir_node(char **str, t_token token)
 	return (node);
 }
 
-ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
+bool	choose_str(char c, bool flag)
 {
-	ssize_t len;
-	ssize_t	keep;
-
-	len = 0;
-	while (input[i] && choose_str(input[i], flag))
-	{
-		if (input[i] == '"' || input[i] == '\'')
-		{
-			keep = check_next_quote(&input[i + 1], input[i]);
-			if (keep == -1)
-				return (-1);
-			len += keep + 1;
-			i += keep + 1;
-		}
-		len++;
-		i++;
-	}
-	if (!flag)
-		while(ft_iswhitespace(input[i++]))
-			len++;
-	return (len);
+	return ((flag && parse_token(c, 0)) == NOT)
+		|| (!flag && parse_token(c, 0) == NOT && !ft_iswhitespace(c));
 }
 
 //TODO: might be able to refactor this based on
@@ -185,8 +167,33 @@ ssize_t	get_closing_quote(char *input, char chr)
 	return (-1);
 }
 
+ssize_t	get_cmd_len(char *input, ssize_t i, ssize_t flag)
+{
+	ssize_t len;
+	ssize_t	keep;
+
+	len = 0;
+	while (input[i] && choose_str(input[i], flag))
+	{
+		if (input[i] == '"' || input[i] == '\'')
+		{
+			keep = get_closing_quote(&input[i + 1], input[i]);
+			if (keep == -1)
+				return (-1);
+			len += keep + 1;
+			i += keep + 1;
+		}
+		len++;
+		i++;
+	}
+	if (!flag)
+		while(ft_iswhitespace(input[i++]))
+			len++;
+	return (len);
+}
+
 //TODO: refactor this ugliness 🤢
-char	get_cmd_p(char *input, ssize_t len, ssize_t *start, bool flag)
+char	*get_cmd_p(char *input, ssize_t len, ssize_t *start, bool flag)
 {
 	ssize_t i;
 	ssize_t j;
@@ -257,6 +264,25 @@ char	**format_cmd_string(char *input, ssize_t *i, ssize_t flag, t_token token)
 // 	while(len--)
 // 		(*i)++;
 // }
+
+bool	append_redir_node(t_redirect **root, t_redirect *new)
+{
+	t_redirect	*temp;
+
+	if (!root || !new)
+		return (false);
+	if (!*root)
+	{
+		*root = new;
+		return (true);
+	}
+	temp = *root;
+	while (temp->right)
+		temp = temp->right;
+	temp->right = new;
+	new->left = temp;
+	return (true);
+}
 
 // TODO: HOLY SHIT PLEASE REFACTOR
 t_astree	*build_tree_p(char *input, t_token token, ssize_t *i)
