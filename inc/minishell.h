@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 17:02:10 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 17:02:34 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,12 +54,13 @@ typedef struct s_redirect
 
 typedef struct s_astree
 {
-	t_token		token;
-	t_redirect	*redir_tree;
-	int			fd_in;
-	int			fd_out;
-	char	**cmd;
-	char	*prev_cmd;
+	int					fd_in;
+	int					fd_out;
+	int					precedence;
+	char				**cmd;
+	char				*prev_cmd;
+	t_token				token;
+	t_redirect			*redir_tree;
 	struct	s_astree	*left;
 	struct	s_astree	*right;
 } t_astree;
@@ -104,7 +105,7 @@ typedef struct s_minishell
 typedef struct s_signal_handler
 {
 	int			exit_code;
-	int			executing;
+	bool		is_executing;
 	t_env_list	*env;
 }	t_signal_handler;
 
@@ -112,7 +113,8 @@ extern	t_signal_handler	signal_handler;
 
 t_env_list	*create_env_list(char **env);
 
-bool	token_is_redir(t_token token);
+bool		token_is_redir(t_token token);
+t_astree	*generate_astree(char *user_input);
 
 int		check_list_dup(char *data, t_env_list *head);
 
