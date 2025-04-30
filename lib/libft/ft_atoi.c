@@ -6,11 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/07 11:17:02 by ncolomer          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2025/04/25 14:17:53 by moabdels         ###   ########.fr       */
-=======
-/*   Updated: 2025/04/16 17:18:17 by moabdels         ###   ########.fr       */
->>>>>>> 43415cb (Implement extract_lexemes in lexing.c)
+/*   Updated: 2025/04/30 14:56:59 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
