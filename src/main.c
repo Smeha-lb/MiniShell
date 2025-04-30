@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 17:04:22 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/05 17:04:42 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,6 @@ int	main(void)
 	t_astree	*root;
 
 	shell_init(&minishell);
-=
 	while (true)
 	{
 		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
@@ -104,6 +103,5 @@ int	main(void)
 		root = generate_astree(minishell.user_input);
 		// ? 5) evaluation
 	}
-
 	return (EXIT_SUCCESS);
 }
