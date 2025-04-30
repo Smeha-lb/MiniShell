@@ -6,11 +6,12 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/29 16:35:33 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/30 14:14:48 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/lexing.h"
+#include "../inc/minishell.h"
 
 static bool	no_unexpected_start(char *input)
 {
@@ -74,8 +75,7 @@ bool	is_bad_pair(t_token token, char *input)
 	return (false);
 }
 
-static bool	no_token_syntax_errs(t_token token, char *input, \
-		ssize_t *i, ssize_t *j_pair)
+static bool	no_token_syntax_errs(t_token token, char *input, ssize_t *i, ssize_t *j_pair)
 {
 	(*i)++;
 	if (token == OR || token == AND || token == APPEND)
@@ -336,6 +336,17 @@ bool	append_astree_node(t_astree **root, t_astree *new)
 	return (true);
 }
 
+static bool	paren_is_closed(t_astree **root)
+{
+	if (!root || !*root)
+		return (true);
+	while (*root && (*root)->right)
+		*root = (*root)->right;
+	if ((*root)->token == NOT)
+		return (exit_on_err(EX_BAD_USAGE, MSH_ERR""UNEX_TOKEN"'('\n"), false);
+	return (true);
+}
+
 static bool	build_tree(t_astree **root, char *input, \
 		ssize_t *i, ssize_t *j_pair)
 {
@@ -397,7 +408,7 @@ t_astree	*generate_tree(char *input)
 	root = NULL;
 	while (input[i])
 		if (!build_tree(&root, input, &i, &j_pair))
-			return (free_tree(root), free(input), NULL);
+			return (free_astree(root), free(input), NULL);
 	free(input);
 	input = NULL;
 	return (root);
@@ -415,7 +426,7 @@ static void	shunt_push(t_astree **root_a, t_astree **root_b, bool flag)
 	temp->right = NULL;
 	if (*root_a)
 		(*root_a)->left = NULL;
-	if (flag = false)
+	if (flag == false)
 	{
 		append_astree_node(root_b, temp);
 		return ;
@@ -445,21 +456,16 @@ static void	shunt_pop(t_astree **token_stack)
 	(*token_stack)->left = NULL;
 }
 
-// ? this uses the shunting yard algorithm
-t_astree	*set_exec_order(t_astree **root)
+static void	set_exec_order_p(t_astree **root, t_astree **token_stack, \
+	t_astree **new)
 {
-	t_astree	*token_stack;
-	t_astree	*new;
-
-	token_stack = NULL;
-	new = NULL;
 	while (*root)
 	{
 		if ((*root)->token == NOT)
 			shunt_push(root, new, false);
 		else if ((*root)->token != LEFT_PAREN && (*root)->token != RIGHT_PAREN)
 		{
-			while (token_stack && token_stack->precedence >= (*root)->precedence)
+			while (*token_stack && (*token_stack)->precedence >= (*root)->precedence)
 				shunt_push(token_stack, new, false);
 			shunt_push(root, token_stack, true);
 		}
@@ -468,11 +474,22 @@ t_astree	*set_exec_order(t_astree **root)
 		else if ((*root)->token == RIGHT_PAREN)
 		{
 			shunt_pop(root);
-			while (token_stack->token != LEFT_PAREN)
+			while ((*token_stack)->token != LEFT_PAREN)
 				shunt_push(token_stack, new, false);
 			shunt_pop(token_stack);
 		}
 	}
+}
+
+// ? this uses the shunting yard algorithm
+t_astree	*set_exec_order(t_astree **root)
+{
+	t_astree	*token_stack;
+	t_astree	*new;
+
+	token_stack = NULL;
+	new = NULL;
+	set_exec_order_p(root, &token_stack, &new);
 	while (token_stack)
 		shunt_push(&token_stack, &new, false);
 	return (new);
