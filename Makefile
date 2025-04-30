@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/04/29 16:13:10 by moabdels         ###   ########.fr        #
+#    Updated: 2025/04/30 14:39:23 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,14 +22,17 @@ RM				:= rm -f
 INC				:= inc/
 LIB				:= lib/
 PRINTF_DIR		:= $(LIB)ft_printf/
+LIBFT_DIR		:= $(LIB)libft/
 PRINTF			:= $(PRINTF_DIR)libftprintf.a
+LIBFT			:= $(LIBFT_DIR)libft.a
 HEADER			:= -I$(INC) -I$(LIBFT_DIR)
 
 # ? replace this with any required libraries present in path
 
 LIBS			:= -lreadline -lhistory
 
-SRC_FILES		= main env_utils err init lexing pwd_builtin tokens
+SRC_FILES		= main env_utils err init lexing pwd_builtin tokens \
+					# ft_atoi get_next_line_bonus get_next_line_utils_bonus
 
 SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
@@ -48,7 +51,7 @@ makelibs:
 
 -include	${DEPS}
 $(NAME):	$(OBJ)
-			@$(CC) $(CFLAGS) $(FSANITIZE) $(OBJ) $(PRINTF) $(LIBS) -o $(NAME)
+			@$(CC) $(CFLAGS) $(FSANITIZE) $(OBJ) $(PRINTF) $(LIBFT) $(LIBS) -o $(NAME)
 			@echo "⚙️$(CC) $(CFLAGS) $(FSANITIZE) $(OBJ) $(PRINTF) $(LIBS) -o $(NAME)"
 			@echo "Project Compiled Successfully!📀"
 

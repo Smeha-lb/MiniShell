@@ -6,21 +6,21 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/29 16:10:43 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/30 14:26:17 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include "../lib/ft_printf/ft_printf.h"
+# include "../lib/libft/libft.h"
+# include "../inc/ft_memsafety.h"
 # include <stdio.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <errno.h>
 # include <dirent.h>
-# include "../lib/ft_printf/ft_printf.h"
-# include "../lib/libft/libft.h"
-# include "../inc/ft_memsafety.h"
 
 # define OK 0
 # define DEL 127
@@ -33,7 +33,8 @@
 # define MSH_DEBUG "\e[1;93minfo:\e[0m "
 # define MSH_ERR "\e[1;31mminishell:\e[0m "
 
-typedef struct s_env_list{
+typedef struct s_env_list
+{
 	char *name;
 	char *value;
 	char *data;

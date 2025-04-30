@@ -6,13 +6,15 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 16:04:00 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/29 16:10:11 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/04/30 14:16:26 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LEXING_H
 # define LEXING_H
-# include "../inc/minishell.h"
+
+# include "minishell.h"
+
 
 t_token	parse_token(char chr, char next);
 int 	get_token_precedence(t_token token);
