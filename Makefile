@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/04/02 18:10:21 by moabdels         ###   ########.fr        #
+#    Updated: 2025/04/30 14:45:53 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -71,6 +71,11 @@ clean:
 		@echo "🔵 ft_printf objects and files cleaned!"
 		$(RM) -r $(OBJ_DIR)
 		@echo "🔵 Project Object Files Cleaned!"
+
+fclean: clean
+		@echo "🧹 Cleaning Executables and Libs 🧹"
+		$(RM) $(NAME)
+		$(RM) (LIBFT_DIR)libft.a
 
 re:		fclean makelibs
 		@$(MAKE)
