@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:04 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/05 17:09:22 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/08 13:36:02 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ typedef enum e_token
 	APPEND,
 	OUT,
 	IN,
-	END
+	END,
+	NONE
 }	t_token;
 
 typedef struct s_redirect
