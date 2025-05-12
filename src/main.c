@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 13:02:12 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/12 14:11:44 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:23:27 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,12 @@ static void	print_ast_node(t_astree *node, int depth)
 	print_ast_node(node->right, depth + 1);
 }
 
+void	print_astree_detail(t_astree *root)
+{
+	ft_printf(MSH_DEBUG"AST Structure:\n");
+	print_ast_node(root, 0);
+}
+
 // TODO: create a function to turn env to a linked list
 // ! should main take envp?
 int	main(void)
@@ -144,7 +150,7 @@ int	main(void)
 		{
 			printf("\nAST Structure:\n");
 			printf("------------------------\n");
-			print_ast_node(ast, 0);
+			print_astree_detail(ast);
 			printf("------------------------\n");
 			// TODO: Add proper AST cleanup function
 			// For now, we'll just free the AST structure

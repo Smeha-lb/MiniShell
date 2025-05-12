@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 15:45:56 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/12 17:36:50 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:37:32 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,6 @@ typedef struct s_queue
 	t_list	*front;
 	t_list	*rear;
 } t_queue;
-
-
-// t_list
-// 	*ft_lstnew(void *content)
-// {
-// 	t_list	*elt;
-
-// 	if (!(elt = (t_list*)malloc(sizeof(*elt))))
-// 		return (NULL);
-// 	elt->content = content;
-// 	elt->next = NULL;
-// 	return (elt);
-// }
 
 bool	queue_is_empty(t_queue *q)
 {
@@ -93,15 +80,13 @@ const char *token_to_str(t_token token)
     }
 }
 
-// // ? n is the number of siblings printed so far
-// void	print_node(t_astree *node, int depth, bool nl)
-// {
-// 	if (!node)
-// 		return ;
-// 	printf("%*s", depth * 4, token_to_str(node->token));
-// 	if (nl)
-// 		printf("\n");
-// }
+// ? n is the number of siblings printed so far
+void	print_node(t_astree *node, int depth)
+{
+	if (!node)
+		return ;
+	printf("%*s", depth * 4, token_to_str(node->token));
+}
 
 // void	print_astree_r(t_astree *node, int depth, bool is_right)
 // {
@@ -113,24 +98,24 @@ const char *token_to_str(t_token token)
 // 		print_astree_r(node->left, depth - 1, false);
 // }
 
-// int	get_tree_depth_r(t_astree *node, int depth)
-// {
-// 	if (!node || (!node->left && !node->right))
-// 		return (depth);
-// 	if (!node->left)
-// 		return (fmax(-1, get_tree_depth_r(node->right, depth + 1)));
-// 	if (!node->right)
-// 		return (fmax(get_tree_depth_r(node->left, depth + 1), -1));
-// 	return fmax(get_tree_depth_r(node->left, depth + 1), \
-// 		get_tree_depth_r(node->right, depth + 1));
-// }
+int	get_tree_depth_r(t_astree *node, int depth)
+{
+	if (!node || (!node->left && !node->right))
+		return (depth);
+	if (!node->left)
+		return (fmax(-1, get_tree_depth_r(node->right, depth + 1)));
+	if (!node->right)
+		return (fmax(get_tree_depth_r(node->left, depth + 1), -1));
+	return fmax(get_tree_depth_r(node->left, depth + 1), \
+		get_tree_depth_r(node->right, depth + 1));
+}
 
-// int	get_tree_depth(t_astree *root)
-// {
-// 	if (!root)
-// 		return (-1);
-// 	return (get_tree_depth_r(root, 1));
-// }
+int	get_tree_depth(t_astree *root)
+{
+	if (!root)
+		return (-1);
+	return (get_tree_depth_r(root, 1));
+}
 
 void	print_astree(t_astree *root)
 {

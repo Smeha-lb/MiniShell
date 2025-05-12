@@ -671,82 +671,78 @@ t_astree	*generate_astree(char *user_input)
 	return (root);
 }
 
-static const char	*get_token_name(t_token token)
-{
-	switch (token)
-	{
-		case NOT:
-			return "NOT (command)";
-		case PIPE:
-			return "PIPE (|)";
-		case HEREDOC:
-			return "HEREDOC (<<)";
-		case LEFT_PAREN:
-			return "LEFT_PAREN (()";
-		case RIGHT_PAREN:
-			return "RIGHT_PAREN ())";
-		case AND:
-			return "AND (&&)";
-		case OR:
-			return "OR (||)";
-		case APPEND:
-			return "APPEND (>>)";
-		case OUT:
-			return "OUT (>)";
-		case IN:
-			return "IN (<)";
-		case END:
-			return "END";
-		default:
-			return "UNKNOWN";
-	}
-}
+// static const char	*get_token_name(t_token token)
+// {
+// 	switch (token)
+// 	{
+// 		case NOT:
+// 			return "NOT (command)";
+// 		case PIPE:
+// 			return "PIPE (|)";
+// 		case HEREDOC:
+// 			return "HEREDOC (<<)";
+// 		case LEFT_PAREN:
+// 			return "LEFT_PAREN (()";
+// 		case RIGHT_PAREN:
+// 			return "RIGHT_PAREN ())";
+// 		case AND:
+// 			return "AND (&&)";
+// 		case OR:
+// 			return "OR (||)";
+// 		case APPEND:
+// 			return "APPEND (>>)";
+// 		case OUT:
+// 			return "OUT (>)";
+// 		case IN:
+// 			return "IN (<)";
+// 		case END:
+// 			return "END";
+// 		default:
+// 			return "UNKNOWN";
+// 	}
+// }
 
-static void	print_tree_node(t_astree *node, int depth)
-{
-	if (!node)
-		return;
+// static void	print_tree_node(t_astree *node, int depth)
+// {
+// 	if (!node)
+// 		return;
 
-	// Print indentation
-	for (int i = 0; i < depth; i++)
-		ft_printf("  ");
+// 	// Print indentation
+// 	for (int i = 0; i < depth; i++)
+// 		ft_printf("  ");
 
-	// Print node info
-	ft_printf("Token: %s, Precedence: %d", get_token_name(node->token), node->precedence);
-	if (node->prev_cmd)
-		ft_printf(", Cmd: %s", node->prev_cmd);
-	if (node->redir_tree)
-	{
-		ft_printf("\n");
-		for (int i = 0; i < depth + 1; i++)
-			ft_printf("  ");
-		ft_printf("Redirections:");
-		t_redirect *redir = node->redir_tree;
-		while (redir)
-		{
-			ft_printf("\n");
-			for (int i = 0; i < depth + 2; i++)
-				ft_printf("  ");
-			ft_printf("%s -> %s", get_token_name(redir->token), redir->file);
-			redir = redir->right;
-		}
-	}
+// 	// Print node info
+// 	ft_printf("Token: %s, Precedence: %d", get_token_name(node->token), node->precedence);
+// 	if (node->prev_cmd)
+// 		ft_printf(", Cmd: %s", node->prev_cmd);
+// 	if (node->redir_tree)
+// 	{
+// 		ft_printf("\n");
+// 		for (int i = 0; i < depth + 1; i++)
+// 			ft_printf("  ");
+// 		ft_printf("Redirections:");
+// 		t_redirect *redir = node->redir_tree;
+// 		while (redir)
+// 		{
+// 			ft_printf("\n");
+// 			for (int i = 0; i < depth + 2; i++)
+// 				ft_printf("  ");
+// 			ft_printf("%s -> %s", get_token_name(redir->token), redir->file);
+// 			redir = redir->right;
+// 		}
+// 	}
 
-	// Print children
-	if (node->left)
-	{
-		ft_printf("Left child:\n");
-		print_tree_node(node->left, depth + 1);
-	}
-	if (node->right)
-	{
-		ft_printf("Right child:\n");
-		print_tree_node(node->right, depth + 1);
-	}
-}
+// 	// Print children
+// 	if (node->left)
+// 	{
+// 		ft_printf("Left child:\n");
+// 		print_tree_node(node->left, depth + 1);
+// 	}
+// 	if (node->right)
+// 	{
+// 		ft_printf("Right child:\n");
+// 		print_tree_node(node->right, depth + 1);
+// 	}
+// }
 
-void	print_astree(t_astree *root)
-{
-	ft_printf(MSH_DEBUG"AST Structure:\n");
-	print_tree_node(root, 0);
-}
+
