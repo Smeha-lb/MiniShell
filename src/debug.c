@@ -6,31 +6,92 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 15:45:56 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/01 15:47:39 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:06:35 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 #include <math.h>
 
-// static const char *token_to_str(t_token token)
+typedef struct s_queue
+{
+	t_list	*front;
+	t_list	*rear;
+} t_queue;
+
+
+// t_list
+// 	*ft_lstnew(void *content)
 // {
-//     switch (token)
-//     {
-//         case NOT:          return "NOT";
-//         case PIPE:        return "PIPE";
-//         case HEREDOC:      return "HEREDOC";
-//         case LEFT_PAREN:  return "LEFT_PAREN";
-//         case RIGHT_PAREN:  return "RIGHT_PAREN";
-//         case AND:         return "AND";
-//         case OR:          return "OR";
-//         case APPEND:      return "APPEND";
-//         case OUT:         return "OUT";
-//         case IN:          return "IN";
-//         case END:         return "END";
-//         default:         return "ERR?";
-//     }
+// 	t_list	*elt;
+
+// 	if (!(elt = (t_list*)malloc(sizeof(*elt))))
+// 		return (NULL);
+// 	elt->content = content;
+// 	elt->next = NULL;
+// 	return (elt);
 // }
+
+bool	queue_is_empty(t_queue *q)
+{
+	return (q->front == NULL);
+}
+
+static void	enqueue(t_queue *queue, t_astree *node)
+{
+	t_list	*new;
+
+	new = ft_lstnew(node);
+	if (queue->rear == NULL)
+	{
+		queue->front = new;
+		queue->rear = new;
+		return ;
+	}
+
+	queue->rear->next = new;
+	queue->rear = new;
+}
+
+t_astree	*dequeue(t_queue *queue)
+{
+	t_list		*temp;
+	t_astree	*node;
+
+	if (queue_is_empty(queue))
+		return (printf("Error: Queue Underflow\n"), NULL);
+
+	temp = queue->front;
+	node = temp->content;
+
+	queue->front = queue->front->next;
+
+	if (queue->front == NULL)
+		queue->rear = NULL;
+
+	free(temp);
+	return (node);
+}
+
+const char *token_to_str(t_token token)
+{
+    switch (token)
+    {
+        case NOT:			return "NOT";
+        case PIPE:			return "PIPE";
+        case HEREDOC:		return "HEREDOC";
+        case LEFT_PAREN:	return "LEFT_PAREN";
+        case RIGHT_PAREN:	return "RIGHT_PAREN";
+        case AND:			return "AND";
+        case OR:			return "OR";
+        case APPEND:		return "APPEND";
+        case OUT:			return "OUT";
+        case IN:			return "IN";
+        case END:			return "END";
+		case NONE:			return "∅";
+        default:			return "ERR?";
+    }
+}
 
 // // ? n is the number of siblings printed so far
 // void	print_node(t_astree *node, int depth, bool nl)
@@ -71,16 +132,54 @@
 // 	return (get_tree_depth_r(root, 1));
 // }
 
-// void	print_astree(t_astree *root)
-// {
+void	print_astree(t_astree *root)
+{
+	t_queue 	*queue;
+	t_astree	*node;
+	int			depth;
+	uint8_t		current_depth_nodes;
+	uint8_t		next_depth_nodes;
 
-// 	int	depth;
+	current_depth_nodes = 1;
+	next_depth_nodes = 0;
+	depth = get_tree_depth(root);
 
-// 	if (!root)
-// 		return ;
-// 	depth = get_tree_depth(root);
-// 	print_astree_r(root, depth, true);
-// }
+	if (root == NULL)
+	{
+		printf("Error: Tree Is Empty\n");
+		return ;
+	}
+
+
+	queue = (t_queue*)malloc(sizeof(t_queue));
+	queue->front = queue->rear = NULL;
+	enqueue(queue, root);
+	while (!queue_is_empty(queue))
+	{
+		node = dequeue(queue);
+		print_node(node, depth);
+		if (node->left)
+		{
+			enqueue(queue, node->left);
+			next_depth_nodes++;
+		}
+
+		if (node->right)
+		{
+			enqueue(queue, node->right);
+			next_depth_nodes++;
+		}
+
+		current_depth_nodes--;
+		if (current_depth_nodes == 0)
+		{
+			printf("\n");
+			current_depth_nodes = next_depth_nodes;
+			next_depth_nodes = 0;
+			depth--;
+		}
+	}
+}
 
 // int	main(void)
 // {

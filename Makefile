@@ -6,7 +6,7 @@
 #    By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/18 13:06:22 by moabdels          #+#    #+#              #
-#    Updated: 2025/05/05 17:09:32 by moabdels         ###   ########.fr        #
+#    Updated: 2025/05/08 14:24:04 by moabdels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,8 +31,7 @@ HEADER			:= -I$(INC) -I$(LIBFT_DIR)
 
 LIBS			:= -lreadline -lhistory
 
-SRC_FILES		= main env_utils err init lexing pwd_builtin tokens \
-					# ft_atoi get_next_line_bonus get_next_line_utils_bonus
+SRC_FILES		= main env_utils err init lexing pwd_builtin tokens debug \
 
 SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
