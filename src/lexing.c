@@ -364,7 +364,11 @@ static bool	build_tree(t_astree **root, char *input, \
 		return (false);
 	}
 	token = parse_token(input[*i], input[(*i) + 1]);
+<<<<<<< HEAD
 	ft_printf(MSH_DEBUG"Parsed token: %d at position %zd\n", token, *i);
+=======
+	printf("current token: %s\n", token_to_str(token));
+>>>>>>> e764004 (Add some debugging statements, Add the lst functions to the default make target in libft's Makefile)
 	if (!token_is_redir(token))
 	{
 		ft_printf(MSH_DEBUG"Processing non-redirection token\n");
