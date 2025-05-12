@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 15:45:56 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/12 17:37:32 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:41:07 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,19 @@ typedef struct s_queue
 	t_list	*front;
 	t_list	*rear;
 } t_queue;
+
+
+// t_list
+// 	*ft_lstnew(void *content)
+// {
+// 	t_list	*elt;
+
+// 	if (!(elt = (t_list*)malloc(sizeof(*elt))))
+// 		return (NULL);
+// 	elt->content = content;
+// 	elt->next = NULL;
+// 	return (elt);
+// }
 
 bool	queue_is_empty(t_queue *q)
 {
