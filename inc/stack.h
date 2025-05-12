@@ -1,36 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   stack.c                                            :+:      :+:    :+:   */
+/*   stack.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/01 16:01:20 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/01 16:24:18 by moabdels         ###   ########.fr       */
+/*   Created: 2025/05/01 16:02:30 by moabdels          #+#    #+#             */
+/*   Updated: 2025/05/01 16:15:29 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../lib/libft/libft.h"
-#include "../inc/stack.h"
+#ifndef STACK_H
+#define STACK_H
 
-bool	stack_is_empty(t_stack *stack)
+# include "../lib/libft/libft.h"
+
+typedef struct s_stack
 {
-	return stack->top == NULL;
-}
+	t_list	*top;
+} t_stack;
 
-void	push(t_stack *stack, void *content)
-{
-	t_list	*new;
+bool	stack_is_empty(t_stack *stack);
+void	push(t_stack *stack, void *value);
+void	*pop(t_stack *stack);
 
-	new = malloc(sizeof(t_list*));
-	if (!new)
-		return (NULL);
-	new->content = content;
-	new->next = NULL;
-	if (!stack->top)
-		stack->top = new;
-	else
-		stack->top->next = new;
-}
+void	stack_free(t_stack *stack, void (*del)(void*));
+void	stack_iter(t_list *lst, void (*f)(void*));
+t_stack	*stack_map(t_stack *stack, void *(*f)(void*), void (*del)(void *));
 
-
+#endif
