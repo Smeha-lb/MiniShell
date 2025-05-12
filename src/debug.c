@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 15:45:56 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/12 17:06:35 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:33:48 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,7 @@ void	print_astree(t_astree *root)
 	uint8_t		current_depth_nodes;
 	uint8_t		next_depth_nodes;
 
+	ft_printf("hello\n");
 	current_depth_nodes = 1;
 	next_depth_nodes = 0;
 	depth = get_tree_depth(root);
