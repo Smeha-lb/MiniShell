@@ -139,6 +139,7 @@ int	main(void)
 		}
 		printf("Got input: %s\n", minishell.user_input);  // Debug print
 		ast = generate_astree(minishell.user_input);
+		printf("Got to this line\n");  // Debug print
 		if (ast)
 		{
 			printf("\nAST Structure:\n");

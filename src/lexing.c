@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexing.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/12 17:00:28 by moabdels         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../inc/lexing.h"
 #include "../inc/minishell.h"
 
@@ -368,6 +356,7 @@ static bool	build_tree(t_astree **root, char *input, \
 	t_token		token;
 	t_astree	*node;
 
+	ft_printf(MSH_DEBUG"Building tree at position %zd\n", *i);
 	if (!input || !i || !j_pair)
 	{
 		ft_printf(MSH_ERR"Internal Error: Invalid parameters\n");
@@ -375,9 +364,10 @@ static bool	build_tree(t_astree **root, char *input, \
 		return (false);
 	}
 	token = parse_token(input[*i], input[(*i) + 1]);
-	printf("current token: %s\n", token_to_str(token));
+	ft_printf(MSH_DEBUG"Parsed token: %d at position %zd\n", token, *i);
 	if (!token_is_redir(token))
 	{
+		ft_printf(MSH_DEBUG"Processing non-redirection token\n");
 		if (!no_token_syntax_errs(token, input, i, j_pair))
 		{
 			printf("token syntx error!\n");
@@ -390,9 +380,12 @@ static bool	build_tree(t_astree **root, char *input, \
 			signal_handler.exit_code = EX_BAD_USAGE;
 			return (false);
 		}
+		ft_printf(MSH_DEBUG"Created tree node with token %d and precedence %d\n",
+			node->token, node->precedence);
 	}
 	else
 	{
+		ft_printf(MSH_DEBUG"Processing redirection token\n");
 		node = build_tree_p(input, token, i);
 
 		if (!node)
@@ -401,6 +394,7 @@ static bool	build_tree(t_astree **root, char *input, \
 			signal_handler.exit_code = EX_BAD_USAGE;
 			return (false);
 		}
+		ft_printf(MSH_DEBUG"Created redirection node\n");
 	}
 	if (node->token == LEFT_PAREN && !paren_is_closed(root))
 	{
@@ -416,6 +410,7 @@ static bool	build_tree(t_astree **root, char *input, \
 		free(node);
 		return (false);
 	}
+	ft_printf(MSH_DEBUG"Successfully appended node to tree\n");
 	return (true);
 }
 
@@ -468,7 +463,7 @@ static void	shunt_push(t_astree **root_a, t_astree **root_b, bool flag)
 {
 	t_astree	*temp;
 
-	if (!root_a || (*root_a))
+	if (!root_a || !*root_a)
 		return ;
 	temp = *root_a;
 	*root_a = (*root_a)->right;
@@ -508,24 +503,64 @@ static void	shunt_pop(t_astree **token_stack)
 static void	set_exec_order_p(t_astree **root, t_astree **token_stack, \
 	t_astree **new)
 {
+	ft_printf(MSH_DEBUG"Setting execution order\n");
 	while (*root)
 	{
+		ft_printf(MSH_DEBUG"Processing node with token %d\n", (*root)->token);
 		if ((*root)->token == NOT)
+		{
+			ft_printf(MSH_DEBUG"Pushing command node to output\n");
 			shunt_push(root, new, false);
+			if (!*root)  // Add guard to prevent infinite loop
+				break;
+		}
 		else if ((*root)->token != LEFT_PAREN && (*root)->token != RIGHT_PAREN)
 		{
-			while (*token_stack && (*token_stack)->precedence >= (*root)->precedence)
+			ft_printf(MSH_DEBUG"Processing operator node with precedence %d\n",
+				(*root)->precedence);
+			while (*token_stack && (*token_stack)->token != LEFT_PAREN &&
+				(*token_stack)->precedence >= (*root)->precedence)
+			{
+				ft_printf(MSH_DEBUG"Popping higher precedence operator from stack\n");
 				shunt_push(token_stack, new, false);
+			}
+			ft_printf(MSH_DEBUG"Pushing operator to stack\n");
 			shunt_push(root, token_stack, true);
+			if (!*root)  // Add guard to prevent infinite loop
+				break;
 		}
 		else if ((*root)->token == LEFT_PAREN)
+		{
+			ft_printf(MSH_DEBUG"Pushing left parenthesis to stack\n");
 			shunt_push(root, token_stack, true);
+			if (!*root)  // Add guard to prevent infinite loop
+				break;
+		}
 		else if ((*root)->token == RIGHT_PAREN)
 		{
+			ft_printf(MSH_DEBUG"Processing right parenthesis\n");
 			shunt_pop(root);
-			while ((*token_stack)->token != LEFT_PAREN)
+			if (!*token_stack)  // Add guard for empty stack
+			{
+				ft_printf(MSH_ERR"Syntax Error: Unmatched right parenthesis\n");
+				signal_handler.exit_code = EX_BAD_USAGE;
+				return;
+			}
+			while (*token_stack && (*token_stack)->token != LEFT_PAREN)
+			{
+				ft_printf(MSH_DEBUG"Popping operators until matching left parenthesis\n");
 				shunt_push(token_stack, new, false);
+			}
+			if (!*token_stack)  // Add guard for empty stack
+			{
+				ft_printf(MSH_ERR"Syntax Error: Unmatched right parenthesis\n");
+				signal_handler.exit_code = EX_BAD_USAGE;
+				return;
+			}
+			ft_printf(MSH_DEBUG"Popping matching left parenthesis\n");
 			shunt_pop(token_stack);
+			if (!*root)  // Add guard to prevent infinite loop
+				break;
 		}
 	}
 }
@@ -540,22 +575,34 @@ t_astree	*set_exec_order(t_astree **root)
 	new = NULL;
 	set_exec_order_p(root, &token_stack, &new);
 	while (token_stack)
+	{
+		if (token_stack->token == LEFT_PAREN)
+		{
+			ft_printf(MSH_ERR"Syntax Error: Unmatched left parenthesis\n");
+			signal_handler.exit_code = EX_BAD_USAGE;
+			free_astree(new);
+			return (NULL);
+		}
 		shunt_push(&token_stack, &new, false);
+	}
 	return (new);
 }
 
 t_astree	*balance_astree(t_astree *root)
 {
+	ft_printf(MSH_DEBUG"Balancing AST\n");
 	if (!root)
 		return (NULL);
 	if (root->token != NOT)
 	{
-		root->right = balance_astree(root->left);
+		ft_printf(MSH_DEBUG"Balancing operator node\n");
+		root->right = balance_astree(root->right);
 		root->left = balance_astree(root->left);
 		return (root);
 	}
 	if (root->left && root->right)
 	{
+		ft_printf(MSH_DEBUG"Balancing command node with children\n");
 		root->left->right = root->right;
 		root->right->left = root->left;
 		if (root->right->right)
@@ -563,6 +610,7 @@ t_astree	*balance_astree(t_astree *root)
 	}
 	root->right = NULL;
 	root->left = NULL;
+	ft_printf(MSH_DEBUG"Node balanced\n");
 	return (root);
 }
 
@@ -571,6 +619,7 @@ t_astree	*generate_astree(char *user_input)
 	char		*str;
 	t_astree	*root;
 
+	ft_printf(MSH_DEBUG"Generating AST for input: %s\n", user_input);
 	if (!user_input)
 	{
 		ft_printf(MSH_ERR"Error: Empty input\n");
@@ -585,6 +634,7 @@ t_astree	*generate_astree(char *user_input)
 		signal_handler.exit_code = EX_BAD_USAGE;
 		return (NULL);
 	}
+	ft_printf(MSH_DEBUG"Trimmed input: %s\n", str);
 	if (!no_unexpected_start(str))
 	{
 		free(str);
@@ -599,6 +649,7 @@ t_astree	*generate_astree(char *user_input)
 	print_astree(root);
 	if (!root)
 		return (NULL);
+	ft_printf(MSH_DEBUG"Initial tree generated\n");
 	root = set_exec_order(&root);
 	if (!root)
 	{
@@ -606,6 +657,7 @@ t_astree	*generate_astree(char *user_input)
 		signal_handler.exit_code = EX_BAD_USAGE;
 		return (NULL);
 	}
+	ft_printf(MSH_DEBUG"Execution order set\n");
 	while (root->right)
 		root = root->right;
 	root = balance_astree(root);
@@ -615,5 +667,86 @@ t_astree	*generate_astree(char *user_input)
 		signal_handler.exit_code = EX_BAD_USAGE;
 		return (NULL);
 	}
+	ft_printf(MSH_DEBUG"AST generation complete\n");
 	return (root);
+}
+
+static const char	*get_token_name(t_token token)
+{
+	switch (token)
+	{
+		case NOT:
+			return "NOT (command)";
+		case PIPE:
+			return "PIPE (|)";
+		case HEREDOC:
+			return "HEREDOC (<<)";
+		case LEFT_PAREN:
+			return "LEFT_PAREN (()";
+		case RIGHT_PAREN:
+			return "RIGHT_PAREN ())";
+		case AND:
+			return "AND (&&)";
+		case OR:
+			return "OR (||)";
+		case APPEND:
+			return "APPEND (>>)";
+		case OUT:
+			return "OUT (>)";
+		case IN:
+			return "IN (<)";
+		case END:
+			return "END";
+		default:
+			return "UNKNOWN";
+	}
+}
+
+static void	print_tree_node(t_astree *node, int depth)
+{
+	if (!node)
+		return;
+
+	// Print indentation
+	for (int i = 0; i < depth; i++)
+		ft_printf("  ");
+
+	// Print node info
+	ft_printf("Token: %s, Precedence: %d", get_token_name(node->token), node->precedence);
+	if (node->prev_cmd)
+		ft_printf(", Cmd: %s", node->prev_cmd);
+	if (node->redir_tree)
+	{
+		ft_printf("\n");
+		for (int i = 0; i < depth + 1; i++)
+			ft_printf("  ");
+		ft_printf("Redirections:");
+		t_redirect *redir = node->redir_tree;
+		while (redir)
+		{
+			ft_printf("\n");
+			for (int i = 0; i < depth + 2; i++)
+				ft_printf("  ");
+			ft_printf("%s -> %s", get_token_name(redir->token), redir->file);
+			redir = redir->right;
+		}
+	}
+
+	// Print children
+	if (node->left)
+	{
+		ft_printf("Left child:\n");
+		print_tree_node(node->left, depth + 1);
+	}
+	if (node->right)
+	{
+		ft_printf("Right child:\n");
+		print_tree_node(node->right, depth + 1);
+	}
+}
+
+void	print_astree(t_astree *root)
+{
+	ft_printf(MSH_DEBUG"AST Structure:\n");
+	print_tree_node(root, 0);
 }
