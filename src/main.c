@@ -59,7 +59,8 @@ static bool	get_input(char **line, bool update_hist, bool is_tty)
 	char	*temp;
 
 	errno = OK;
-	if (is_tty)
+	*line = NULL;  // Initialize line to NULL
+	if (!is_tty)  // Changed from if (is_tty) to if (!is_tty)
 		*line = readline("minishell%%> ");
 	else
 	{
@@ -81,27 +82,78 @@ static bool	get_input(char **line, bool update_hist, bool is_tty)
 	return (errno == OK);
 }
 
+static void	print_ast_node(t_astree *node, int depth)
+{
+	int	i;
+
+	if (!node)
+		return;
+	for (i = 0; i < depth; i++)
+		printf("  ");
+	printf("Node at depth %d:\n", depth);
+	for (i = 0; i < depth; i++)
+		printf("  ");
+	printf("Command: %s\n", node->cmd ? node->cmd[0] : "NULL");
+	for (i = 0; i < depth; i++)
+		printf("  ");
+	printf("Token: %d\n", node->token);
+	for (i = 0; i < depth; i++)
+		printf("  ");
+	printf("Precedence: %d\n", node->precedence);
+	for (i = 0; i < depth; i++)
+		printf("  ");
+	printf("FD in: %d, FD out: %d\n", node->fd_in, node->fd_out);
+	if (node->redir_tree)
+	{
+		for (i = 0; i < depth; i++)
+			printf("  ");
+		printf("Has redirects\n");
+	}
+	printf("\n");
+	print_ast_node(node->left, depth + 1);
+	print_ast_node(node->right, depth + 1);
+}
+
 // TODO: create a function to turn env to a linked list
 // ! should main take envp?
 int	main(void)
 {
-	bool		valid_input;
 	t_minishell	minishell;
-	t_astree	*root;
+	t_astree	*ast;
 
+	minishell.user_input = NULL;
+	printf("Starting minishell...\n");  // Debug print
 	shell_init(&minishell);
-	while (true)
+	while (1)
 	{
-		// // TODO: Handle Interrupts: Ctrl+D etc (readline already does this?)
-		// TODO: Capture heredoc if it exists
-		// TODO: Cleanup at each stage if errs happen
-		valid_input = get_input(&minishell.user_input, true, minishell.is_tty);
-		if (!valid_input)
+		printf("Waiting for input...\n");  // Debug print
+		if (!get_input(&minishell.user_input, true, minishell.is_tty))
+		{
+			printf("get_input failed\n");  // Debug print
 			continue;
-		signal_handler.is_executing = true;
-		add_history(minishell.user_input);
-		root = generate_astree(minishell.user_input);
-		// ? 5) evaluation
+		}
+		if (!minishell.user_input)
+		{
+			printf("exit\n");
+			break;
+		}
+		printf("Got input: %s\n", minishell.user_input);  // Debug print
+		ast = generate_astree(minishell.user_input);
+		if (ast)
+		{
+			printf("\nAST Structure:\n");
+			printf("------------------------\n");
+			print_ast_node(ast, 0);
+			printf("------------------------\n");
+			// TODO: Add proper AST cleanup function
+			// For now, we'll just free the AST structure
+			free(ast);
+		}
+		else
+		{
+			printf("Failed to generate AST\n");  // Debug print
+		}
+		// Don't free line here as it's already freed by generate_astree
 	}
-	return (EXIT_SUCCESS);
+	return (0);
 }

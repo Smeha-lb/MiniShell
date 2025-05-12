@@ -16,7 +16,7 @@ CC				:= cc
 SRC_DIR			:= src/
 OBJ_DIR			:= obj/
 CFLAGS			:= -g -O3 -Wall -Werror -Wextra
-FSANITIZE		:= -fsanitize=address -fsanitize=leak -fsanitize=undefined
+#FSANITIZE		:= -fsanitize=address -fsanitize=leak -fsanitize=undefined
 RM				:= rm -f
 
 INC				:= inc/
@@ -78,7 +78,7 @@ clean:
 fclean: clean
 		@echo "🧹 Cleaning Executables and Libs 🧹"
 		$(RM) $(NAME)
-		$(RM) (LIBFT_DIR)libft.a
+		$(RM) $(LIBFT_DIR)libft.a
 
 re:		fclean makelibs
 		@$(MAKE)

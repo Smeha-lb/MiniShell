@@ -44,20 +44,27 @@ static ssize_t get_right_paren_index(char *input, ssize_t i)
 // TODO: This can be refactored into something much nicer
 static bool	is_bad_pair_p(t_token current, t_token next)
 {
-	if ((current == OR || current == AND || current == PIPE)
-		&& (next == NOT || next == IN || next == OUT || next == APPEND
-		|| next == LEFT_PAREN))
-			return (false);
-	if ((current == LEFT_PAREN) && (next == NOT || next == IN || next == OUT
-		|| next == APPEND || next == LEFT_PAREN))
-			return (false);
-	if ((current == RIGHT_PAREN) && (next == AND || next == OR || next == PIPE
-		|| next == RIGHT_PAREN || next == END))
-			return (false);
-	if ((current == APPEND || current == HEREDOC
-		|| current == IN || current == OUT) && (next == NOT))
-			return (false);
-	return (true);
+	// After a PIPE, we can have a command (NOT) or another operator
+	if (current == PIPE && (next == NOT || next == PIPE || next == OR || next == AND))
+		return (true);
+	// After OR/AND, we can have a command (NOT) or another operator
+	if ((current == OR || current == AND)
+		&& (next == NOT || next == PIPE || next == OR || next == AND))
+		return (true);
+	// After a LEFT_PAREN, we can have a command (NOT) or another operator
+	if (current == LEFT_PAREN && (next == NOT || next == PIPE || next == OR || next == AND))
+		return (true);
+	// After a RIGHT_PAREN, we can have an operator
+	if (current == RIGHT_PAREN && (next == PIPE || next == OR || next == AND || next == END))
+		return (true);
+	// After a redirection, we can only have a command (NOT)
+	if ((current == APPEND || current == HEREDOC || current == IN || current == OUT) 
+		&& next == NOT)
+		return (true);
+	// After a command (NOT), we can have any operator
+	if (current == NOT && (next == PIPE || next == OR || next == AND || next == END))
+		return (true);
+	return (false);
 }
 
 bool	is_bad_pair(t_token token, char *input)
@@ -86,18 +93,26 @@ static bool	no_token_syntax_errs(t_token token, char *input, ssize_t *i, ssize_t
 			*j_pair = *i;
 		*j_pair = get_right_paren_index(&input[*j_pair], *j_pair) + 1;
 		if (*j_pair == 0)
+		{
+			ft_printf(MSH_ERR"Syntax Error: Unclosed parenthesis\n");
+			signal_handler.exit_code = EX_BAD_USAGE;
 			return (false);
+		}
 	}
 	else if (token == RIGHT_PAREN && *i > *j_pair)
 	{
-		ft_printf(MSH_ERR"Syntax Error near unexpected token ')'\n");
+		ft_printf(MSH_ERR"Syntax Error: Unexpected closing parenthesis\n");
 		signal_handler.exit_code = EX_BAD_USAGE;
 		return (false);
 	}
 	while (ft_iswhitespace(input[*i]))
 		(*i)++;
 	if (!is_bad_pair(token, &input[*i]))
+	{
+		ft_printf(MSH_ERR"Syntax Error: Invalid token combination\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
 		return (false);
+	}
 	return (true);
 }
 
@@ -353,20 +368,49 @@ static bool	build_tree(t_astree **root, char *input, \
 	t_token		token;
 	t_astree	*node;
 
+	if (!input || !i || !j_pair)
+	{
+		ft_printf(MSH_ERR"Internal Error: Invalid parameters\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		return (false);
+	}
 	token = parse_token(input[*i], input[(*i) + 1]);
 	if (!token_is_redir(token))
 	{
 		if (!no_token_syntax_errs(token, input, i, j_pair))
 			return (false);
-		// TODO: make it so that we don't call get_precedence here?
 		node = create_tree_node(NULL, NULL, token, get_token_precedence(token));
+		if (!node)
+		{
+			ft_printf(MSH_ERR"Memory Error: Failed to create tree node\n");
+			signal_handler.exit_code = EX_BAD_USAGE;
+			return (false);
+		}
 	}
 	else
+	{
 		node = build_tree_p(input, token, i);
-	if (!node)
-		return (false);
+		if (!node)
+		{
+			ft_printf(MSH_ERR"Syntax Error: Invalid redirection\n");
+			signal_handler.exit_code = EX_BAD_USAGE;
+			return (false);
+		}
+	}
 	if (node->token == LEFT_PAREN && !paren_is_closed(root))
-		return (free(node), false);
+	{
+		ft_printf(MSH_ERR"Syntax Error: Unmatched parentheses\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		free(node);
+		return (false);
+	}
+	if (!append_astree_node(root, node))
+	{
+		ft_printf(MSH_ERR"Internal Error: Failed to append node to tree\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		free(node);
+		return (false);
+	}
 	return (true);
 }
 
@@ -517,22 +561,48 @@ t_astree	*balance_astree(t_astree *root)
 	return (root);
 }
 
-// TODO: this and all it's subfunctions should be renamed, too unclear?
 t_astree	*generate_astree(char *user_input)
 {
 	char		*str;
 	t_astree	*root;
 
+	if (!user_input)
+	{
+		ft_printf(MSH_ERR"Error: Empty input\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		return (NULL);
+	}
 	str = ft_strtrim(user_input, WHITESPACE);
 	free(user_input);
-	if (!str || !no_unexpected_start(str))
-		return (free(str), NULL);
+	if (!str)
+	{
+		ft_printf(MSH_ERR"Memory Error: Failed to trim input\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		return (NULL);
+	}
+	if (!no_unexpected_start(str))
+	{
+		free(str);
+		return (NULL);
+	}
 	root = generate_tree(str);
 	if (!root)
 		return (NULL);
 	root = set_exec_order(&root);
+	if (!root)
+	{
+		ft_printf(MSH_ERR"Internal Error: Failed to set execution order\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		return (NULL);
+	}
 	while (root->right)
 		root = root->right;
 	root = balance_astree(root);
+	if (!root)
+	{
+		ft_printf(MSH_ERR"Internal Error: Failed to balance tree\n");
+		signal_handler.exit_code = EX_BAD_USAGE;
+		return (NULL);
+	}
 	return (root);
 }

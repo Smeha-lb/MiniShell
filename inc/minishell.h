@@ -81,33 +81,6 @@ typedef struct s_astree
 	struct	s_astree	*right;
 } t_astree;
 
-
-
-
-typedef enum e_token
-{
-	WORD = 0,
-	ERR = -1,
-	END = -2,
-	ASSIGN,
-	WORD = 0,
-	ERR = -1,
-	END = -2,
-	ASSIGN,
-	PIPE,
-	HEREDOC,
-	LEFT_PAREN,
-	RIGHT_PAREN,
-	LEFT_PAREN,
-	RIGHT_PAREN,
-	AND,
-	OR,
-	APPEND,
-	OUT,
-	IN,
-	END
-}	t_token;
-
 typedef struct s_minishell
 {
 	bool	is_tty;
