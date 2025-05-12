@@ -6,7 +6,7 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 14:59:32 by moabdels          #+#    #+#             */
-/*   Updated: 2025/04/30 14:14:48 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/12 17:00:28 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static bool	is_bad_pair_p(t_token current, t_token next)
 	if (current == RIGHT_PAREN && (next == PIPE || next == OR || next == AND || next == END))
 		return (true);
 	// After a redirection, we can only have a command (NOT)
-	if ((current == APPEND || current == HEREDOC || current == IN || current == OUT) 
+	if ((current == APPEND || current == HEREDOC || current == IN || current == OUT)
 		&& next == NOT)
 		return (true);
 	// After a command (NOT), we can have any operator
@@ -375,10 +375,14 @@ static bool	build_tree(t_astree **root, char *input, \
 		return (false);
 	}
 	token = parse_token(input[*i], input[(*i) + 1]);
+	printf("current token: %s\n", token_to_str(token));
 	if (!token_is_redir(token))
 	{
 		if (!no_token_syntax_errs(token, input, i, j_pair))
+		{
+			printf("token syntx error!\n");
 			return (false);
+		}
 		node = create_tree_node(NULL, NULL, token, get_token_precedence(token));
 		if (!node)
 		{
@@ -390,6 +394,7 @@ static bool	build_tree(t_astree **root, char *input, \
 	else
 	{
 		node = build_tree_p(input, token, i);
+
 		if (!node)
 		{
 			ft_printf(MSH_ERR"Syntax Error: Invalid redirection\n");
@@ -452,7 +457,7 @@ t_astree	*generate_tree(char *input)
 	root = NULL;
 	while (input[i])
 		if (!build_tree(&root, input, &i, &j_pair))
-			return (free_astree(root), free(input), NULL);
+			return (free_astree(root), free(input), printf("build_tree returned false\n") ,NULL);
 	free(input);
 	input = NULL;
 	return (root);
@@ -586,6 +591,12 @@ t_astree	*generate_astree(char *user_input)
 		return (NULL);
 	}
 	root = generate_tree(str);
+	printf("root is : %p", root);
+	if (root->left)
+		printf("root.left = %p", root->left);
+	if (root->right)
+		printf("root.right = %p", root->right);
+	print_astree(root);
 	if (!root)
 		return (NULL);
 	root = set_exec_order(&root);

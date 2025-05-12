@@ -6,12 +6,11 @@
 /*   By: moabdels <moabdels@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 15:45:56 by moabdels          #+#    #+#             */
-/*   Updated: 2025/05/08 14:10:58 by moabdels         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:04:23 by moabdels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-#include "../lib/libft/libft.h"
 #include <math.h>
 
 typedef struct s_queue
@@ -20,12 +19,25 @@ typedef struct s_queue
 	t_list	*rear;
 } t_queue;
 
+
+// t_list
+// 	*ft_lstnew(void *content)
+// {
+// 	t_list	*elt;
+
+// 	if (!(elt = (t_list*)malloc(sizeof(*elt))))
+// 		return (NULL);
+// 	elt->content = content;
+// 	elt->next = NULL;
+// 	return (elt);
+// }
+
 bool	queue_is_empty(t_queue *q)
 {
 	return (q->front == NULL);
 }
 
-void	enqueue(t_queue *queue, t_astree *node)
+static void	enqueue(t_queue *queue, t_astree *node)
 {
 	t_list	*new;
 
@@ -61,7 +73,7 @@ t_astree	*dequeue(t_queue *queue)
 	return (node);
 }
 
-static const char *token_to_str(t_token token)
+const char *token_to_str(t_token token)
 {
     switch (token)
     {
@@ -116,6 +128,7 @@ void	print_astree(t_astree *root)
 	uint8_t		current_depth_nodes;
 	uint8_t		next_depth_nodes;
 
+	ft_printf("hello\n");
 	current_depth_nodes = 1;
 	next_depth_nodes = 0;
 	depth = get_tree_depth(root);
@@ -160,47 +173,49 @@ void	print_astree(t_astree *root)
 	}
 }
 
-int	main(void)
-{
-	t_astree	*root, *L, *R, *LR, *LRL, *LRR, *LRRL, *RR, *RRL;
-	root = malloc(sizeof(t_astree));
-	L = malloc(sizeof(t_astree));
-	R = malloc(sizeof(t_astree));
-	LR = malloc(sizeof(t_astree));
-	RR = malloc(sizeof(t_astree));
-	RRL = malloc(sizeof(t_astree));
-	LRL = malloc(sizeof(t_astree));
-	LRR = malloc(sizeof(t_astree));
-	LRRL = malloc(sizeof(t_astree));
-	root->left = L;
-	root->right = R;
-	root->token = HEREDOC;
-	L->right = LR;
-	L->left = NULL;
-	L->token = LEFT_PAREN;
-	R->right = RR;
-	R->left = NULL;
-	R->token = RIGHT_PAREN;
-	RR->left = RRL;
-	RR->right = NULL;
-	RR->token = APPEND;
-	LR->left = LRL;
-	LR->right = LRR;
-	LR->token = IN;
-	LRL->left = NULL;
-	LRL->right = NULL;
-	LRL->token = OR;
-	LRR->left = LRRL;
-	LRR->right = NULL;
-	LRR->token = PIPE;
-	RRL->left = NULL;
-	RRL->right = NULL;
-	RRL->token = AND;
-	LRRL->token = NOT;
-	LRRL->left = NULL;
-	LRRL->right = NULL;
+// int	main(void)
+// {
+// 	t_astree	*root, *L, *R, *LR, *LRL, *LRR, *LRRL, *RR, *RRL;
+// 	root = malloc(sizeof(t_astree));
+// 	L = malloc(sizeof(t_astree));
+// 	R = malloc(sizeof(t_astree));
+// 	LR = malloc(sizeof(t_astree));
+// 	RR = malloc(sizeof(t_astree));
+// 	RRL = malloc(sizeof(t_astree));
+// 	LRL = malloc(sizeof(t_astree));
+// 	LRR = malloc(sizeof(t_astree));
+// 	LRRL = malloc(sizeof(t_astree));
+// 	root->left = L;
+// 	root->right = R;
+// 	root->token = HEREDOC;
+// 	L->right = LR;
+// 	L->left = NULL;
+// 	L->token = LEFT_PAREN;
+// 	R->right = RR;
+// 	R->left = NULL;
+// 	R->token = RIGHT_PAREN;
+// 	RR->left = RRL;
+// 	RR->right = NULL;
+// 	RR->token = APPEND;
+// 	LR->left = LRL;
+// 	LR->right = LRR;
+// 	LR->token = IN;
+// 	LRL->left = NULL;
+// 	LRL->right = NULL;
+// 	LRL->token = OR;
+// 	LRR->left = LRRL;
+// 	LRR->right = NULL;
+// 	LRR->token = PIPE;
+// 	RRL->left = NULL;
+// 	RRL->right = NULL;
+// 	RRL->token = AND;
+// 	LRRL->token = NOT;
+// 	LRRL->left = NULL;
+// 	LRRL->right = NULL;
 
 
-	print_astree(root);
-	exit(OK);
-}
+// 	print_astree(root);
+// 	print_astree(root);
+
+// 	exit(OK);
+// }
