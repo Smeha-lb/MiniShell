@@ -467,7 +467,7 @@ static void	shunt_push(t_astree **root_a, t_astree **root_b, bool flag)
 {
 	t_astree	*temp;
 
-	if (!root_a || !*root_a)
+	if (!root_a || !(*root_a))
 		return ;
 	temp = *root_a;
 	*root_a = (*root_a)->right;
