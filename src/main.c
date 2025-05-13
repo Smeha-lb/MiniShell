@@ -1,4 +1,5 @@
 #include "../inc/minishell.h"
+#include <signal.h>
 
 t_signal_handler	signal_handler;
 
@@ -22,13 +23,40 @@ static pid_t	get_pid(void)
 	return (pid);
 }
 
+static void	handle_sigint(int sig)
+{
+	(void)sig;
+	ft_printf("\n");
+}
+
+static void	handle_sigquit(int sig)
+{
+	(void)sig;
+	ft_printf("\n");
+}
+
+static void	setup_signals(void)
+{
+	struct sigaction	sa_int;
+	struct sigaction	sa_quit;
+
+	sa_int.sa_handler = handle_sigint;
+	sa_quit.sa_handler = handle_sigquit;
+	sigemptyset(&sa_int.sa_mask);
+	sigemptyset(&sa_quit.sa_mask);
+	sa_int.sa_flags = 0;
+	sa_quit.sa_flags = 0;
+	sigaction(SIGINT, &sa_int, NULL);
+	sigaction(SIGQUIT, &sa_quit, NULL);
+}
+
 static void	shell_init(t_minishell *minishell)
 {
 	minishell->is_tty = isatty(STDIN_FILENO);
 	minishell->shell_pid = get_pid();
 	minishell->subshell_pid = -1;
 	minishell->exit_status = OK;
-	// TODO: Signal handling.
+	setup_signals();
 	// TODO: Clean on exit: Clear lists, free cmd table, clear history
 }
 
@@ -84,10 +112,7 @@ int	main(void)
 	{
 		printf("Waiting for input...\n");  // Debug print
 		if (!get_input(&minishell.user_input, true, minishell.is_tty))
-		{
-			printf("get_input failed\n");  // Debug print
 			continue;
-		}
 		if (!minishell.user_input)
 		{
 			printf("exit\n");
