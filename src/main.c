@@ -70,44 +70,6 @@ static bool	get_input(char **line, bool update_hist, bool is_tty)
 	return (errno == OK);
 }
 
-static void	print_ast_node(t_astree *node, int depth)
-{
-	int	i;
-
-	if (!node)
-		return;
-	for (i = 0; i < depth; i++)
-		printf("  ");
-	printf("Node at depth %d:\n", depth);
-	for (i = 0; i < depth; i++)
-		printf("  ");
-	printf("Command: %s\n", node->cmd ? node->cmd[0] : "NULL");
-	for (i = 0; i < depth; i++)
-		printf("  ");
-	printf("Token: %d\n", node->token);
-	for (i = 0; i < depth; i++)
-		printf("  ");
-	printf("Precedence: %d\n", node->precedence);
-	for (i = 0; i < depth; i++)
-		printf("  ");
-	printf("FD in: %d, FD out: %d\n", node->fd_in, node->fd_out);
-	if (node->redir_tree)
-	{
-		for (i = 0; i < depth; i++)
-			printf("  ");
-		printf("Has redirects\n");
-	}
-	printf("\n");
-	print_ast_node(node->left, depth + 1);
-	print_ast_node(node->right, depth + 1);
-}
-
-void	print_astree_detail(t_astree *root)
-{
-	ft_printf(MSH_DEBUG"AST Structure:\n");
-	print_ast_node(root, 0);
-}
-
 // TODO: create a function to turn env to a linked list
 // ! should main take envp?
 int	main(void)
@@ -136,19 +98,11 @@ int	main(void)
 		printf("Got to this line\n");  // Debug print
 		if (ast)
 		{
-			printf("\nAST Structure:\n");
-			printf("------------------------\n");
-			print_astree_detail(ast);
-			printf("------------------------\n");
-			// TODO: Add proper AST cleanup function
-			// For now, we'll just free the AST structure
+			// execute ast
 			free(ast);
 		}
 		else
-		{
-			printf("Failed to generate AST\n");  // Debug print
-		}
-		// Don't free line here as it's already freed by generate_astree
+			printf("Failed to generate AST\n");
 	}
 	return (0);
 }

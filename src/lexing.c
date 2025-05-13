@@ -646,7 +646,6 @@ t_astree	*generate_astree(char *user_input)
 		printf("root.left = %p", root->left);
 	if (root->right)
 		printf("root.right = %p", root->right);
-	print_astree(root);
 	if (!root)
 		return (NULL);
 	ft_printf(MSH_DEBUG"Initial tree generated\n");
