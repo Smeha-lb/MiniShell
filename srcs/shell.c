@@ -43,12 +43,19 @@ void	shell_init(t_shell *shell, char **env)
 	}
 }
 
+void	rf_process_input(t_shell *shell, char *input)
+{
+	if (!input || ft_strlen(input) == 0)
+		return;
+	
+
+}
+
 void	process_input(t_shell *shell, char *input)
 {
 	if (!input || ft_strlen(input) == 0)
 		return;
 
-	// Add to history only if it's different from the previous command
 	if (!g_previous_cmd || ft_strcmp(input, g_previous_cmd) != 0)
 	{
 		add_history(input);
