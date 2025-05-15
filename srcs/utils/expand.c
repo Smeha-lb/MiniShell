@@ -104,6 +104,38 @@ char	*remove_quotes(char *str)
 	return (result);
 }
 
+static int is_inside_single_quotes(char *str, int i)
+{
+// check if the char at i is inbetween single quotes and if it is return 1, else return 0
+
+	int	j;
+	int k;
+	int quotes;
+
+	j=0;
+	k=0;
+	quotes=0;
+	while(str[j])
+	{
+		if (str[j] == '\'')
+		{
+			quotes++;
+			if(quotes %2 == 0 && j > i && k < i)
+				return (1);
+			k=j;
+		}
+		j++;
+	}
+	return (0);
+}
+
+
+
+
+
+
+// hi my name is 'john' and i am $20 years old
+
 /**
  * Expand variables in a string
  */
@@ -119,7 +151,8 @@ char	*expand_variables(t_minishell *shell, char *str)
 	result = ft_strdup("");
 	while (str[i])
 	{
-		if (str[i] == '$')
+		// add function to check if we are inside single quotes
+		if (str[i] == '$' && !is_inside_single_quotes(str, i))
 		{
 			var_value = expand_var(shell, str, &i);
 			tmp = ft_strjoin(result, var_value);
