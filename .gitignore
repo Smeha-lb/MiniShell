@@ -1,0 +1,33 @@
+# Build artifacts
+minishell
+*.o
+*.a
+*.so
+*.dylib
+
+# Object files directory
+objs/
+
+# Temporary files
+*.swp
+*~
+.DS_Store
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Debug files
+*.dSYM/
+*.out
+*.log
+
+# Test files
+test.txt
+000
+&1
+&&
+chmod
+2

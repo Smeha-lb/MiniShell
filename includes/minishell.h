@@ -136,5 +136,6 @@ void		print_error(const char *cmd, const char *msg);
 char		*expand_variables(t_minishell *shell, char *str);
 char		*remove_quotes(char *str);
 void		free_array(char **array);
+int			is_inside_single_quotes(char *str, int i);
 
 #endif 
