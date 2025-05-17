@@ -68,7 +68,15 @@ static t_pipeline	*parse_pipeline(t_token **tokens)
 		}
 		add_command(pipeline, cmd);
 		if ((*tokens)->type == TOKEN_PIPE)
+		{
 			*tokens = (*tokens)->next;
+			if (!*tokens || (*tokens)->type == TOKEN_END)
+			{
+				print_error("syntax error", "unclosed pipe");
+				free_ast(pipeline);
+				return (NULL);
+			}
+		}
 		else
 			break ;
 	}

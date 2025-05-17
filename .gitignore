@@ -1,7 +1,5 @@
-# Prerequisites
-*.d
-
-# Object files
+# Build artifacts
+minishell
 *.o
 
 **/*.o
@@ -31,13 +29,19 @@
 *.so.*
 *.dylib
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# Object files directory
+objs/
+
+# Temporary files
+*.swp
+*~
+.DS_Store
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
 
 # Debug files
 *.dSYM/

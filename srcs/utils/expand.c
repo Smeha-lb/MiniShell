@@ -104,7 +104,7 @@ char	*remove_quotes(char *str)
 	return (result);
 }
 
-static int is_inside_single_quotes(char *str, int i)
+int is_inside_single_quotes(char *str, int i)
 {
 // check if the char at i is inbetween single quotes and if it is return 1, else return 0
 
