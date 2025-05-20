@@ -1,8 +1,20 @@
-ls
-pwd
-echo hello
-pwd
-cd .. | ls
-pwdhello my name is carl
-hello my name is carl
-\n hello my name is carl
+Makefile
+README.md
+en.subject.txt
+file1.txt
+file2.txt
+includes
+libft
+minishell
+objs
+srcs
+Makefile
+README.md
+en.subject.txt
+file1.txt
+file2.txt
+includes
+libft
+minishell
+objs
+srcs

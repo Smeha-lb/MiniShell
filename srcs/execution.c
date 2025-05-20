@@ -123,6 +123,7 @@ int	execute_external_command(t_shell *shell, t_command *cmd)
 {
 	char	*path;
 	pid_t	pid;
+	int		status;
 
 	path = find_command_path(shell, cmd->args[0]);
 	if (!path)
@@ -142,12 +143,18 @@ int	execute_external_command(t_shell *shell, t_command *cmd)
 		handle_child_process(shell, cmd, path);
 	}
 	free(path);
-	return (pid);
+	
+	// Wait for this specific child process to complete
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	else if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
+	return (0);
 }
 
 int	execute_single_command(t_shell *shell, t_command *cmd)
 {
-	pid_t	pid;
 	int		result;
 
 	if (!cmd->args)
@@ -174,10 +181,7 @@ int	execute_single_command(t_shell *shell, t_command *cmd)
 	}
 	else
 	{
-		pid = execute_external_command(shell, cmd);
-		if (pid > 0)
-			return (wait_for_all(pid));
-		return (pid);
+		return execute_external_command(shell, cmd);
 	}
 }
 
@@ -185,64 +189,148 @@ int	execute_single_command(t_shell *shell, t_command *cmd)
 int execute_pipeline(t_shell *shell, t_command *start_cmd)
 {
 	t_command *cmd;
-	pid_t pid;
-	pid_t last_pid;
+	pid_t *pids;
+	int i, cmd_count;
+	int exit_status = 0;
 	
-	// Create pipes for the pipeline
-	if (create_pipes(start_cmd) != 0)
-		return (1);
-	
-	// Execute each command in the pipeline
+	// Count commands in pipeline
+	cmd_count = 0;
 	cmd = start_cmd;
-	last_pid = -1;
-	
-	while (cmd && cmd->next_op == 0)
+	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
 	{
-		if (!cmd->args)
-		{
-			cmd = cmd->next;
-			continue;
-		}
-		
-		if (is_builtin(cmd->args[0]) && !cmd->next)
-		{
-			close_pipes(start_cmd);
-			return (execute_builtin(shell, cmd));
-		}
-		
-		if (is_builtin(cmd->args[0]))
-		{
-			pid = fork();
-			if (pid == 0)
-			{
-				if (setup_redirections(cmd) != 0)
-					exit(1);
-				
-				if (cmd->pipe_in != -1)
-				{
-					dup2(cmd->pipe_in, STDIN_FILENO);
-					close(cmd->pipe_in);
-				}
-				if (cmd->pipe_out != -1)
-				{
-					dup2(cmd->pipe_out, STDOUT_FILENO);
-					close(cmd->pipe_out);
-				}
-				
-				exit(execute_builtin(shell, cmd));
-			}
-		}
-		else
-		{
-			pid = execute_external_command(shell, cmd);
-		}
-		
-		last_pid = pid;
+		cmd_count++;
 		cmd = cmd->next;
 	}
 	
-	close_pipes(start_cmd);
-	return (wait_for_all(last_pid));
+	// Allocate pid array
+	pids = (pid_t *)malloc(sizeof(pid_t) * cmd_count);
+	if (!pids)
+	{
+		print_error("malloc", NULL, strerror(errno));
+		return (1);
+	}
+	
+	// Setup pipes
+	int **pipes = (int **)malloc(sizeof(int *) * (cmd_count - 1));
+	if (!pipes)
+	{
+		free(pids);
+		print_error("malloc", NULL, strerror(errno));
+		return (1);
+	}
+	
+	for (i = 0; i < cmd_count - 1; i++)
+	{
+		pipes[i] = (int *)malloc(sizeof(int) * 2);
+		if (!pipes[i])
+		{
+			while (--i >= 0)
+				free(pipes[i]);
+			free(pipes);
+			free(pids);
+			print_error("malloc", NULL, strerror(errno));
+			return (1);
+		}
+		if (pipe(pipes[i]) == -1)
+		{
+			while (i >= 0)
+			{
+				free(pipes[i]);
+				i--;
+			}
+			free(pipes);
+			free(pids);
+			print_error("pipe", NULL, strerror(errno));
+			return (1);
+		}
+	}
+	
+	// Execute commands in pipeline
+	cmd = start_cmd;
+	for (i = 0; i < cmd_count; i++)
+	{
+		pids[i] = fork();
+		if (pids[i] == -1)
+		{
+			print_error("fork", NULL, strerror(errno));
+			// Clean up pipes and continue
+			continue;
+		}
+		else if (pids[i] == 0) // Child process
+		{
+			// Setup input from previous pipe if not first command
+			if (i > 0)
+			{
+				dup2(pipes[i-1][0], STDIN_FILENO);
+			}
+			
+			// Setup output to next pipe if not last command
+			if (i < cmd_count - 1)
+			{
+				dup2(pipes[i][1], STDOUT_FILENO);
+			}
+			
+			// Close all pipes in child
+			for (int j = 0; j < cmd_count - 1; j++)
+			{
+				close(pipes[j][0]);
+				close(pipes[j][1]);
+			}
+			
+			// Apply any redirections for this command
+			if (cmd->redirs && setup_redirections(cmd) != 0)
+				exit(1);
+			
+			// Execute command
+			if (is_builtin(cmd->args[0]))
+			{
+				exit(execute_builtin(shell, cmd));
+			}
+			else
+			{
+				char *path = find_command_path(shell, cmd->args[0]);
+				if (!path)
+				{
+					print_error(cmd->args[0], NULL, "command not found");
+					exit(127);
+				}
+				if (execve(path, cmd->args, shell->env) == -1)
+				{
+					print_error(cmd->args[0], NULL, strerror(errno));
+					free(path);
+					exit(127);
+				}
+			}
+		}
+		
+		cmd = cmd->next;
+	}
+	
+	// Parent process: close all pipes
+	for (i = 0; i < cmd_count - 1; i++)
+	{
+		close(pipes[i][0]);
+		close(pipes[i][1]);
+		free(pipes[i]);
+	}
+	free(pipes);
+	
+	// Wait for all child processes
+	int status;
+	for (i = 0; i < cmd_count; i++)
+	{
+		waitpid(pids[i], &status, 0);
+		if (i == cmd_count - 1) // Use the last command's exit status
+		{
+			if (WIFEXITED(status))
+				exit_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				exit_status = 128 + WTERMSIG(status);
+		}
+	}
+	
+	free(pids);
+	return (exit_status);
 }
 
 // Check if a command requires to be executed in the parent process
@@ -258,7 +346,8 @@ int	execute_commands(t_shell *shell)
 {
 	t_command	*cmd;
 	int			exit_status;
-	t_command	*start_of_pipeline;
+	int			stdin_backup;
+	int			stdout_backup;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -267,30 +356,88 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
-		start_of_pipeline = cmd;
+		// Each command gets its own redirection context
+		stdin_backup = dup(STDIN_FILENO);
+		stdout_backup = dup(STDOUT_FILENO);
 		
-		// Find the end of the current pipeline or logical operation
-		while (cmd->next && cmd->next_op == 0)
-			cmd = cmd->next;
-		
-		// Special case for builtins that need to be executed in parent process
-		if (start_of_pipeline->args && is_parent_builtin(start_of_pipeline->args[0]) && 
-			start_of_pipeline == cmd)
+		// Apply redirections only for the current command
+		if (cmd->redirs)
 		{
-			exit_status = execute_single_command(shell, start_of_pipeline);
-		}
-		// Execute the pipeline
-		else if (start_of_pipeline == cmd && !cmd->next)
-		{
-			// Single command
-			exit_status = execute_single_command(shell, cmd);
-		}
-		else
-		{
-			// Pipeline
-			exit_status = execute_pipeline(shell, start_of_pipeline);
+			if (setup_redirections(cmd) != 0)
+			{
+				// If redirection fails, skip this command
+				dup2(stdin_backup, STDIN_FILENO);
+				dup2(stdout_backup, STDOUT_FILENO);
+				close(stdin_backup);
+				close(stdout_backup);
+				exit_status = 1;
+				goto next_command;
+			}
 		}
 		
+		// Execute the command with proper pipe handling
+		if (cmd->next && cmd->next_op == 0) // Command is part of a pipeline
+		{
+			// Handle pipeline separately
+			t_command *pipeline_start = cmd;
+			
+			// Find end of pipeline
+			while (cmd->next && cmd->next_op == 0)
+				cmd = cmd->next;
+			
+			// Execute the pipeline
+			exit_status = execute_pipeline(shell, pipeline_start);
+		}
+		else // Single command (not part of a pipeline)
+		{
+			if (!cmd->args)
+				exit_status = 0;
+			else if (is_parent_builtin(cmd->args[0]))
+				exit_status = execute_builtin(shell, cmd);
+			else if (is_builtin(cmd->args[0]))
+				exit_status = execute_builtin(shell, cmd);
+			else
+			{
+				pid_t pid = fork();
+				if (pid == 0) // Child
+				{
+					char *path = find_command_path(shell, cmd->args[0]);
+					if (!path)
+					{
+						print_error(cmd->args[0], NULL, "command not found");
+						exit(127);
+					}
+					if (execve(path, cmd->args, shell->env) == -1)
+					{
+						print_error(cmd->args[0], NULL, strerror(errno));
+						free(path);
+						exit(127);
+					}
+				}
+				else if (pid > 0) // Parent
+				{
+					int status;
+					waitpid(pid, &status, 0);
+					if (WIFEXITED(status))
+						exit_status = WEXITSTATUS(status);
+					else if (WIFSIGNALED(status))
+						exit_status = 128 + WTERMSIG(status);
+				}
+				else // Fork failed
+				{
+					print_error("fork", NULL, strerror(errno));
+					exit_status = 1;
+				}
+			}
+		}
+		
+		// Restore stdin and stdout for each command
+		dup2(stdin_backup, STDIN_FILENO);
+		dup2(stdout_backup, STDOUT_FILENO);
+		close(stdin_backup);
+		close(stdout_backup);
+		
+next_command:
 		// If there are no more commands, we're done
 		if (!cmd->next)
 			break;

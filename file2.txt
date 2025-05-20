@@ -1,6 +1,22 @@
-ls
-pwd
-echo hello
-pwd
-cd .. | ls
-pwd
+total 64
+-rwxrwxrwx 1 csamaha csamaha   875 May 20 12:09 Makefile
+-rwxrwxrwx 1 csamaha csamaha  1265 May 20 12:09 README.md
+-rwxrwxrwx 1 csamaha csamaha  7406 May 20 12:09 en.subject.txt
+-rwxrwxrwx 1 csamaha csamaha     0 May 20 12:53 file1.txt
+-rwxrwxrwx 1 csamaha csamaha     0 May 20 12:53 file2.txt
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:09 includes
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:53 libft
+-rwxrwxrwx 1 csamaha csamaha 45528 May 20 12:53 minishell
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:53 objs
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:09 srcs
+total 72
+-rwxrwxrwx 1 csamaha csamaha   875 May 20 12:09 Makefile
+-rwxrwxrwx 1 csamaha csamaha  1265 May 20 12:09 README.md
+-rwxrwxrwx 1 csamaha csamaha  7406 May 20 12:09 en.subject.txt
+-rwxrwxrwx 1 csamaha csamaha    89 May 20 12:54 file1.txt
+-rwxrwxrwx 1 csamaha csamaha   578 May 20 12:54 file2.txt
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:09 includes
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:53 libft
+-rwxrwxrwx 1 csamaha csamaha 45528 May 20 12:53 minishell
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:53 objs
+drwxrwxrwx 1 csamaha csamaha  4096 May 20 12:09 srcs
