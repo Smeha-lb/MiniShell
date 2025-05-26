@@ -89,6 +89,7 @@ void	free_commands(t_command *commands);
 int		execute_commands(t_shell *shell);
 int		execute_single_command(t_shell *shell, t_command *cmd);
 char	*find_command_path(t_shell *shell, char *cmd);
+char    **parse_command_string(char *cmd_str);
 
 /* builtins.c */
 int		is_builtin(char *cmd);
@@ -129,5 +130,8 @@ char	**split_args(char *str);
 void	free_array(char **array);
 int		count_array(char **array);
 void	print_error(char *cmd, char *arg, char *message);
+char	*ft_strjoin_free(char *s1, const char *s2);
+int		ft_strcmp(const char *s1, const char *s2);
+int		ft_isdigit_str(char *str);
 
 #endif 

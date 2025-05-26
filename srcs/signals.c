@@ -10,6 +10,12 @@ void	handle_signals(int signum)
 		rl_replace_line("", 0);
 		rl_redisplay();
 	}
+	else if (signum == SIGTSTP)
+	{
+		// Ignore SIGTSTP (Ctrl+Z) in the shell
+		g_signal_code = 0;
+		rl_redisplay();
+	}
 }
 
 void	setup_signals(void)
@@ -25,4 +31,7 @@ void	setup_signals(void)
 	
 	// Make SIGQUIT (CTRL-\) behave the same as SIGINT
 	sigaction(SIGQUIT, &sa, NULL);
+	
+	// Ignore SIGTSTP (CTRL-Z) to prevent suspending the shell
+	sigaction(SIGTSTP, &sa, NULL);
 } 
