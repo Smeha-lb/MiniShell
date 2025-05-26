@@ -1,12 +1,10 @@
 Makefile
 README.md
-echo
 en.subject.txt
 file1.txt
 file2.txt
 includes
 libft
-ls
 minishell
 objs
 srcs

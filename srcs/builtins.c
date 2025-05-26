@@ -109,6 +109,29 @@ int	builtin_pwd(void)
 	}
 }
 
+int	is_valid_var_name(char *name)
+{
+	int	i;
+
+	if (!name || !*name)
+		return (0);
+	
+	// First character must be a letter or underscore
+	if (!ft_isalpha(name[0]) && name[0] != '_')
+		return (0);
+	
+	// Rest of the characters must be alphanumeric or underscore
+	i = 1;
+	while (name[i])
+	{
+		if (!ft_isalnum(name[i]) && name[i] != '_')
+			return (0);
+		i++;
+	}
+	
+	return (1);
+}
+
 int	builtin_export(t_shell *shell, t_command *cmd)
 {
 	int		i;
@@ -118,6 +141,7 @@ int	builtin_export(t_shell *shell, t_command *cmd)
 	char	*equal_sign;
 	char	**sorted_env;
 	int		env_size;
+	int		status;
 
 	if (!cmd->args[1])
 	{
@@ -175,13 +199,40 @@ int	builtin_export(t_shell *shell, t_command *cmd)
 		return (0);
 	}
 	
+	status = 0;
 	i = 1;
 	while (cmd->args[i])
 	{
+		// Check for multiple equal signs
 		equal_sign = ft_strchr(cmd->args[i], '=');
+		if (equal_sign && ft_strchr(equal_sign + 1, '=') != NULL)
+		{
+			ft_putstr_fd("export: `", STDERR_FILENO);
+			ft_putstr_fd(cmd->args[i], STDERR_FILENO);
+			ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+			status = 1;
+			i++;
+			continue;
+		}
+
 		if (equal_sign)
 		{
-			key = ft_substr(cmd->args[i], 0, equal_sign - cmd->args[i]);
+			*equal_sign = '\0'; // Temporarily replace '=' with null terminator
+			
+			// Check if variable name is valid
+			if (!is_valid_var_name(cmd->args[i]))
+			{
+				*equal_sign = '='; // Restore the original string
+				ft_putstr_fd("export: `", STDERR_FILENO);
+				ft_putstr_fd(cmd->args[i], STDERR_FILENO);
+				ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+				status = 1;
+				i++;
+				continue;
+			}
+			
+			key = ft_strdup(cmd->args[i]);
+			*equal_sign = '='; // Restore the original string
 			value = ft_strdup(equal_sign + 1);
 			set_env_var(shell, key, value);
 			free(key);
@@ -189,7 +240,18 @@ int	builtin_export(t_shell *shell, t_command *cmd)
 		}
 		else
 		{
-			// If no '=' is present, just mark the variable for export without changing its value
+			// If no '=' is present, check if the variable name is valid
+			if (!is_valid_var_name(cmd->args[i]))
+			{
+				ft_putstr_fd("export: `", STDERR_FILENO);
+				ft_putstr_fd(cmd->args[i], STDERR_FILENO);
+				ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+				status = 1;
+				i++;
+				continue;
+			}
+			
+			// Just mark the variable for export without changing its value
 			value = get_env_value(shell, cmd->args[i]);
 			if (value)
 				set_env_var(shell, cmd->args[i], value);
@@ -198,20 +260,32 @@ int	builtin_export(t_shell *shell, t_command *cmd)
 		}
 		i++;
 	}
-	return (0);
+	return (status);
 }
 
 int	builtin_unset(t_shell *shell, t_command *cmd)
 {
 	int	i;
+	int status;
 
+	status = 0;
 	i = 1;
 	while (cmd->args[i])
 	{
-		unset_env_var(shell, cmd->args[i]);
+		if (!is_valid_var_name(cmd->args[i]))
+		{
+			ft_putstr_fd("unset: `", STDERR_FILENO);
+			ft_putstr_fd(cmd->args[i], STDERR_FILENO);
+			ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+			status = 1;
+		}
+		else
+		{
+			unset_env_var(shell, cmd->args[i]);
+		}
 		i++;
 	}
-	return (0);
+	return (status);
 }
 
 int	builtin_env(t_shell *shell)

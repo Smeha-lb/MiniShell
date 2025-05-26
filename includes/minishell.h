@@ -96,6 +96,7 @@ int		execute_builtin(t_shell *shell, t_command *cmd);
 int		builtin_echo(t_command *cmd);
 int		builtin_cd(t_shell *shell, t_command *cmd);
 int		builtin_pwd(void);
+int		is_valid_var_name(char *name);
 int		builtin_export(t_shell *shell, t_command *cmd);
 int		builtin_unset(t_shell *shell, t_command *cmd);
 int		builtin_env(t_shell *shell);

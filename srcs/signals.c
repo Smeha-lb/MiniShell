@@ -2,7 +2,7 @@
 
 void	handle_signals(int signum)
 {
-	if (signum == SIGINT)
+	if (signum == SIGINT || signum == SIGQUIT)
 	{
 		g_signal_code = 1;
 		ft_putchar_fd('\n', STDOUT_FILENO);
@@ -23,6 +23,6 @@ void	setup_signals(void)
 	// Set up SIGINT (CTRL-C) to display a new prompt on a new line
 	sigaction(SIGINT, &sa, NULL);
 	
-	// Ignore SIGQUIT (CTRL-\)
-	signal(SIGQUIT, SIG_IGN);
+	// Make SIGQUIT (CTRL-\) behave the same as SIGINT
+	sigaction(SIGQUIT, &sa, NULL);
 } 
