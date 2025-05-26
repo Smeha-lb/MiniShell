@@ -420,6 +420,7 @@ int	execute_commands(t_shell *shell)
 	int			exit_status;
 	int			stdin_backup;
 	int			stdout_backup;
+	char        **args;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -428,6 +429,18 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
+		// Check for environment variable command with spaces
+		if (cmd->args && cmd->args[0] && ft_strchr(cmd->args[0], ' '))
+		{
+			args = parse_command_string(cmd->args[0]);
+			if (args)
+			{
+				// Replace the original args with the parsed ones
+				free_array(cmd->args);
+				cmd->args = args;
+			}
+		}
+		
 		// Each command gets its own redirection context
 		stdin_backup = dup(STDIN_FILENO);
 		stdout_backup = dup(STDOUT_FILENO);
@@ -465,9 +478,9 @@ int	execute_commands(t_shell *shell)
 			if (!cmd->args)
 				exit_status = 0;
 			else if (is_parent_builtin(cmd->args[0]))
+			{
 				exit_status = execute_builtin(shell, cmd);
-			else if (is_builtin(cmd->args[0]))
-				exit_status = execute_builtin(shell, cmd);
+			}
 			else
 			{
 				pid_t pid = fork();

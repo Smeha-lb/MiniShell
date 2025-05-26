@@ -16,10 +16,50 @@ int	is_builtin(char *cmd)
 int	execute_builtin(t_shell *shell, t_command *cmd)
 {
 	char	*builtin;
+	char	**args;
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (1);
+		
+	// Check if the command contains spaces (might be from an environment variable)
+	if (cmd->args[0] && ft_strchr(cmd->args[0], ' '))
+	{
+		args = parse_command_string(cmd->args[0]);
+		if (!args || !args[0])
+		{
+			if (args)
+				free_array(args);
+			return (1);
+		}
+		
+		// Create a new command structure with the parsed arguments
+		t_command *new_cmd = (t_command *)malloc(sizeof(t_command));
+		if (!new_cmd)
+		{
+			free_array(args);
+			return (1);
+		}
+		
+		// Copy the command structure
+		new_cmd->redirs = cmd->redirs;
+		new_cmd->pipe_in = cmd->pipe_in;
+		new_cmd->pipe_out = cmd->pipe_out;
+		new_cmd->next_op = cmd->next_op;
+		new_cmd->next = cmd->next;
+		new_cmd->args = args;
+		
+		// Execute the builtin with the new command
+		int result = execute_builtin(shell, new_cmd);
+		
+		// Free the new command structure (but not the redirs, which are shared)
+		new_cmd->args = NULL;  // We don't free args here as it's handled by the recursive call
+		free(new_cmd);
+		
+		return (result);
+	}
+	
 	builtin = cmd->args[0];
+	
 	if (ft_strcmp(builtin, "echo") == 0)
 		return (builtin_echo(cmd));
 	else if (ft_strcmp(builtin, "cd") == 0)
@@ -34,6 +74,7 @@ int	execute_builtin(t_shell *shell, t_command *cmd)
 		return (builtin_env(shell));
 	else if (ft_strcmp(builtin, "exit") == 0)
 		return (builtin_exit(shell, cmd));
+	
 	return (1);
 }
 
