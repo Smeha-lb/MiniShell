@@ -116,6 +116,14 @@ void	unset_env_var(t_shell *shell, const char *name);
 char	*expand_variables(t_shell *shell, char *str, int in_quotes);
 char	*handle_expansion(t_shell *shell, char *str);
 
+/* wildcard expansion */
+int		has_wildcards(const char *str);
+char	**expand_wildcards(const char *pattern);
+int		does_pattern_match(const char *pattern, const char *filename);
+void	sort_matches(char **matches, int count);
+char	*join_expanded_wildcards(char **matches);
+void	free_matches(char **matches);
+
 /* utils.c */
 char	**split_args(char *str);
 void	free_array(char **array);

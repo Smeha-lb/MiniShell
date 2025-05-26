@@ -103,6 +103,7 @@ int	handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell)
 	int		start;
 	char	*quoted_content;
 	char	*expanded;
+	size_t	content_len;
 
 	quote_type = input[*i];
 	(*i)++;
@@ -118,6 +119,11 @@ int	handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell)
 	
 	// Extract the content inside quotes
 	quoted_content = ft_substr(input, start, *i - start);
+	if (!quoted_content)
+	{
+		free(*word);
+		return (1);
+	}
 	
 	// Expand variables if inside double quotes
 	if (quote_type == '\"')
@@ -130,9 +136,18 @@ int	handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell)
 		expanded = quoted_content;
 	}
 	
+	if (!expanded)
+	{
+		free(*word);
+		return (1);
+	}
+	
+	// Get the expanded content length
+	content_len = ft_strlen(expanded);
+	
 	// Copy the expanded content to the word
-	ft_strlcpy(*word + *j, expanded, ft_strlen(expanded) + 1);
-	*j += ft_strlen(expanded);
+	ft_strlcpy(*word + *j, expanded, content_len + 1);
+	*j += content_len;
 	free(expanded);
 	
 	(*i)++;  // Skip the closing quote
@@ -163,7 +178,7 @@ int	extract_word(char *input, int *i, t_shell *shell)
 	expanded = expand_variables(shell, word, 0);
 	free(word);
 	
-	// Create token with expanded value
+	// Create token with expanded value (wildcards will be expanded later during expansion phase)
 	add_token(&shell->tokens, create_token(expanded, TOKEN_WORD));
 	free(expanded);
 	return (0);
@@ -173,29 +188,64 @@ int	handle_word(char *input, int *i, t_shell *shell)
 {
 	int		j;
 	char	*word;
-	int		word_len;
+	int		buffer_size;
+	int		var_name_len;
+	char	*var_name;
+	char	*var_value;
+	size_t	value_len;
 
-	// First, calculate the size we need for the word
-	word_len = 0;
+	// Calculate a safe buffer size - count all characters including potential variable expansions
+	buffer_size = 0;
 	j = *i;
 	while (input[j] && input[j] != ' ' && input[j] != '\t' &&
 		   input[j] != '|' && input[j] != '<' && input[j] != '>' &&
 		   !(input[j] == '&' && input[j + 1] == '&'))
 	{
+		// For quoted sections, count the entire quoted content
 		if (input[j] == '\'' || input[j] == '\"')
 		{
 			char quote = input[j++];
+			int quote_start = j;
+			
 			while (input[j] && input[j] != quote)
 				j++;
-			if (!input[j])
+				
+			if (!input[j])  // Unclosed quote
 				break;
+				
+			// For double quotes, variables can expand, so add extra space
+			if (quote == '\"')
+				buffer_size += (j - quote_start) * 2;  // Conservative estimate
+			else
+				buffer_size += (j - quote_start);
+				
+			j++;  // Skip closing quote
 		}
-		j++;
-		word_len++;
+		// For variables, estimate expansion size
+		else if (input[j] == '$' && (ft_isalnum(input[j + 1]) || input[j + 1] == '_' || input[j + 1] == '?'))
+		{
+			j++;  // Skip $
+			int var_start = j;
+			
+			while (input[j] && (ft_isalnum(input[j]) || input[j] == '_' || 
+				  (j == var_start && input[j] == '?')))
+				j++;
+				
+			// Add extra space for potentially long var expansion
+			buffer_size += 128;  // Conservative estimate for var expansion
+		}
+		else
+		{
+			buffer_size++;
+			j++;
+		}
 	}
 	
-	// Allocate generous space for the word (larger than needed to accommodate expansions)
-	word = (char *)malloc((j - *i + 1024) * sizeof(char));
+	// Add safety margin
+	buffer_size = buffer_size + 1024;
+	
+	// Allocate space for the word
+	word = (char *)malloc((buffer_size + 1) * sizeof(char));
 	if (!word)
 		return (1);
 	
@@ -214,13 +264,17 @@ int	handle_word(char *input, int *i, t_shell *shell)
 		{
 			// Handle inline variable expansion (outside quotes)
 			(*i)++;
-			int var_name_len = 0;
+			var_name_len = 0;
 			while (input[*i + var_name_len] && (ft_isalnum(input[*i + var_name_len]) || input[*i + var_name_len] == '_' || 
 				   (var_name_len == 0 && input[*i + var_name_len] == '?')))
 				var_name_len++;
 			
-			char *var_name = ft_substr(input, *i, var_name_len);
-			char *var_value;
+			var_name = ft_substr(input, *i, var_name_len);
+			if (!var_name)
+			{
+				free(word);
+				return (1);
+			}
 			
 			if (ft_strcmp(var_name, "?") == 0)
 			{
@@ -238,19 +292,53 @@ int	handle_word(char *input, int *i, t_shell *shell)
 					var_value = ft_strdup("");
 			}
 			
-			ft_strlcpy(word + j, var_value, ft_strlen(var_value) + 1);
-			j += ft_strlen(var_value);
+			if (!var_value)
+			{
+				free(var_name);
+				free(word);
+				return (1);
+			}
+			
+						value_len = ft_strlen(var_value);
+			
+			// Make sure we don't exceed buffer size
+			if (j + (int)value_len >= buffer_size)
+			{
+				free(var_name);
+				free(var_value);
+				free(word);
+				return (1);
+			}
+			
+			ft_strlcpy(word + j, var_value, value_len + 1);
+			j += value_len;
 			
 			free(var_name);
 			free(var_value);
 			*i += var_name_len;
 		}
 		else
+		{
+			// Make sure we don't exceed buffer size
+			if (j >= buffer_size)
+			{
+				free(word);
+				return (1);
+			}
 			word[j++] = input[(*i)++];
+		}
 	}
+	
+	// Make sure we don't exceed buffer size
+	if (j >= buffer_size)
+	{
+		free(word);
+		return (1);
+	}
+	
 	word[j] = '\0';
 	
-	// Create the token with the expanded word
+	// Create the token with the expanded word (wildcards will be expanded later during expansion phase)
 	add_token(&shell->tokens, create_token(word, TOKEN_WORD));
 	free(word);
 	return (0);

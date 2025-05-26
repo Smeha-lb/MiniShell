@@ -1,1 +1,0 @@
-Error: minishell does not accept arguments

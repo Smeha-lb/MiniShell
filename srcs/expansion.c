@@ -125,6 +125,30 @@ char *expand_variables(t_shell *shell, char *str, int in_quotes)
     return (expanded);
 }
 
+// Expand wildcards in an unquoted string segment
+static char *expand_segment_wildcards(char *str)
+{
+    char **matches;
+    char *result;
+    
+    // Check if the segment contains any wildcards
+    if (!has_wildcards(str))
+        return (ft_strdup(str));
+    
+    // Expand wildcards
+    matches = expand_wildcards(str);
+    if (!matches)
+        return (ft_strdup(str));
+    
+    // Join matches into a space-separated string
+    result = join_expanded_wildcards(matches);
+    
+    // Free the matches
+    free_matches(matches);
+    
+    return (result);
+}
+
 // Handle expansion for a string, respecting quote rules
 char *handle_expansion(t_shell *shell, char *str)
 {
@@ -134,6 +158,7 @@ char *handle_expansion(t_shell *shell, char *str)
     char *result;
     char *temp;
     char *expanded;
+    char *wildcarded;
 
     if (!str)
         return (NULL);
@@ -190,13 +215,19 @@ char *handle_expansion(t_shell *shell, char *str)
             
             // Extract and expand the unquoted text
             temp = ft_substr(str, start, i - start);
+            
+            // First expand variables
             expanded = expand_variables(shell, temp, 0);
             free(temp);
             
-            // Append to result
-            temp = ft_strjoin(result, expanded);
-            free(result);
+            // Then expand wildcards (only in unquoted text)
+            wildcarded = expand_segment_wildcards(expanded);
             free(expanded);
+            
+            // Append to result
+            temp = ft_strjoin(result, wildcarded);
+            free(result);
+            free(wildcarded);
             result = temp;
         }
     }

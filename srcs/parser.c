@@ -42,13 +42,20 @@ void	add_arg(t_command *cmd, char *arg)
 {
 	int		i;
 	char	**new_args;
+	char	*expanded_arg;
 
+	// Handle expansion (including wildcards) for arg
+	expanded_arg = ft_strdup(arg);
+	
 	if (!cmd->args)
 	{
 		cmd->args = (char **)malloc(2 * sizeof(char *));
 		if (!cmd->args)
+		{
+			free(expanded_arg);
 			return;
-		cmd->args[0] = ft_strdup(arg);
+		}
+		cmd->args[0] = expanded_arg;
 		cmd->args[1] = NULL;
 		return;
 	}
@@ -57,14 +64,17 @@ void	add_arg(t_command *cmd, char *arg)
 		i++;
 	new_args = (char **)malloc((i + 2) * sizeof(char *));
 	if (!new_args)
+	{
+		free(expanded_arg);
 		return;
+	}
 	i = 0;
 	while (cmd->args[i])
 	{
 		new_args[i] = cmd->args[i];
 		i++;
 	}
-	new_args[i] = ft_strdup(arg);
+	new_args[i] = expanded_arg;
 	new_args[i + 1] = NULL;
 	free(cmd->args);
 	cmd->args = new_args;
@@ -144,7 +154,33 @@ int	parse_tokens(t_shell *shell)
 	while (token)
 	{
 		if (token->type == TOKEN_WORD)
-			add_arg(cmd, token->value);
+		{
+			// If the token value contains wildcards and we're not inside quotes
+			if (has_wildcards(token->value))
+			{
+				char **matches = expand_wildcards(token->value);
+				if (matches)
+				{
+					int i = 0;
+					while (matches[i])
+					{
+						add_arg(cmd, matches[i]);
+						i++;
+					}
+					free_matches(matches);
+				}
+				else
+				{
+					// If wildcard expansion fails, use the original token value
+					add_arg(cmd, token->value);
+				}
+			}
+			else
+			{
+				// No wildcards, just add the argument as is
+				add_arg(cmd, token->value);
+			}
+		}
 		else if (token->type == TOKEN_PIPE)
 		{
 			if (!token->next)
