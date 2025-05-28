@@ -238,12 +238,20 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 	pid_t *pids;
 	int i, cmd_count;
 	int exit_status = 0;
+	int is_nested_minishell = 0;
 	
 	// Count commands in pipeline
 	cmd_count = 0;
 	cmd = start_cmd;
 	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
 	{
+		// Check if any command in the pipeline is a minishell
+		if (cmd->args && cmd->args[0] && 
+			(ft_strcmp(cmd->args[0], "./minishell") == 0 ||
+			 ft_strcmp(cmd->args[0], "minishell") == 0))
+		{
+			is_nested_minishell = 1;
+		}
 		cmd_count++;
 		cmd = cmd->next;
 	}
@@ -366,6 +374,11 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 	
 	// Wait for all child processes
 	int status;
+	
+	// If running a nested minishell, ignore signals in the parent
+	if (is_nested_minishell)
+		ignore_signals();
+	
 	for (i = 0; i < cmd_count; i++)
 	{
 		waitpid(pids[i], &status, 0);
@@ -377,6 +390,10 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 				exit_status = 128 + WTERMSIG(status);
 		}
 	}
+	
+	// Restore signal handling after all children are done
+	if (is_nested_minishell)
+		restore_signals();
 	
 	free(pids);
 	return (exit_status);
@@ -397,6 +414,7 @@ int	execute_commands(t_shell *shell)
 	int			exit_status;
 	int			stdin_backup;
 	int			stdout_backup;
+	int         is_nested_minishell;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -423,6 +441,11 @@ int	execute_commands(t_shell *shell)
 				goto next_command;
 			}
 		}
+		
+		// Check if this is a nested minishell command
+		is_nested_minishell = (cmd->args && cmd->args[0] && 
+			(ft_strcmp(cmd->args[0], "./minishell") == 0 ||
+			 ft_strcmp(cmd->args[0], "minishell") == 0));
 		
 		// Execute the command with proper pipe handling
 		if (cmd->next && cmd->next_op == 0) // Command is part of a pipeline
@@ -458,18 +481,24 @@ int	execute_commands(t_shell *shell)
 					}
 					if (execve(path, cmd->args, shell->env) == -1)
 					{
-						if (errno == ENOEXEC)
-							print_error(cmd->args[0], NULL, "Permission denied");
-						else
-							print_error(cmd->args[0], NULL, strerror(errno));
+						print_error(cmd->args[0], NULL, strerror(errno));
 						free(path);
 						exit(127);
 					}
 				}
 				else if (pid > 0) // Parent
 				{
+					// If we're running a nested minishell, ignore signals in the parent
+					if (is_nested_minishell)
+						ignore_signals();
+						
 					int status;
 					waitpid(pid, &status, 0);
+					
+					// Restore signal handling after child is done
+					if (is_nested_minishell)
+						restore_signals();
+						
 					if (WIFEXITED(status))
 						exit_status = WEXITSTATUS(status);
 					else if (WIFSIGNALED(status))

@@ -75,6 +75,8 @@ void	shell_cleanup(t_shell *shell);
 /* signals.c */
 void	setup_signals(void);
 void	handle_signals(int signum);
+void	ignore_signals(void);
+void	restore_signals(void);
 
 /* lexer.c */
 int		tokenize_input(t_shell *shell, char *input);
