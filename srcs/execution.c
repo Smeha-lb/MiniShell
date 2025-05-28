@@ -34,20 +34,6 @@ char	*find_command_path(t_shell *shell, char *cmd)
 	char	*path_env;
 	int		i;
 
-	// Check if cmd contains spaces - it might be a command from an environment variable
-	if (cmd && ft_strchr(cmd, ' '))
-	{
-		char **parsed_args = parse_command_string(cmd);
-		if (parsed_args && parsed_args[0])
-		{
-			path = find_command_path(shell, parsed_args[0]);
-			free_array(parsed_args);
-			return path;
-		}
-		if (parsed_args)
-			free_array(parsed_args);
-	}
-
 	if (!cmd || ft_strlen(cmd) == 0)
 		return (NULL);
 	if (cmd[0] == '/' || (cmd[0] == '.' && cmd[1] == '/'))
@@ -100,7 +86,10 @@ void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 	env_array = shell->env;
 	if (execve(path, cmd->args, env_array) == -1)
 	{
-		print_error(cmd->args[0], NULL, strerror(errno));
+		if (errno == ENOEXEC)
+			print_error(cmd->args[0], NULL, "Permission denied");
+		else
+			print_error(cmd->args[0], NULL, strerror(errno));
 		exit(127);
 	}
 }
@@ -338,21 +327,6 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 			if (cmd->redirs && setup_redirections(cmd) != 0)
 				exit(1);
 			
-			// Check if the command contains spaces (might be from an environment variable)
-			if (cmd->args[0] && ft_strchr(cmd->args[0], ' '))
-			{
-				char **args = parse_command_string(cmd->args[0]);
-				if (!args)
-				{
-					print_error(cmd->args[0], NULL, "command not found");
-					exit(127);
-				}
-				
-				// Replace the original args with the parsed ones
-				free_array(cmd->args);
-				cmd->args = args;
-			}
-			
 			// Execute command
 			if (is_builtin(cmd->args[0]))
 			{
@@ -368,7 +342,10 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 				}
 				if (execve(path, cmd->args, shell->env) == -1)
 				{
-					print_error(cmd->args[0], NULL, strerror(errno));
+					if (errno == ENOEXEC)
+						print_error(cmd->args[0], NULL, "Permission denied");
+					else
+						print_error(cmd->args[0], NULL, strerror(errno));
 					free(path);
 					exit(127);
 				}
@@ -420,7 +397,6 @@ int	execute_commands(t_shell *shell)
 	int			exit_status;
 	int			stdin_backup;
 	int			stdout_backup;
-	char        **args;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -429,18 +405,6 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
-		// Check for environment variable command with spaces
-		if (cmd->args && cmd->args[0] && ft_strchr(cmd->args[0], ' '))
-		{
-			args = parse_command_string(cmd->args[0]);
-			if (args)
-			{
-				// Replace the original args with the parsed ones
-				free_array(cmd->args);
-				cmd->args = args;
-			}
-		}
-		
 		// Each command gets its own redirection context
 		stdin_backup = dup(STDIN_FILENO);
 		stdout_backup = dup(STDOUT_FILENO);
@@ -486,21 +450,6 @@ int	execute_commands(t_shell *shell)
 				pid_t pid = fork();
 				if (pid == 0) // Child
 				{
-					// Check if the command contains spaces (might be from an environment variable)
-					if (cmd->args[0] && ft_strchr(cmd->args[0], ' '))
-					{
-						char **args = parse_command_string(cmd->args[0]);
-						if (!args)
-						{
-							print_error(cmd->args[0], NULL, "command not found");
-							exit(127);
-						}
-						
-						// Replace the original args with the parsed ones
-						free_array(cmd->args);
-						cmd->args = args;
-					}
-					
 					char *path = find_command_path(shell, cmd->args[0]);
 					if (!path)
 					{
@@ -509,7 +458,10 @@ int	execute_commands(t_shell *shell)
 					}
 					if (execve(path, cmd->args, shell->env) == -1)
 					{
-						print_error(cmd->args[0], NULL, strerror(errno));
+						if (errno == ENOEXEC)
+							print_error(cmd->args[0], NULL, "Permission denied");
+						else
+							print_error(cmd->args[0], NULL, strerror(errno));
 						free(path);
 						exit(127);
 					}
