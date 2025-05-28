@@ -60,3 +60,4 @@ minishell
 .vscode/
 minishell
 *.txt
+/tmp
