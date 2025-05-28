@@ -2,11 +2,26 @@
 
 void	shell_init(t_shell *shell, char **env)
 {
+	char	*shlvl_value;
+	int		shlvl;
+	char	new_shlvl[12];  // Buffer for level string
+
 	shell->env = copy_env(env);
 	shell->tokens = NULL;
 	shell->commands = NULL;
 	shell->exit_status = 0;
 	shell->running = 1;
+	
+	// Increment SHLVL
+	shlvl_value = get_env_value(shell, "SHLVL");
+	if (shlvl_value)
+		shlvl = ft_atoi(shlvl_value);
+	else
+		shlvl = 0;
+		
+	shlvl++;
+	sprintf(new_shlvl, "%d", shlvl);
+	set_env_var(shell, "SHLVL", new_shlvl);
 }
 
 void	process_input(t_shell *shell, char *input)
@@ -62,6 +77,22 @@ void	shell_loop(t_shell *shell)
 
 void	shell_cleanup(t_shell *shell)
 {
+	char	*shlvl_value;
+	int		shlvl;
+	char	new_shlvl[12];  // Buffer for level string
+	
+	// Decrement SHLVL (but not below 0)
+	shlvl_value = get_env_value(shell, "SHLVL");
+	if (shlvl_value)
+		shlvl = ft_atoi(shlvl_value);
+	else
+		shlvl = 1;  // Default to 1 so we'll set it to 0
+		
+	shlvl--;
+	if (shlvl < 0) shlvl = 0;  // Don't go below 0
+	sprintf(new_shlvl, "%d", shlvl);
+	set_env_var(shell, "SHLVL", new_shlvl);
+	
 	if (shell->tokens)
 		free_tokens(shell->tokens);
 	if (shell->commands)
