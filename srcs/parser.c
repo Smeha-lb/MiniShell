@@ -237,7 +237,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors
 			}
 			
 			// Parse the subshell
@@ -247,7 +247,7 @@ int	parse_tokens(t_shell *shell)
 			if (!cmd->subshell)
 			{
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors
 			}
 			
 			// Skip to the closing parenthesis
@@ -258,7 +258,7 @@ int	parse_tokens(t_shell *shell)
 			// Unexpected closing parenthesis
 			ft_putendl_fd("Error: Syntax error near unexpected token `)'", 2);
 			free_commands(cmd_head);
-			return (1);
+			return (2);  // Return 2 for syntax errors
 		}
 		else if (token->type == TOKEN_WORD)
 		{
@@ -294,7 +294,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `|'", 2);
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors
 			}
 			cmd->next = create_command();
 			cmd = cmd->next;
@@ -305,7 +305,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `&&'", 2);
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors
 			}
 			cmd->next_op = 1;  // Mark for AND operator
 			cmd->next = create_command();
@@ -317,7 +317,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `||'", 2);
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors
 			}
 			cmd->next_op = 2;  // Mark for OR operator
 			cmd->next = create_command();
@@ -330,7 +330,7 @@ int	parse_tokens(t_shell *shell)
 			if (!token)
 			{
 				free_commands(cmd_head);
-				return (1);
+				return (2);  // Return 2 for syntax errors near redirections
 			}
 		}
 		token = token->next;
