@@ -1,5 +1,8 @@
 #include "../includes/minishell.h"
 
+// Make previous_cmd accessible to shell_cleanup
+static char *g_previous_cmd = NULL;
+
 void	shell_init(t_shell *shell, char **env)
 {
 	char	*shlvl_value;
@@ -29,7 +32,16 @@ void	process_input(t_shell *shell, char *input)
 	if (!input || ft_strlen(input) == 0)
 		return;
 	
-	add_history(input);
+	// Add to history only if it's different from the previous command
+	if (!g_previous_cmd || ft_strcmp(input, g_previous_cmd) != 0)
+	{
+		add_history(input);
+		
+		// Update previous command
+		if (g_previous_cmd)
+			free(g_previous_cmd);
+		g_previous_cmd = ft_strdup(input);
+	}
 	
 	if (tokenize_input(shell, input) != 0)
 	{
@@ -80,6 +92,13 @@ void	shell_cleanup(t_shell *shell)
 	char	*shlvl_value;
 	int		shlvl;
 	char	new_shlvl[12];  // Buffer for level string
+	
+	// Free the previous command memory
+	if (g_previous_cmd)
+	{
+		free(g_previous_cmd);
+		g_previous_cmd = NULL;
+	}
 	
 	// Decrement SHLVL (but not below 0)
 	shlvl_value = get_env_value(shell, "SHLVL");
