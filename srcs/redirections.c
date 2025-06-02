@@ -50,9 +50,9 @@ int	handle_heredoc(t_shell *shell, t_redir *redir)
 {
 	int		pipefd[2];
 	char	*line;
+	char	*expanded_line;
 	char	*delimiter;
 
-	(void)shell; // Unused parameter
 	delimiter = redir->file;
 	if (pipe(pipefd) == -1)
 	{
@@ -73,7 +73,19 @@ int	handle_heredoc(t_shell *shell, t_redir *redir)
 			free(line);
 			break;
 		}
-		ft_putendl_fd(line, pipefd[1]);
+		
+		// Expand variables in the heredoc line
+		expanded_line = expand_variables(shell, line, 0);
+		if (expanded_line)
+		{
+			ft_putendl_fd(expanded_line, pipefd[1]);
+			free(expanded_line);
+		}
+		else
+		{
+			ft_putendl_fd(line, pipefd[1]);
+		}
+		
 		free(line);
 	}
 	
@@ -88,12 +100,13 @@ int	handle_heredoc(t_shell *shell, t_redir *redir)
 	return (0);
 }
 
-int	setup_redirections(t_command *cmd)
+int	setup_redirections(t_shell *shell, t_command *cmd)
 {
 	t_redir	*redir;
 
 	if (!cmd)
 		return (0);
+	
 	redir = cmd->redirs;
 	while (redir)
 	{
@@ -114,7 +127,7 @@ int	setup_redirections(t_command *cmd)
 		}
 		else if (redir->type == TOKEN_HEREDOC)
 		{
-			if (handle_heredoc(NULL, redir) != 0)
+			if (handle_heredoc(shell, redir) != 0)
 				return (1);
 		}
 		redir = redir->next;

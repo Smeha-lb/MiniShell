@@ -48,7 +48,17 @@ void	free_tokens(t_token *tokens)
 
 int	handle_special_char(t_shell *shell, char *input, int *i)
 {
-	if (input[*i] == '|')
+	if (input[*i] == '(')
+	{
+		add_token(&shell->tokens, create_token("(", TOKEN_LPAREN));
+		(*i)++;
+	}
+	else if (input[*i] == ')')
+	{
+		add_token(&shell->tokens, create_token(")", TOKEN_RPAREN));
+		(*i)++;
+	}
+	else if (input[*i] == '|')
 	{
 		if (input[*i + 1] == '|')
 		{
@@ -164,6 +174,7 @@ int	extract_word(char *input, int *i, t_shell *shell)
 	start = *i;
 	while (input[*i] && input[*i] != ' ' && input[*i] != '\t' &&
 		   input[*i] != '|' && input[*i] != '<' && input[*i] != '>' && 
+		   input[*i] != '(' && input[*i] != ')' &&
 		   !(input[*i] == '&' && input[*i + 1] == '&'))
 		(*i)++;
 	word = (char *)malloc((*i - start + 1) * sizeof(char));
@@ -199,6 +210,7 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	j = *i;
 	while (input[j] && input[j] != ' ' && input[j] != '\t' &&
 		   input[j] != '|' && input[j] != '<' && input[j] != '>' &&
+		   input[j] != '(' && input[j] != ')' &&
 		   !(input[j] == '&' && input[j + 1] == '&'))
 	{
 		// For quoted sections, count the entire quoted content
@@ -253,6 +265,7 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	j = 0;
 	while (input[*i] && input[*i] != ' ' && input[*i] != '\t' &&
 		   input[*i] != '|' && input[*i] != '<' && input[*i] != '>' &&
+		   input[*i] != '(' && input[*i] != ')' &&
 		   !(input[*i] == '&' && input[*i + 1] == '&'))
 	{
 		if (input[*i] == '\'' || input[*i] == '\"')

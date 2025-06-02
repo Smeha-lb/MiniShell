@@ -91,7 +91,7 @@ void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 		}
 	}
 	
-	if (setup_redirections(cmd) != 0)
+	if (setup_redirections(shell, cmd) != 0)
 		exit(1);
 	
 	if (cmd->pipe_in != -1)
@@ -234,7 +234,7 @@ int	execute_single_command(t_shell *shell, t_command *cmd)
 		int stdin_backup = dup(STDIN_FILENO);
 		int stdout_backup = dup(STDOUT_FILENO);
 
-		if (setup_redirections(cmd) != 0)
+		if (setup_redirections(shell, cmd) != 0)
 			return (1);
 
 		result = execute_builtin(shell, cmd);
@@ -354,7 +354,7 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 			}
 			
 			// Apply any redirections for this command
-			if (cmd->redirs && setup_redirections(cmd) != 0)
+			if (cmd->redirs && setup_redirections(shell, cmd) != 0)
 				exit(1);
 			
 			// Check if command came from an environment variable and needs splitting
@@ -450,6 +450,7 @@ int	execute_commands(t_shell *shell)
 	int			stdout_backup;
 	int         is_nested_minishell;
 	char        **args;
+	t_shell     subshell;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -458,6 +459,51 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
+		// Handle subshell command
+		if (cmd->is_subshell && cmd->subshell)
+		{
+			// Create a temporary shell for the subshell
+			subshell.env = copy_env(shell->env);
+			subshell.tokens = NULL;
+			subshell.commands = cmd->subshell;
+			subshell.exit_status = shell->exit_status;
+			subshell.running = 1;
+			
+			// Each subshell gets its own redirection context
+			stdin_backup = dup(STDIN_FILENO);
+			stdout_backup = dup(STDOUT_FILENO);
+			
+			// Apply redirections if any
+			if (cmd->redirs)
+			{
+				if (setup_redirections(shell, cmd) != 0)
+				{
+					// If redirection fails, skip this command
+					dup2(stdin_backup, STDIN_FILENO);
+					dup2(stdout_backup, STDOUT_FILENO);
+					close(stdin_backup);
+					close(stdout_backup);
+					free_array(subshell.env);
+					exit_status = 1;
+					goto next_command;
+				}
+			}
+			
+			// Execute the subshell
+			exit_status = execute_subshell(shell, cmd->subshell);
+			
+			// Restore stdin and stdout
+			dup2(stdin_backup, STDIN_FILENO);
+			dup2(stdout_backup, STDOUT_FILENO);
+			close(stdin_backup);
+			close(stdout_backup);
+			
+			// Cleanup
+			free_array(subshell.env);
+			
+			goto next_command;
+		}
+		
 		// Check if command came from an environment variable and needs splitting
 		if (cmd->args && cmd->args[0] && is_from_env_var(cmd->args[0]))
 		{
@@ -477,7 +523,7 @@ int	execute_commands(t_shell *shell)
 		// Apply redirections only for the current command
 		if (cmd->redirs)
 		{
-			if (setup_redirections(cmd) != 0)
+			if (setup_redirections(shell, cmd) != 0)
 			{
 				// If redirection fails, skip this command
 				dup2(stdin_backup, STDIN_FILENO);
@@ -578,33 +624,27 @@ int	execute_commands(t_shell *shell)
 		close(stdout_backup);
 		
 next_command:
-		// If there are no more commands, we're done
-		if (!cmd->next)
-			break;
-		
-		// Handle logical operators
-		if (cmd->next_op == 1) // AND (&&)
+		// Check logical operators for next command
+		if (cmd->next_op == 1 && exit_status == 0) // AND operator with success
+			cmd = cmd->next;
+		else if (cmd->next_op == 1 && exit_status != 0) // AND operator with failure
 		{
-			if (exit_status != 0)
-			{
-				// Skip the next command(s) until we find || or the end
+			// Skip to next command after the following OR, if any
+			cmd = cmd->next;
+			while (cmd && cmd->next && cmd->next_op == 1)
 				cmd = cmd->next;
-				while (cmd && cmd->next_op == 1)
-					cmd = cmd->next;
-			}
 		}
-		else if (cmd->next_op == 2) // OR (||)
+		else if (cmd->next_op == 2 && exit_status != 0) // OR operator with failure
+			cmd = cmd->next;
+		else if (cmd->next_op == 2 && exit_status == 0) // OR operator with success
 		{
-			if (exit_status == 0)
-			{
-				// Skip the next command(s) until we find && or the end
+			// Skip to next command after the following AND, if any
+			cmd = cmd->next;
+			while (cmd && cmd->next && cmd->next_op == 2)
 				cmd = cmd->next;
-				while (cmd && cmd->next_op == 2)
-					cmd = cmd->next;
-			}
 		}
-		
-		cmd = cmd->next;
+		else
+			cmd = cmd->next;
 	}
 	
 	return (exit_status);
@@ -621,4 +661,52 @@ int is_from_env_var(char *cmd)
         return 1;
     }
     return 0;
+}
+
+// Function to execute a subshell command
+int execute_subshell(t_shell *shell, t_command *subshell_cmd)
+{
+    pid_t pid;
+    int status;
+    int exit_status = 0;
+    
+    // Subshells always execute in a forked process
+    pid = fork();
+    
+    if (pid == -1)
+    {
+        print_error("fork", NULL, strerror(errno));
+        return 1;
+    }
+    else if (pid == 0) // Child process
+    {
+        // Execute the subshell commands
+        t_shell temp_shell;
+        
+        // Copy shell properties to ensure proper environment for variable expansion
+        temp_shell.env = copy_env(shell->env);
+        temp_shell.exit_status = shell->exit_status;
+        temp_shell.running = 1;
+        temp_shell.tokens = NULL;
+        temp_shell.commands = subshell_cmd;
+        
+        exit_status = execute_commands(&temp_shell);
+        
+        // Clean up
+        free_array(temp_shell.env);
+        
+        exit(exit_status);
+    }
+    else // Parent process
+    {
+        // Wait for the subshell to complete
+        waitpid(pid, &status, 0);
+        
+        if (WIFEXITED(status))
+            exit_status = WEXITSTATUS(status);
+        else if (WIFSIGNALED(status))
+            exit_status = 128 + WTERMSIG(status);
+    }
+    
+    return exit_status;
 } 

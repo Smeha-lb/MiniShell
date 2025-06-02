@@ -32,6 +32,8 @@ typedef enum e_token_type
 	TOKEN_HEREDOC,
 	TOKEN_AND,
 	TOKEN_OR,
+	TOKEN_LPAREN,    // Left parenthesis (
+	TOKEN_RPAREN,    // Right parenthesis )
 }	t_token_type;
 
 typedef struct s_token
@@ -55,6 +57,8 @@ typedef struct s_command
 	int				pipe_in;
 	int				pipe_out;
 	int				next_op;  // 0 for none, 1 for &&, 2 for ||
+	int             is_subshell; // Flag for subshell commands
+	struct s_command	*subshell; // Pointer to subshell commands (if is_subshell is true)
 	struct s_command	*next;
 }	t_command;
 
@@ -82,14 +86,19 @@ void	restore_signals(void);
 int		tokenize_input(t_shell *shell, char *input);
 void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
+void    add_token(t_token **head, t_token *new_token);
 
 /* parser.c */
 int		parse_tokens(t_shell *shell);
 void	free_commands(t_command *commands);
+t_token *find_matching_paren(t_token *start);
+t_token *copy_tokens_section(t_token *start, t_token *end);
+t_command *parse_subshell(t_token *start, t_token *end);
 
 /* execution.c */
 int		execute_commands(t_shell *shell);
 int		execute_single_command(t_shell *shell, t_command *cmd);
+int     execute_subshell(t_shell *shell, t_command *subshell_cmd);
 char	*find_command_path(t_shell *shell, char *cmd);
 char    **parse_command_string(char *cmd_str);
 int     is_from_env_var(char *cmd);
@@ -107,7 +116,7 @@ int		builtin_env(t_shell *shell);
 int		builtin_exit(t_shell *shell, t_command *cmd);
 
 /* redirections.c */
-int		setup_redirections(t_command *cmd);
+int		setup_redirections(t_shell *shell, t_command *cmd);
 int		handle_heredoc(t_shell *shell, t_redir *redir);
 
 /* env_utils.c */

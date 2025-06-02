@@ -12,6 +12,8 @@ t_command	*create_command(void)
 	cmd->pipe_in = -1;
 	cmd->pipe_out = -1;
 	cmd->next_op = 0;  // Initialize next_op to 0 (none)
+	cmd->is_subshell = 0;  // Initialize is_subshell to 0 (false)
+	cmd->subshell = NULL;  // Initialize subshell to NULL
 	cmd->next = NULL;
 	return (cmd);
 }
@@ -102,6 +104,11 @@ void	free_commands(t_command *commands)
 	{
 		temp = commands;
 		commands = commands->next;
+		
+		// Free subshell commands if any
+		if (temp->is_subshell && temp->subshell)
+			free_commands(temp->subshell);
+			
 		if (temp->args)
 		{
 			i = 0;
@@ -140,11 +147,80 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 	return (next_token);
 }
 
+// Function to find the matching closing parenthesis
+t_token *find_matching_paren(t_token *start)
+{
+	int paren_count = 1;  // Start with 1 for the opening parenthesis
+	t_token *token = start->next;
+	
+	while (token && paren_count > 0)
+	{
+		if (token->type == TOKEN_LPAREN)
+			paren_count++;
+		else if (token->type == TOKEN_RPAREN)
+			paren_count--;
+		
+		if (paren_count == 0)
+			return token;
+			
+		token = token->next;
+	}
+	
+	return NULL;  // No matching closing parenthesis found
+}
+
+// Function to create a new tokens list from a subshell section
+t_token *copy_tokens_section(t_token *start, t_token *end)
+{
+	t_token *head = NULL;
+	t_token *token = start->next;  // Skip the opening parenthesis
+	
+	while (token && token != end)  // Stop before the closing parenthesis
+	{
+		add_token(&head, create_token(token->value, token->type));
+		token = token->next;
+	}
+	
+	return head;
+}
+
+// Function to parse a subshell command
+t_command *parse_subshell(t_token *start, t_token *end)
+{
+	t_shell temp_shell;
+	t_token *subshell_tokens;
+	
+	// Initialize temporary shell
+	temp_shell.tokens = NULL;
+	temp_shell.commands = NULL;
+	
+	// Create a copy of the tokens between parentheses
+	subshell_tokens = copy_tokens_section(start, end);
+	temp_shell.tokens = subshell_tokens;
+	
+	// Parse the subshell tokens
+	if (parse_tokens(&temp_shell) != 0)
+	{
+		// Clean up on error
+		if (subshell_tokens)
+			free_tokens(subshell_tokens);
+		if (temp_shell.commands)
+			free_commands(temp_shell.commands);
+		return NULL;
+	}
+	
+	// Free the temporary tokens but keep the commands
+	free_tokens(subshell_tokens);
+	
+	return temp_shell.commands;
+}
+
 int	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
 	t_command	*cmd;
 	t_command	*cmd_head;
+	t_token     *closing_paren;
 
 	token = shell->tokens;
 	if (!token)
@@ -153,7 +229,38 @@ int	parse_tokens(t_shell *shell)
 	cmd_head = cmd;
 	while (token)
 	{
-		if (token->type == TOKEN_WORD)
+		if (token->type == TOKEN_LPAREN)
+		{
+			// Find matching closing parenthesis
+			closing_paren = find_matching_paren(token);
+			if (!closing_paren)
+			{
+				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
+				free_commands(cmd_head);
+				return (1);
+			}
+			
+			// Parse the subshell
+			cmd->is_subshell = 1;
+			cmd->subshell = parse_subshell(token, closing_paren);
+			
+			if (!cmd->subshell)
+			{
+				free_commands(cmd_head);
+				return (1);
+			}
+			
+			// Skip to the closing parenthesis
+			token = closing_paren;
+		}
+		else if (token->type == TOKEN_RPAREN)
+		{
+			// Unexpected closing parenthesis
+			ft_putendl_fd("Error: Syntax error near unexpected token `)'", 2);
+			free_commands(cmd_head);
+			return (1);
+		}
+		else if (token->type == TOKEN_WORD)
 		{
 			// If the token value contains wildcards and we're not inside quotes
 			if (has_wildcards(token->value))
