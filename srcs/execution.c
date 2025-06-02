@@ -68,6 +68,28 @@ char	*find_command_path(t_shell *shell, char *cmd)
 void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 {
 	char	**env_array;
+	char    **args;
+	
+	// Check if command came from an environment variable and needs splitting
+	if (cmd->args && cmd->args[0] && is_from_env_var(cmd->args[0]))
+	{
+		args = parse_command_string(cmd->args[0]);
+		if (args)
+		{
+			// Replace the original args with the parsed ones
+			free_array(cmd->args);
+			cmd->args = args;
+			
+			// Find the path again since the command might have changed
+			free(path);
+			path = find_command_path(shell, cmd->args[0]);
+			if (!path)
+			{
+				print_error(cmd->args[0], NULL, "command not found");
+				exit(127);
+			}
+		}
+	}
 	
 	if (setup_redirections(cmd) != 0)
 		exit(1);
@@ -335,6 +357,18 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 			if (cmd->redirs && setup_redirections(cmd) != 0)
 				exit(1);
 			
+			// Check if command came from an environment variable and needs splitting
+			if (cmd->args[0] && is_from_env_var(cmd->args[0]))
+			{
+				char **args = parse_command_string(cmd->args[0]);
+				if (args)
+				{
+					// Replace the original args with the parsed ones
+					free_array(cmd->args);
+					cmd->args = args;
+				}
+			}
+			
 			// Execute command
 			if (is_builtin(cmd->args[0]))
 			{
@@ -415,6 +449,7 @@ int	execute_commands(t_shell *shell)
 	int			stdin_backup;
 	int			stdout_backup;
 	int         is_nested_minishell;
+	char        **args;
 	
 	cmd = shell->commands;
 	if (!cmd)
@@ -423,6 +458,18 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
+		// Check if command came from an environment variable and needs splitting
+		if (cmd->args && cmd->args[0] && is_from_env_var(cmd->args[0]))
+		{
+			args = parse_command_string(cmd->args[0]);
+			if (args)
+			{
+				// Replace the original args with the parsed ones
+				free_array(cmd->args);
+				cmd->args = args;
+			}
+		}
+		
 		// Each command gets its own redirection context
 		stdin_backup = dup(STDIN_FILENO);
 		stdout_backup = dup(STDOUT_FILENO);
@@ -473,6 +520,18 @@ int	execute_commands(t_shell *shell)
 				pid_t pid = fork();
 				if (pid == 0) // Child
 				{
+					// Check if command came from an environment variable and needs splitting
+					if (cmd->args[0] && is_from_env_var(cmd->args[0]))
+					{
+						char **args = parse_command_string(cmd->args[0]);
+						if (args)
+						{
+							// Replace the original args with the parsed ones
+							free_array(cmd->args);
+							cmd->args = args;
+						}
+					}
+					
 					char *path = find_command_path(shell, cmd->args[0]);
 					if (!path)
 					{
@@ -549,4 +608,17 @@ next_command:
 	}
 	
 	return (exit_status);
+}
+
+// Add this helper function to determine if a command came from an environment variable
+// (rather than directly from quotes on the command line)
+int is_from_env_var(char *cmd)
+{
+    // If cmd contains a space and doesn't start with a quote, it's likely from an env var
+    if (cmd && ft_strchr(cmd, ' ') &&
+        cmd[0] != '\'' && cmd[0] != '\"')
+    {
+        return 1;
+    }
+    return 0;
 } 
