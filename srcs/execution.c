@@ -530,7 +530,19 @@ int	execute_commands(t_shell *shell)
 				dup2(stdout_backup, STDOUT_FILENO);
 				close(stdin_backup);
 				close(stdout_backup);
-				exit_status = 1;
+				
+				// Check if the failure was due to heredoc interruption (Ctrl+C)
+				if (g_signal_code == 130)
+				{
+					exit_status = 130;
+					// Reset signal_code for next command
+					g_signal_code = 0;
+				}
+				else
+				{
+					exit_status = 1;
+				}
+				
 				goto next_command;
 			}
 		}

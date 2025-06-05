@@ -78,6 +78,12 @@ void	shell_loop(t_shell *shell)
 		
 		if (!input)
 		{
+			if (g_signal_code)
+			{
+				// Just continue the loop if interrupted by Ctrl+C
+				continue;
+			}
+			// EOF (Ctrl+D)
 			ft_putendl_fd("exit", STDOUT_FILENO);
 			break;
 		}

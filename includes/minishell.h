@@ -116,8 +116,10 @@ int		builtin_env(t_shell *shell);
 int		builtin_exit(t_shell *shell, t_command *cmd);
 
 /* redirections.c */
-int		setup_redirections(t_shell *shell, t_command *cmd);
-int		handle_heredoc(t_shell *shell, t_redir *redir);
+int             redirect_input(char *file);
+int             redirect_output(char *file, int append);
+int             handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
+int             setup_redirections(t_shell *shell, t_command *cmd);
 
 /* env_utils.c */
 char	**copy_env(char **env);
