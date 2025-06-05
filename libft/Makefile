@@ -21,7 +21,8 @@ SRCS = ft_isdigit.c \
 	   ft_isdigit_str.c \
 	   ft_strjoin_free.c \
 	   ft_isalnum.c \
-	   ft_strlcpy.c
+	   ft_strlcpy.c \
+	   ft_itoa.c
 
 OBJS = $(SRCS:.c=.o)
 

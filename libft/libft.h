@@ -17,6 +17,7 @@ void	ft_putchar_fd(char c, int fd);
 void	ft_putstr_fd(char *s, int fd);
 void	ft_putendl_fd(char *s, int fd);
 int		ft_atoi(const char *str);
+char	*ft_itoa(int n);
 int		ft_strcmp(const char *s1, const char *s2);
 int		ft_isdigit_str(char *str);
 char	*ft_strjoin_free(char *s1, const char *s2);

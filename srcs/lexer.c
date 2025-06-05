@@ -292,9 +292,15 @@ int	handle_word(char *input, int *i, t_shell *shell)
 			if (ft_strcmp(var_name, "?") == 0)
 			{
 				// Handle $? for last exit status
-				char exit_status[12];
-				sprintf(exit_status, "%d", shell->exit_status);
-				var_value = ft_strdup(exit_status);
+				char *exit_status;
+				exit_status = ft_itoa(shell->exit_status);
+				if (!exit_status)
+				{
+					free(var_name);
+					free(word);
+					return (1);
+				}
+				var_value = exit_status; // This will be freed later
 			}
 			else
 			{

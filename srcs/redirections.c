@@ -1,6 +1,6 @@
 #include "../includes/minishell.h"
 
-// Convert an integer to a string without using sprintf
+// Convert an integer to a string
 char *int_to_str(int n)
 {
 	char *str;

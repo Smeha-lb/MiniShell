@@ -19,13 +19,14 @@ static char *get_var_value(t_shell *shell, char *var_name, int name_len)
 {
     char *name;
     char *value;
-    char exit_status[12];
 
     // Handle $? for exit status
     if (name_len == 1 && var_name[0] == '?')
     {
-        sprintf(exit_status, "%d", shell->exit_status);
-        return (ft_strdup(exit_status));
+        char *exit_status = ft_itoa(shell->exit_status);
+        if (!exit_status)
+            return (NULL);
+        return (exit_status);
     }
 
     // Extract the variable name

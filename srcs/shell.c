@@ -19,7 +19,7 @@ void	shell_init(t_shell *shell, char **env)
 {
 	char	*shlvl_value;
 	int		shlvl;
-	char	new_shlvl[12];  // Buffer for level string
+	char	*new_shlvl;  // Change to char pointer
 
 	shell->env = copy_env(env);
 	shell->tokens = NULL;
@@ -35,21 +35,11 @@ void	shell_init(t_shell *shell, char **env)
 		shlvl = 0;
 
 	shlvl++;
-	sprintf(new_shlvl, "%d", shlvl);
-	set_env_var(shell, "SHLVL", new_shlvl);
-}
-
-void	rf_process_input(t_shell *shell, char *input)
-{
-	if (!input || ft_strlen(input) == 0)
-		return ;
-
-	if (!g_previous_cmd || ft_strcmp(input, g_previous_cmd) != 0)
+	new_shlvl = ft_itoa(shlvl); 
+	if (new_shlvl)
 	{
-		add_history(input);
-		if (g_previous_cmd)
-			free(g_previous_cmd);
-		g_previous_cmd = ft_strdup(input);
+		set_env_var(shell, "SHLVL", new_shlvl);
+		free(new_shlvl);  // Free the allocated string
 	}
 }
 
@@ -121,8 +111,8 @@ void	shell_cleanup(t_shell *shell)
 {
 	char	*shlvl_value;
 	int		shlvl;
-	char	new_shlvl[12];  // Buffer for level string
-
+	char	*new_shlvl;  // Change to char pointer
+	
 	// Free the previous command memory
 	if (g_previous_cmd)
 	{
@@ -139,9 +129,13 @@ void	shell_cleanup(t_shell *shell)
 
 	shlvl--;
 	if (shlvl < 0) shlvl = 0;  // Don't go below 0
-	sprintf(new_shlvl, "%d", shlvl);
-	set_env_var(shell, "SHLVL", new_shlvl);
-
+	new_shlvl = ft_itoa(shlvl);
+	if (new_shlvl)
+	{
+		set_env_var(shell, "SHLVL", new_shlvl);
+		free(new_shlvl);  // Free the allocated string
+	}
+	
 	if (shell->tokens)
 		free_tokens(shell->tokens);
 	if (shell->commands)
