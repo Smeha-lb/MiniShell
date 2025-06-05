@@ -1,77 +1,53 @@
-NAME			:= minishell
+NAME = minishell
 
-CC				:= cc
-SRC_DIR			:= src/
-OBJ_DIR			:= obj/
-CFLAGS			:= -g -O3 -Wall -Werror -Wextra
-#FSANITIZE		:= -fsanitize=address -fsanitize=leak -fsanitize=undefined
-RM				:= rm -f
+CC = cc
+CFLAGS = -Wall -Wextra -Werror
+RM = rm -rf
 
-INC				:= inc/
-LIB				:= lib/
-PRINTF_DIR		:= $(LIB)ft_printf/
-LIBFT_DIR		:= $(LIB)libft/
-PRINTF			:= $(PRINTF_DIR)libftprintf.a
-LIBFT			:= $(LIBFT_DIR)libft.a
-HEADER			:= -I$(INC) -I$(LIBFT_DIR)
+SRCS_DIR = srcs/
+INCL_DIR = includes/
+OBJS_DIR = objs/
 
-# ? replace this with any required libraries present in path
+LIBFT_DIR = libft/
+LIBFT = $(LIBFT_DIR)libft.a
 
-LIBS			:= -lreadline -lhistory
+SRCS = main.c \
+	   shell.c \
+	   signals.c \
+	   lexer.c \
+	   parser.c \
+	   execution.c \
+	   builtins.c \
+	   redirections.c \
+	   env_utils.c \
+	   utils.c \
+	   expansion.c \
+	   wildcard.c
 
-SRC_FILES		= main env_utils err init lexing pwd_builtin tokens debug \
+OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.c=.o))
 
-SRC				= $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
-OBJ				= $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
-DEPS			= $(addprefix $(OBJ_DIR), $(addsuffix .d, $(SRC_FILES)))
-INCS			= $(addprefix $(INCLUDE), $(addsuffix .h, $(INC_FILES)))
+all: $(LIBFT) $(NAME)
 
-OBJF			= .cache_exists
+$(LIBFT):
+	@make -C $(LIBFT_DIR)
 
-all:	makelibs
-		@$(MAKE) $(NAME)
+$(NAME): $(OBJS)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) -L$(LIBFT_DIR) -lft -lreadline
 
-makelibs:
-	@$(MAKE) -C $(PRINTF_DIR)
-
-# if you want to test for leaks make sure to uncomment the value of FSANITIZE
-
--include	${DEPS}
-$(NAME):	$(OBJ)
-			@$(CC) $(CFLAGS) $(FSANITIZE) $(OBJ) $(PRINTF) $(LIBFT) $(LIBS) -o $(NAME)
-			@echo "⚙️$(CC) $(CFLAGS) $(FSANITIZE) $(OBJ) $(PRINTF) $(LIBS) -o $(NAME)"
-			@echo "Project Compiled Successfully!📀"
-
-bonus:
-			@$(MAKE) all
-
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INCS) | $(OBJF)
-				$(CC) $(CFLAGS) -MMD -c $< -o $@
-
-$(OBJF):
-				@mkdir -p $(OBJ_DIR)
-
-$(PRINTF):
-	@make -C $(PRINTF_DIR)
-	@echo "🟢 ft_printf compiled!"
-
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.c
+	@mkdir -p $(OBJS_DIR)
+	@$(CC) $(CFLAGS) -I$(INCL_DIR) -c $< -o $@
 
 clean:
-		@make clean -s -C $(PRINTF_DIR)
-		@echo "🔵 ft_printf objects and files cleaned!"
-		$(RM) -r $(OBJ_DIR)
-		@echo "🔵 Project Object Files Cleaned!"
+	@make clean -C $(LIBFT_DIR)
+	@$(RM) $(OBJS_DIR)
 
 fclean: clean
-		@echo "🧹 Cleaning Executables and Libs 🧹"
-		$(RM) $(NAME)
-		$(RM) $(LIBFT_DIR)libft.a
+	@make fclean -C $(LIBFT_DIR)
+	@$(RM) $(NAME)
 
-re:		fclean makelibs
-		@$(MAKE)
-		@echo "🟢 Cleaned and Rebuilt Everything!"
+re: fclean all
 
-norm:
-		@norminette $(SRC) $(INCLUDE) | grep -v Norme -B1 || true
+bonus: all
 
-.PHONY: all test bonus lib_clean clean fclean re norm
+.PHONY: all clean fclean re bonus 

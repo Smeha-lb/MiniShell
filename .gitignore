@@ -3,8 +3,11 @@
 
 # Object files
 *.o
+
+**/*.o
+
 *.ko
-*.obj
+**/*.obj
 *.elf
 
 # Linker output
@@ -55,3 +58,6 @@ minishell
 #vscode things
 .json
 .vscode/
+minishell
+*.txt
+/tmp
