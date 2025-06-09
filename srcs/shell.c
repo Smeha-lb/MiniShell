@@ -43,13 +43,13 @@ void	shell_init(t_shell *shell, char **env)
 	}
 }
 
-void	rf_process_input(t_shell *shell, char *input)
-{
-	if (!input || ft_strlen(input) == 0)
-		return;
+// void	rf_process_input(t_shell *shell, char *input)
+// {
+// 	if (!input || ft_strlen(input) == 0)
+// 		return;
 	
 
-}
+// }
 
 void	process_input(t_shell *shell, char *input)
 {
