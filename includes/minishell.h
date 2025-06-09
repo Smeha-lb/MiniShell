@@ -90,7 +90,7 @@ t_token	*create_token(char *value, t_token_type type);
 void    add_token(t_token **head, t_token *new_token);
 
 /* parser.c */
-int		parse_tokens(t_shell *shell);
+bool		parse_tokens(t_shell *shell);
 void	free_commands(t_command *commands);
 t_token *find_matching_paren(t_token *start);
 t_token *copy_tokens_section(t_token *start, t_token *end);

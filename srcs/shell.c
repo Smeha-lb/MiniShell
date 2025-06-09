@@ -43,13 +43,12 @@ void	shell_init(t_shell *shell, char **env)
 	}
 }
 
-// void	rf_process_input(t_shell *shell, char *input)
-// {
-// 	if (!input || ft_strlen(input) == 0)
-// 		return;
-	
-
-// }
+void	clean_tokens(t_shell *shell)
+{
+	shell->exit_status = 1;
+	free_tokens(shell->tokens);
+	shell->tokens = NULL;
+}
 
 void	process_input(t_shell *shell, char *input)
 {
@@ -63,20 +62,12 @@ void	process_input(t_shell *shell, char *input)
 			free(g_previous_cmd);
 		g_previous_cmd = ft_strdup(input);
 	}
-
 	if (!tokenize_input(shell, input))
-		return;
-
-	if (parse_tokens(shell) != 0)
-	{
-		shell->exit_status = 1;
-		free_tokens(shell->tokens);
-		shell->tokens = NULL;
-		return;
-	}
+		return (clean_tokens(shell));
+	if (!parse_tokens(shell))
+		return (clean_tokens(shell));
 
 	shell->exit_status = execute_commands(shell);
-
 	free_tokens(shell->tokens);
 	free_commands(shell->commands);
 	shell->tokens = NULL;

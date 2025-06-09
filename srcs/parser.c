@@ -215,7 +215,7 @@ t_command *parse_subshell(t_token *start, t_token *end)
 	return temp_shell.commands;
 }
 
-int	parse_tokens(t_shell *shell)
+bool	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
 	t_command	*cmd;
@@ -224,20 +224,19 @@ int	parse_tokens(t_shell *shell)
 
 	token = shell->tokens;
 	if (!token)
-		return (0);
+		return (true);
 	cmd = create_command();
 	cmd_head = cmd;
 	while (token)
 	{
 		if (token->type == TOKEN_LPAREN)
 		{
-			// Find matching closing parenthesis
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
 			{
 				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
+				return (false);
 			}
 			
 			// Parse the subshell
@@ -247,7 +246,7 @@ int	parse_tokens(t_shell *shell)
 			if (!cmd->subshell)
 			{
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
+				return (false);
 			}
 			
 			// Skip to the closing parenthesis
@@ -258,7 +257,7 @@ int	parse_tokens(t_shell *shell)
 			// Unexpected closing parenthesis
 			ft_putendl_fd("Error: Syntax error near unexpected token `)'", 2);
 			free_commands(cmd_head);
-			return (2);  // Return 2 for syntax errors
+			return (false);
 		}
 		else if (token->type == TOKEN_WORD)
 		{
@@ -294,7 +293,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `|'", 2);
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
+				return (false);
 			}
 			cmd->next = create_command();
 			cmd = cmd->next;
@@ -305,7 +304,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `&&'", 2);
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
+				return (false);
 			}
 			cmd->next_op = 1;  // Mark for AND operator
 			cmd->next = create_command();
@@ -317,7 +316,7 @@ int	parse_tokens(t_shell *shell)
 			{
 				ft_putendl_fd("Error: Syntax error near unexpected token `||'", 2);
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
+				return (false);
 			}
 			cmd->next_op = 2;  // Mark for OR operator
 			cmd->next = create_command();
@@ -330,11 +329,11 @@ int	parse_tokens(t_shell *shell)
 			if (!token)
 			{
 				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors near redirections
+				return (false);
 			}
 		}
 		token = token->next;
 	}
 	shell->commands = cmd_head;
-	return (0);
+	return (true);
 } 
