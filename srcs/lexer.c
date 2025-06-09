@@ -363,7 +363,7 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	return (0);
 }
 
-int	tokenize_input(t_shell *shell, char *input)
+bool	tokenize_input(t_shell *shell, char *input)
 {
 	int	i;
 
@@ -376,7 +376,12 @@ int	tokenize_input(t_shell *shell, char *input)
 		else if (handle_special_char(shell, input, &i))
 			continue;
 		else if (handle_word(input, &i, shell))
-			return (1);
+			{
+				shell->exit_status = 1;
+				free_tokens(shell->tokens);
+				shell->tokens = NULL;
+				return (false);
+			}
 	}
-	return (0);
+	return (true);
 } 

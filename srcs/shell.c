@@ -64,13 +64,8 @@ void	process_input(t_shell *shell, char *input)
 		g_previous_cmd = ft_strdup(input);
 	}
 
-	if (tokenize_input(shell, input) != 0)
-	{
-		shell->exit_status = 1;
-		free_tokens(shell->tokens);
-		shell->tokens = NULL;
+	if (!tokenize_input(shell, input))
 		return;
-	}
 
 	if (parse_tokens(shell) != 0)
 	{
