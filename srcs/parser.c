@@ -215,6 +215,13 @@ t_command *parse_subshell(t_token *start, t_token *end)
 	return temp_shell.commands;
 }
 
+void	parse_tokens_err(t_command *cmd_head, char *msg)
+{
+	ft_putstr_fd("Syntax Error: ", 2);
+	ft_putendl_fd(msg, 2);
+	free_commands(cmd_head);
+}
+
 int	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
@@ -231,15 +238,9 @@ int	parse_tokens(t_shell *shell)
 	{
 		if (token->type == TOKEN_LPAREN)
 		{
-			// Find matching closing parenthesis
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
-			{
-				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
-				free_commands(cmd_head);
-				return (2);  // Return 2 for syntax errors
-			}
-			
+				return (parse_tokens_err(cmd_head, "unclosed parenthesis"), 2);
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
@@ -254,12 +255,7 @@ int	parse_tokens(t_shell *shell)
 			token = closing_paren;
 		}
 		else if (token->type == TOKEN_RPAREN)
-		{
-			// Unexpected closing parenthesis
-			ft_putendl_fd("Error: Syntax error near unexpected token `)'", 2);
-			free_commands(cmd_head);
-			return (2);  // Return 2 for syntax errors
-		}
+			return (parse_tokens_err(cmd_head, ERR_RPAREN), 2);
 		else if (token->type == TOKEN_WORD)
 		{
 			// If the token value contains wildcards and we're not inside quotes

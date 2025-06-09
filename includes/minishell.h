@@ -20,6 +20,8 @@
 # define PROMPT "minishell> "
 # define HEREDOC_PROMPT "> "
 
+# define ERR_RPAREN "Syntax error near unexpected token `)'"
+
 extern int	g_signal_code;
 
 typedef enum e_token_type
