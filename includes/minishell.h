@@ -4,6 +4,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <stdbool.h>
 # include <fcntl.h>
 # include <sys/wait.h>
 # include <sys/stat.h>
@@ -85,7 +86,7 @@ void	ignore_signals(void);
 void	restore_signals(void);
 
 /* lexer.c */
-int		tokenize_input(t_shell *shell, char *input);
+bool		tokenize_input(t_shell *shell, char *input);
 void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
 void    add_token(t_token **head, t_token *new_token);
