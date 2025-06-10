@@ -225,9 +225,9 @@ void	parse_tokens_err(t_command *cmd_head, char *msg)
 int	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
+	t_token		*closing_paren;
 	t_command	*cmd;
 	t_command	*cmd_head;
-	t_token     *closing_paren;
 
 	token = shell->tokens;
 	if (!token)
@@ -244,7 +244,7 @@ int	parse_tokens(t_shell *shell)
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
-			
+			// ? does parse_subshell modify is_subshell? if so then the following logic is weird
 			if (!cmd->subshell)
 			{
 				free_commands(cmd_head);
