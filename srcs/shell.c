@@ -62,6 +62,7 @@ void	process_input(t_shell *shell, char *input)
 			free(g_previous_cmd);
 		g_previous_cmd = ft_strdup(input);
 	}
+	
 	if (!tokenize_input(shell, input))
 		return (clean_tokens(shell));
 	if (!parse_tokens(shell))

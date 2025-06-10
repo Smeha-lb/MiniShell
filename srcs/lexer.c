@@ -377,9 +377,7 @@ bool	tokenize_input(t_shell *shell, char *input)
 			continue;
 		else if (handle_word(input, &i, shell))
 			{
-				shell->exit_status = 1;
-				free_tokens(shell->tokens);
-				shell->tokens = NULL;
+
 				return (false);
 			}
 	}

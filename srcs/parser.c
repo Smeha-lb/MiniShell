@@ -218,9 +218,9 @@ t_command *parse_subshell(t_token *start, t_token *end)
 bool	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
+	t_token		*closing_paren;
 	t_command	*cmd;
 	t_command	*cmd_head;
-	t_token     *closing_paren;
 
 	token = shell->tokens;
 	if (!token)
@@ -234,6 +234,7 @@ bool	parse_tokens(t_shell *shell)
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
 			{
+				// ? this gets repeated A LOT
 				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
 				free_commands(cmd_head);
 				return (false);
@@ -242,7 +243,7 @@ bool	parse_tokens(t_shell *shell)
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
-			
+			// ? does parse_subshell modify is_subshell? if so then the following logic is weird
 			if (!cmd->subshell)
 			{
 				free_commands(cmd_head);
