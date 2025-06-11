@@ -118,12 +118,12 @@ int	handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file)
 	delimiter = redir->file;
 	
 	// Create temporary file for heredoc content
+	// ? move err handling inside create_heredoc_tempfile?
+	// create a temp_file at preallocated destination 
+	// what I can say here instead is to create the temp_file and the
 	*temp_file = create_heredoc_tempfile();
 	if (!*temp_file)
-	{
-		print_error("malloc", NULL, strerror(errno));
-		return (1);
-	}
+		return (print_error("malloc", NULL, strerror(errno)), 1);
 	
 	fd = open(*temp_file, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	if (fd == -1)
@@ -139,7 +139,6 @@ int	handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file)
 	sigemptyset(&sa_heredoc.sa_mask);
 	sa_heredoc.sa_flags = 0;
 	sigaction(SIGINT, &sa_heredoc, &sa_old);
-	
 	g_signal_code = 0; // Reset signal code
 	
 	while (1)
