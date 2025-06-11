@@ -173,13 +173,13 @@ t_token *find_matching_paren(t_token *start)
 	return NULL;  // No matching closing parenthesis found
 }
 
-// Function to create a new tokens list from a subshell section
+// create a new tokens list from a subshell section
 t_token *copy_tokens_section(t_token *start, t_token *end)
 {
 	t_token *head = NULL;
-	t_token *token = start->next;  // Skip the opening parenthesis
+	t_token *token = start->next;
 	
-	while (token && token != end)  // Stop before the closing parenthesis
+	while (token && token != end)
 	{
 		add_token(&head, create_token(token->value, token->type));
 		token = token->next;
