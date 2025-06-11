@@ -1,5 +1,9 @@
 #include "../includes/minishell.h"
 
+#define ERR_PIPE "Syntax error near unexpected token `|'"
+#define ERR_AND "Syntax error near unexpected token `&&'"
+#define ERR_OR "Syntax error near unexpected token `||'"
+
 t_command	*create_command(void)
 {
 	t_command	*cmd;
@@ -217,7 +221,7 @@ t_command *parse_subshell(t_token *start, t_token *end)
 
 void	parse_tokens_err(t_command *cmd_head, char *msg)
 {
-	ft_putstr_fd("Syntax Error: ", 2);
+	ft_putstr_fd("Error: ", 2);
 	ft_putendl_fd(msg, 2);
 	free_commands(cmd_head);
 }
@@ -263,7 +267,7 @@ bool	parse_tokens(t_shell *shell)
 		{
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
-			return (parse_tokens_err(cmd_head, "unclosed parenthesis"), true);
+			    return (parse_tokens_err(cmd_head, "unclosed parenthesis"), false);
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
@@ -278,28 +282,20 @@ bool	parse_tokens(t_shell *shell)
 			token = closing_paren;
 		}
 		else if (token->type == TOKEN_RPAREN)
-			return (parse_tokens_err(cmd_head, ERR_RPAREN), true);
+			return (parse_tokens_err(cmd_head, ERR_RPAREN), false);
 		else if (token->type == TOKEN_WORD)
 			parse_tokens_word(token->value, cmd);
 		else if (token->type == TOKEN_PIPE)
 		{
 			if (!token->next)
-			{
-				ft_putendl_fd("Error: Syntax error near unexpected token `|'", 2);
-				free_commands(cmd_head);
-				return (false);
-			}
+				return (parse_tokens_err(cmd_head, ERR_PIPE), false);
 			cmd->next = create_command();
 			cmd = cmd->next;
 		}
 		else if (token->type == TOKEN_AND)
 		{
 			if (!token->next)
-			{
-				ft_putendl_fd("Error: Syntax error near unexpected token `&&'", 2);
-				free_commands(cmd_head);
-				return (false);
-			}
+				return (parse_tokens_err(cmd_head, ERR_AND), false);
 			cmd->next_op = 1;  // Mark for AND operator
 			cmd->next = create_command();
 			cmd = cmd->next;
@@ -307,11 +303,7 @@ bool	parse_tokens(t_shell *shell)
 		else if (token->type == TOKEN_OR)
 		{
 			if (!token->next)
-			{
-				ft_putendl_fd("Error: Syntax error near unexpected token `||'", 2);
-				free_commands(cmd_head);
-				return (false);
-			}
+				return (parse_tokens_err(cmd_head, ERR_OR), false);
 			cmd->next_op = 2;  // Mark for OR operator
 			cmd->next = create_command();
 			cmd = cmd->next;
