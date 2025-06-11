@@ -92,6 +92,9 @@ void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
 void    add_token(t_token **head, t_token *new_token);
 
+/* redir.c */
+t_token	*handle_redir(t_token *token, t_command *cmd);
+
 /* parser.c */
 bool		parse_tokens(t_shell *shell);
 void	free_commands(t_command *commands);

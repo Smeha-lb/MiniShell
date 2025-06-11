@@ -12,17 +12,18 @@ LIBFT_DIR = libft/
 LIBFT = $(LIBFT_DIR)libft.a
 
 SRCS = main.c \
-	   shell.c \
-	   signals.c \
-	   lexer.c \
-	   parser.c \
-	   execution.c \
-	   builtins.c \
-	   redirections.c \
-	   env_utils.c \
-	   utils.c \
-	   expansion.c \
-	   wildcard.c
+		shell.c \
+		signals.c \
+		lexer.c \
+		redir.c \
+		parser.c \
+		execution.c \
+		builtins.c \
+		redirections.c \
+		env_utils.c \
+		utils.c \
+		expansion.c \
+		wildcard.c
 
 OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.c=.o))
 
