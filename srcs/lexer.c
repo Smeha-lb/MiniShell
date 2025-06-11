@@ -164,6 +164,41 @@ int	handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell)
 	return (0);
 }
 
+// Function to split expanded variable value and add multiple tokens if needed
+// This should only be used for simple variable expansions (like $VAR as a standalone word)
+void	add_expanded_tokens(t_shell *shell, char *expanded_value)
+{
+	char	**split_values;
+	int		i;
+
+	// Check if the expanded value contains spaces
+	if (ft_strchr(expanded_value, ' '))
+	{
+		// Split the expanded value into multiple tokens
+		split_values = ft_split(expanded_value, ' ');
+		if (split_values)
+		{
+			i = 0;
+			while (split_values[i])
+			{
+				// Skip empty tokens
+				if (ft_strlen(split_values[i]) > 0)
+					add_token(&shell->tokens, create_token(split_values[i], TOKEN_WORD));
+				i++;
+			}
+			free_array(split_values);
+		}
+	}
+	else
+	{
+		// Single token, add it directly (if not empty)
+		if (ft_strlen(expanded_value) > 0)
+			add_token(&shell->tokens, create_token(expanded_value, TOKEN_WORD));
+	}
+}
+
+int	handle_complex_word(char *input, int *i, t_shell *shell);
+
 int	extract_word(char *input, int *i, t_shell *shell)
 {
 	int		start;
@@ -189,13 +224,86 @@ int	extract_word(char *input, int *i, t_shell *shell)
 	expanded = expand_variables(shell, word, 0);
 	free(word);
 	
-	// Create token with expanded value (wildcards will be expanded later during expansion phase)
-	add_token(&shell->tokens, create_token(expanded, TOKEN_WORD));
+	// Create token(s) with expanded value, splitting on spaces if necessary
+	add_expanded_tokens(shell, expanded);
 	free(expanded);
 	return (0);
 }
 
 int	handle_word(char *input, int *i, t_shell *shell)
+{
+	int		start_pos = *i;
+	char	*var_name;
+	char	*var_value;
+	int		var_name_len;
+	
+	// Check if this is a simple variable expansion (like $VAR)
+	if (input[*i] == '$' && (ft_isalnum(input[*i + 1]) || input[*i + 1] == '_' || input[*i + 1] == '?'))
+	{
+		(*i)++; // Skip $
+		var_name_len = 0;
+		while (input[*i + var_name_len] && (ft_isalnum(input[*i + var_name_len]) || input[*i + var_name_len] == '_' || 
+			   (var_name_len == 0 && input[*i + var_name_len] == '?')))
+			var_name_len++;
+		
+		// Check if this is the entire word (no additional characters)
+		int temp_i = *i + var_name_len;
+		if (input[temp_i] == '\0' || input[temp_i] == ' ' || input[temp_i] == '\t' ||
+			input[temp_i] == '|' || input[temp_i] == '<' || input[temp_i] == '>' ||
+			input[temp_i] == '(' || input[temp_i] == ')' ||
+			(input[temp_i] == '&' && input[temp_i + 1] == '&'))
+		{
+			// This is a simple variable expansion, handle it with splitting
+			var_name = ft_substr(input, *i, var_name_len);
+			if (!var_name)
+				return (1);
+			
+			if (ft_strcmp(var_name, "?") == 0)
+			{
+				char *exit_status = ft_itoa(shell->exit_status);
+				if (!exit_status)
+				{
+					free(var_name);
+					return (1);
+				}
+				var_value = exit_status;
+			}
+			else
+			{
+				var_value = get_env_value(shell, var_name);
+				if (var_value)
+					var_value = ft_strdup(var_value);
+				else
+					var_value = ft_strdup("");
+			}
+			
+			if (!var_value)
+			{
+				free(var_name);
+				return (1);
+			}
+			
+			*i += var_name_len;
+			
+			// Use add_expanded_tokens to handle splitting
+			add_expanded_tokens(shell, var_value);
+			
+			free(var_name);
+			free(var_value);
+			return (0);
+		}
+		else
+		{
+			// Reset position and fall back to complex word handling
+			*i = start_pos;
+		}
+	}
+	
+	// Fall back to the original complex word handling logic
+	return (handle_complex_word(input, i, shell));
+}
+
+int	handle_complex_word(char *input, int *i, t_shell *shell)
 {
 	int		j;
 	char	*word;
@@ -357,7 +465,7 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	
 	word[j] = '\0';
 	
-	// Create the token with the expanded word (wildcards will be expanded later during expansion phase)
+	// For complex words, don't split - just add as single token
 	add_token(&shell->tokens, create_token(word, TOKEN_WORD));
 	free(word);
 	return (0);
