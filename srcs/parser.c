@@ -123,29 +123,6 @@ void	free_commands(t_command *commands)
 	}
 }
 
-t_token	*handle_redir(t_token *token, t_command *cmd)
-{
-	t_token_type	type;
-	t_token			*next_token;
-
-	type = token->type;
-	next_token = token->next;
-	if (!next_token || next_token->type != TOKEN_WORD)
-	{
-		ft_putendl_fd("Error: Syntax error near redirection", 2);
-		return (NULL);
-	}
-	if (type == TOKEN_REDIR_IN)
-		add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
-	else if (type == TOKEN_REDIR_OUT)
-		add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
-	else if (type == TOKEN_REDIR_APPEND)
-		add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
-	else if (type == TOKEN_HEREDOC)
-		add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
-	return (next_token);
-}
-
 t_token *find_matching_paren(t_token *start)
 {
 	int paren_count = 1;  // Start with 1 for the opening parenthesis

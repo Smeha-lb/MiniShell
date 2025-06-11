@@ -83,53 +83,54 @@ void	shell_loop(t_shell *shell)
 	{
 		g_signal_code = 0;
 		input = readline(PROMPT);
-
 		if (!input)
 		{
 			if (g_signal_code)
-			{
-				// Just continue the loop if interrupted by Ctrl+C
 				continue;
-			}
-			// EOF (Ctrl+D)
 			ft_putendl_fd("exit", STDOUT_FILENO);
 			break;
 		}
-
 		process_input(shell, input);
 		free(input);
 	}
 }
 
+void	cleanup_shlvl(t_shell *shell, int *shlvl, char *shlvl_value)
+{
+	char	*new_shlvl;
+
+	if (shlvl_value)
+		*shlvl = ft_atoi(shlvl_value);
+	else
+		*shlvl = 1;
+
+	(*shlvl)--;
+	if (*shlvl < 0) 
+		*shlvl = 0;
+
+	new_shlvl = ft_itoa(*shlvl);
+	if (new_shlvl)
+	{
+		set_env_var(shell, "SHLVL", new_shlvl);
+		free(new_shlvl);
+	}
+}
+
+// Free the previous command memory
+// Decrement SHLVL (but not below 0)
 void	shell_cleanup(t_shell *shell)
 {
-	char	*shlvl_value;
 	int		shlvl;
-	char	*new_shlvl;  // Change to char pointer
+	char	*shlvl_value;
 	
-	// Free the previous command memory
 	if (g_previous_cmd)
 	{
 		free(g_previous_cmd);
 		g_previous_cmd = NULL;
 	}
 
-	// Decrement SHLVL (but not below 0)
 	shlvl_value = get_env_value(shell, "SHLVL");
-	if (shlvl_value)
-		shlvl = ft_atoi(shlvl_value);
-	else
-		shlvl = 1;  // Default to 1 so we'll set it to 0
-
-	shlvl--;
-	if (shlvl < 0) shlvl = 0;  // Don't go below 0
-	new_shlvl = ft_itoa(shlvl);
-	if (new_shlvl)
-	{
-		set_env_var(shell, "SHLVL", new_shlvl);
-		free(new_shlvl);  // Free the allocated string
-	}
-	
+	cleanup_shlvl(shell, &shlvl, shlvl_value);
 	if (shell->tokens)
 		free_tokens(shell->tokens);
 	if (shell->commands)
