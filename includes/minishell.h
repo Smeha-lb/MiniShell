@@ -20,6 +20,7 @@
 
 # define PROMPT "minishell> "
 # define HEREDOC_PROMPT "> "
+# define ERR_RPAREN "Syntax error near unexpected token `)'"
 
 # define ERR_RPAREN "Syntax error near unexpected token `)'"
 

@@ -222,13 +222,35 @@ void	parse_tokens_err(t_command *cmd_head, char *msg)
 	free_commands(cmd_head);
 }
 
-int	parse_tokens(t_shell *shell)
+// If wildcard expansion fails, use the original token value
+// otherwise just add the argument as is
+
+void	parse_tokens_word(char *value, t_command *cmd)
+{
+	char **matches;
+	
+	if (!has_wildcards(value))
+		return (add_arg(cmd, value));
+
+	matches = expand_wildcards(value);
+	if (!matches)
+		return (add_arg(cmd, value));
+	
+	int i = 0;
+	while (matches[i])
+	{
+		add_arg(cmd, matches[i]);
+		i++;
+	}
+	free_matches(matches);
+}
+
+bool	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
 	t_token		*closing_paren;
 	t_command	*cmd;
 	t_command	*cmd_head;
-	t_token		*closing_paren;
 	
 	token = shell->tokens;
 	if (!token)
@@ -241,7 +263,7 @@ int	parse_tokens(t_shell *shell)
 		{
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
-				return (parse_tokens_err(cmd_head, "unclosed parenthesis"), 2);
+			return (parse_tokens_err(cmd_head, "unclosed parenthesis"), true);
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
@@ -256,7 +278,7 @@ int	parse_tokens(t_shell *shell)
 			token = closing_paren;
 		}
 		else if (token->type == TOKEN_RPAREN)
-			return (parse_tokens_err(cmd_head, ERR_RPAREN), 2);
+			return (parse_tokens_err(cmd_head, ERR_RPAREN), true);
 		else if (token->type == TOKEN_WORD)
 			parse_tokens_word(token->value, cmd);
 		else if (token->type == TOKEN_PIPE)
@@ -301,11 +323,11 @@ int	parse_tokens(t_shell *shell)
 				if (!token)
 				{
 					free_commands(cmd_head);
-					return (2);  // Return 2 for syntax errors near redirections
+					return (true);  // Return 2 for syntax errors near redirections
 				}
 			}
 			token = token->next;
 		}
 		shell->commands = cmd_head;
-		return (0);
+		return (true);
 	} 
