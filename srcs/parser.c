@@ -188,34 +188,29 @@ t_token *copy_tokens_section(t_token *start, t_token *end)
 	return head;
 }
 
-// Function to parse a subshell command
+// Initialize a temporary shell, parse the subshell tokens
+// then create a copy of the tokens between parentheses
+
 t_command *parse_subshell(t_token *start, t_token *end)
 {
 	t_shell temp_shell;
 	t_token *subshell_tokens;
 	
-	// Initialize temporary shell
 	temp_shell.tokens = NULL;
 	temp_shell.commands = NULL;
 	
-	// Create a copy of the tokens between parentheses
 	subshell_tokens = copy_tokens_section(start, end);
 	temp_shell.tokens = subshell_tokens;
 	
-	// Parse the subshell tokens
 	if (parse_tokens(&temp_shell) != 0)
 	{
-		// Clean up on error
 		if (subshell_tokens)
-		free_tokens(subshell_tokens);
+			free_tokens(subshell_tokens);
 		if (temp_shell.commands)
-		free_commands(temp_shell.commands);
+			free_commands(temp_shell.commands);
 		return NULL;
 	}
-	
-	// Free the temporary tokens but keep the commands
 	free_tokens(subshell_tokens);
-	
 	return temp_shell.commands;
 }
 
