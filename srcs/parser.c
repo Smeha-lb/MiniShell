@@ -3,10 +3,10 @@
 t_command	*create_command(void)
 {
 	t_command	*cmd;
-
+	
 	cmd = (t_command *)malloc(sizeof(t_command));
 	if (!cmd)
-		return (NULL);
+	return (NULL);
 	cmd->args = NULL;
 	cmd->redirs = NULL;
 	cmd->pipe_in = -1;
@@ -22,10 +22,10 @@ void	add_redir(t_redir **head, int type, char *file)
 {
 	t_redir	*new_redir;
 	t_redir	*current;
-
+	
 	new_redir = (t_redir *)malloc(sizeof(t_redir));
 	if (!new_redir)
-		return;
+	return;
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
 	new_redir->next = NULL;
@@ -36,7 +36,7 @@ void	add_redir(t_redir **head, int type, char *file)
 	}
 	current = *head;
 	while (current->next)
-		current = current->next;
+	current = current->next;
 	current->next = new_redir;
 }
 
@@ -45,7 +45,7 @@ void	add_arg(t_command *cmd, char *arg)
 	int		i;
 	char	**new_args;
 	char	*expanded_arg;
-
+	
 	// Handle expansion (including wildcards) for arg
 	expanded_arg = ft_strdup(arg);
 	
@@ -63,7 +63,7 @@ void	add_arg(t_command *cmd, char *arg)
 	}
 	i = 0;
 	while (cmd->args[i])
-		i++;
+	i++;
 	new_args = (char **)malloc((i + 2) * sizeof(char *));
 	if (!new_args)
 	{
@@ -85,7 +85,7 @@ void	add_arg(t_command *cmd, char *arg)
 void	free_redirs(t_redir *redirs)
 {
 	t_redir	*temp;
-
+	
 	while (redirs)
 	{
 		temp = redirs;
@@ -99,7 +99,7 @@ void	free_commands(t_command *commands)
 {
 	t_command	*temp;
 	int			i;
-
+	
 	while (commands)
 	{
 		temp = commands;
@@ -107,8 +107,8 @@ void	free_commands(t_command *commands)
 		
 		// Free subshell commands if any
 		if (temp->is_subshell && temp->subshell)
-			free_commands(temp->subshell);
-			
+		free_commands(temp->subshell);
+		
 		if (temp->args)
 		{
 			i = 0;
@@ -128,7 +128,7 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 {
 	t_token_type	type;
 	t_token			*next_token;
-
+	
 	type = token->type;
 	next_token = token->next;
 	if (!next_token || next_token->type != TOKEN_WORD)
@@ -137,13 +137,13 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 		return (NULL);
 	}
 	if (type == TOKEN_REDIR_IN)
-		add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
+	add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
 	else if (type == TOKEN_REDIR_OUT)
-		add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
+	add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
 	else if (type == TOKEN_REDIR_APPEND)
-		add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
+	add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
 	else if (type == TOKEN_HEREDOC)
-		add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
+	add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
 	return (next_token);
 }
 
@@ -156,13 +156,13 @@ t_token *find_matching_paren(t_token *start)
 	while (token && paren_count > 0)
 	{
 		if (token->type == TOKEN_LPAREN)
-			paren_count++;
+		paren_count++;
 		else if (token->type == TOKEN_RPAREN)
-			paren_count--;
+		paren_count--;
 		
 		if (paren_count == 0)
-			return token;
-			
+		return token;
+		
 		token = token->next;
 	}
 	
@@ -203,9 +203,9 @@ t_command *parse_subshell(t_token *start, t_token *end)
 	{
 		// Clean up on error
 		if (subshell_tokens)
-			free_tokens(subshell_tokens);
+		free_tokens(subshell_tokens);
 		if (temp_shell.commands)
-			free_commands(temp_shell.commands);
+		free_commands(temp_shell.commands);
 		return NULL;
 	}
 	
@@ -215,13 +215,44 @@ t_command *parse_subshell(t_token *start, t_token *end)
 	return temp_shell.commands;
 }
 
-bool	parse_tokens(t_shell *shell)
+void	parse_tokens_err(t_command *cmd_head, char *msg)
+{
+	ft_putstr_fd("Syntax Error: ", 2);
+	ft_putendl_fd(msg, 2);
+	free_commands(cmd_head);
+}
+
+// If wildcard expansion fails, use the original token value
+// otherwise just add the argument as is
+
+void	parse_tokens_word(char *value, t_command *cmd)
+{
+	char **matches;
+	
+	if (!has_wildcards(value))
+		return (add_arg(cmd, value));
+
+	matches = expand_wildcards(value);
+	if (!matches)
+		return (add_arg(cmd, value));
+	
+	int i = 0;
+	while (matches[i])
+	{
+		add_arg(cmd, matches[i]);
+		i++;
+	}
+	free_matches(matches);
+}
+
+int	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
 	t_token		*closing_paren;
 	t_command	*cmd;
 	t_command	*cmd_head;
-
+	t_token		*closing_paren;
+	
 	token = shell->tokens;
 	if (!token)
 		return (true);
@@ -233,13 +264,7 @@ bool	parse_tokens(t_shell *shell)
 		{
 			closing_paren = find_matching_paren(token);
 			if (!closing_paren)
-			{
-				// ? this gets repeated A LOT
-				ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
-				free_commands(cmd_head);
-				return (false);
-			}
-			
+			return (parse_tokens_err(cmd_head, "unclosed parenthesis"), 2);
 			// Parse the subshell
 			cmd->is_subshell = 1;
 			cmd->subshell = parse_subshell(token, closing_paren);
@@ -254,40 +279,9 @@ bool	parse_tokens(t_shell *shell)
 			token = closing_paren;
 		}
 		else if (token->type == TOKEN_RPAREN)
-		{
-			// Unexpected closing parenthesis
-			ft_putendl_fd("Error: Syntax error near unexpected token `)'", 2);
-			free_commands(cmd_head);
-			return (false);
-		}
+			return (parse_tokens_err(cmd_head, ERR_RPAREN), 2);
 		else if (token->type == TOKEN_WORD)
-		{
-			// If the token value contains wildcards and we're not inside quotes
-			if (has_wildcards(token->value))
-			{
-				char **matches = expand_wildcards(token->value);
-				if (matches)
-				{
-					int i = 0;
-					while (matches[i])
-					{
-						add_arg(cmd, matches[i]);
-						i++;
-					}
-					free_matches(matches);
-				}
-				else
-				{
-					// If wildcard expansion fails, use the original token value
-					add_arg(cmd, token->value);
-				}
-			}
-			else
-			{
-				// No wildcards, just add the argument as is
-				add_arg(cmd, token->value);
-			}
-		}
+			parse_tokens_word(token->value, cmd);
 		else if (token->type == TOKEN_PIPE)
 		{
 			if (!token->next)
@@ -324,17 +318,17 @@ bool	parse_tokens(t_shell *shell)
 			cmd = cmd->next;
 		}
 		else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
-				token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
-		{
-			token = handle_redir(token, cmd);
-			if (!token)
+			token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
 			{
-				free_commands(cmd_head);
-				return (false);
+				token = handle_redir(token, cmd);
+				if (!token)
+				{
+					free_commands(cmd_head);
+					return (2);  // Return 2 for syntax errors near redirections
+				}
 			}
+			token = token->next;
 		}
-		token = token->next;
-	}
-	shell->commands = cmd_head;
-	return (true);
-} 
+		shell->commands = cmd_head;
+		return (0);
+	} 
