@@ -105,8 +105,6 @@ int		execute_commands(t_shell *shell);
 int		execute_single_command(t_shell *shell, t_command *cmd);
 int     execute_subshell(t_shell *shell, t_command *subshell_cmd);
 char	*find_command_path(t_shell *shell, char *cmd);
-char    **parse_command_string(char *cmd_str);
-int     is_from_env_var(char *cmd);
 
 /* builtins.c */
 int		is_builtin(char *cmd);

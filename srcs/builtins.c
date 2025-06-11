@@ -1,7 +1,6 @@
 #include "../includes/minishell.h"
 
-// Import the is_from_env_var function from execution.c
-int is_from_env_var(char *cmd);
+
 
 int	is_builtin(char *cmd)
 {
@@ -19,47 +18,9 @@ int	is_builtin(char *cmd)
 int	execute_builtin(t_shell *shell, t_command *cmd)
 {
 	char	*builtin;
-	char	**args;
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (1);
-		
-	// Check if command came from an environment variable and needs splitting
-	if (cmd->args[0] && is_from_env_var(cmd->args[0]))
-	{
-		args = parse_command_string(cmd->args[0]);
-		if (!args || !args[0])
-		{
-			if (args)
-				free_array(args);
-			return (1);
-		}
-		
-		// Create a new command structure with the parsed arguments
-		t_command *new_cmd = (t_command *)malloc(sizeof(t_command));
-		if (!new_cmd)
-		{
-			free_array(args);
-			return (1);
-		}
-		
-		// Copy the command structure
-		new_cmd->redirs = cmd->redirs;
-		new_cmd->pipe_in = cmd->pipe_in;
-		new_cmd->pipe_out = cmd->pipe_out;
-		new_cmd->next_op = cmd->next_op;
-		new_cmd->next = cmd->next;
-		new_cmd->args = args;
-		
-		// Execute the builtin with the new command
-		int result = execute_builtin(shell, new_cmd);
-		
-		// Free the new command structure (but not the redirs, which are shared)
-		new_cmd->args = NULL;  // We don't free args here as it's handled by the recursive call
-		free(new_cmd);
-		
-		return (result);
-	}
 	
 	builtin = cmd->args[0];
 	
@@ -85,74 +46,21 @@ int	builtin_echo(t_command *cmd)
 {
 	int	i;
 	int	n_flag;
-	char **args;
-	int j;
 
-	// Check if any argument contains a space (might be from an environment variable)
-	for (j = 1; cmd->args[j]; j++)
-	{
-		if (is_from_env_var(cmd->args[j]))
-		{
-			// Use the parse_command_string function to split this argument
-			args = parse_command_string(cmd->args[j]);
-			if (!args)
-				return (1);
-			
-			// Replace this argument with the parsed ones
-			// First, calculate how many new arguments we'll have
-			int old_count = 0;
-			while (cmd->args[old_count])
-				old_count++;
-			
-			int new_args_count = 0;
-			while (args[new_args_count])
-				new_args_count++;
-			
-			// Create a new array with the right size
-			char **new_args = (char **)malloc((old_count + new_args_count) * sizeof(char *));
-			if (!new_args)
-			{
-				free_array(args);
-				return (1);
-			}
-			
-			// Copy arguments before the current one
-			for (i = 0; i < j; i++)
-				new_args[i] = ft_strdup(cmd->args[i]);
-			
-			// Copy the parsed arguments
-			for (i = 0; i < new_args_count; i++)
-				new_args[j + i] = ft_strdup(args[i]);
-			
-			// Copy the remaining original arguments
-			for (i = j + 1; i < old_count; i++)
-				new_args[i + new_args_count - 1] = ft_strdup(cmd->args[i]);
-			
-			new_args[old_count + new_args_count - 1] = NULL;
-			
-			// Free the original arguments
-			free_array(cmd->args);
-			
-			// Free the parsed arguments
-			free_array(args);
-			
-			// Set the new arguments
-			cmd->args = new_args;
-			
-			// Process the command with the new arguments
-			return builtin_echo(cmd);
-		}
-	}
+	if (!cmd || !cmd->args || !cmd->args[0])
+		return (1);
 
 	n_flag = 0;
 	i = 1;
-	// Check for -n flag, possibly multiple ones
+	
+	// Check for -n flags at the beginning
 	while (cmd->args[i] && ft_strcmp(cmd->args[i], "-n") == 0)
 	{
 		n_flag = 1;
 		i++;
 	}
 
+	// Print remaining arguments
 	while (cmd->args[i])
 	{
 		ft_putstr_fd(cmd->args[i], STDOUT_FILENO);
@@ -160,8 +68,10 @@ int	builtin_echo(t_command *cmd)
 			ft_putchar_fd(' ', STDOUT_FILENO);
 		i++;
 	}
+	
 	if (!n_flag)
 		ft_putchar_fd('\n', STDOUT_FILENO);
+	
 	return (0);
 }
 
