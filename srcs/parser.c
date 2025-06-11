@@ -15,9 +15,9 @@ t_command	*create_command(void)
 	cmd->redirs = NULL;
 	cmd->pipe_in = -1;
 	cmd->pipe_out = -1;
-	cmd->next_op = 0;  // Initialize next_op to 0 (none)
-	cmd->is_subshell = 0;  // Initialize is_subshell to 0 (false)
-	cmd->subshell = NULL;  // Initialize subshell to NULL
+	cmd->next_op = 0;
+	cmd->is_subshell = 0;
+	cmd->subshell = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
