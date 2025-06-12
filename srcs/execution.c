@@ -370,47 +370,30 @@ int is_parent_builtin(char *cmd_name)
 int	execute_commands(t_shell *shell)
 {
 	t_command	*cmd;
-	int			exit_status;
-	int			stdin_backup;
-	int			stdout_backup;
-	int         is_nested_minishell;
-	t_shell     subshell;
+	int			exit_status = 0;
+	int			stdin_backup, stdout_backup;
+	int			is_nested_minishell;
 	
 	cmd = shell->commands;
-	if (!cmd)
-		return (0);
-	
-	exit_status = 0;
 	while (cmd)
 	{
-		// Handle subshell command
+		// Handle subshell execution if this is a subshell command
 		if (cmd->is_subshell && cmd->subshell)
 		{
-			// Create a temporary shell for the subshell
-			subshell.env = copy_env(shell->env);
-			subshell.tokens = NULL;
-			subshell.commands = cmd->subshell;
-			subshell.exit_status = shell->exit_status;
-			subshell.running = 1;
-			
-			// Each subshell gets its own redirection context
+			// Save stdin and stdout for restoration after command
 			stdin_backup = dup(STDIN_FILENO);
 			stdout_backup = dup(STDOUT_FILENO);
 			
-			// Apply redirections if any
-			if (cmd->redirs)
+			// Setup redirections for the subshell
+			if (cmd->redirs && setup_redirections(shell, cmd) != 0)
 			{
-				if (setup_redirections(shell, cmd) != 0)
-				{
-					// If redirection fails, skip this command
-					dup2(stdin_backup, STDIN_FILENO);
-					dup2(stdout_backup, STDOUT_FILENO);
-					close(stdin_backup);
-					close(stdout_backup);
-					free_array(subshell.env);
-					exit_status = 1;
-					goto next_command;
-				}
+				// Restore stdin and stdout if redirection fails
+				dup2(stdin_backup, STDIN_FILENO);
+				dup2(stdout_backup, STDOUT_FILENO);
+				close(stdin_backup);
+				close(stdout_backup);
+				exit_status = 1;
+				goto next_command;
 			}
 			
 			// Execute the subshell
@@ -422,13 +405,8 @@ int	execute_commands(t_shell *shell)
 			close(stdin_backup);
 			close(stdout_backup);
 			
-			// Cleanup
-			free_array(subshell.env);
-			
 			goto next_command;
 		}
-		
-
 		
 		// Each command gets its own redirection context
 		stdin_backup = dup(STDIN_FILENO);
@@ -583,21 +561,26 @@ int execute_subshell(t_shell *shell, t_command *subshell_cmd)
     }
     else if (pid == 0) // Child process
     {
+        // Setup a new signal handling for the subshell
+        setup_signals();
+        
         // Execute the subshell commands
-        t_shell temp_shell;
+        t_shell subshell;
         
         // Copy shell properties to ensure proper environment for variable expansion
-        temp_shell.env = copy_env(shell->env);
-        temp_shell.exit_status = shell->exit_status;
-        temp_shell.running = 1;
-        temp_shell.tokens = NULL;
-        temp_shell.commands = subshell_cmd;
+        subshell.env = copy_env(shell->env);
+        subshell.exit_status = shell->exit_status;
+        subshell.running = 1;
+        subshell.tokens = NULL;
+        subshell.commands = subshell_cmd;
         
-        exit_status = execute_commands(&temp_shell);
+        // Execute commands in the subshell context
+        exit_status = execute_commands(&subshell);
         
         // Clean up
-        free_array(temp_shell.env);
+        free_array(subshell.env);
         
+        // Exit with the subshell's exit status
         exit(exit_status);
     }
     else // Parent process
