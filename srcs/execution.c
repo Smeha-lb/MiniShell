@@ -372,7 +372,6 @@ int	execute_commands(t_shell *shell)
 	t_command	*cmd;
 	int			exit_status = 0;
 	int			stdin_backup, stdout_backup;
-	int			is_nested_minishell;
 	
 	cmd = shell->commands;
 	while (cmd)
@@ -439,11 +438,6 @@ int	execute_commands(t_shell *shell)
 			}
 		}
 		
-		// Check if this is a nested minishell command
-		is_nested_minishell = (cmd->args && cmd->args[0] && 
-			(ft_strcmp(cmd->args[0], "./minishell") == 0 ||
-			 ft_strcmp(cmd->args[0], "minishell") == 0));
-		
 		// Execute the command with proper pipe handling
 		if (cmd->next && cmd->next_op == 0) // Command is part of a pipeline
 		{
@@ -467,45 +461,7 @@ int	execute_commands(t_shell *shell)
 			}
 			else
 			{
-				pid_t pid = fork();
-				if (pid == 0) // Child
-				{
-					char *path = find_command_path(shell, cmd->args[0]);
-					if (!path)
-					{
-						print_error(cmd->args[0], NULL, "command not found");
-						exit(127);
-					}
-					if (execve(path, cmd->args, shell->env) == -1)
-					{
-						print_error(cmd->args[0], NULL, strerror(errno));
-						free(path);
-						exit(127);
-					}
-				}
-				else if (pid > 0) // Parent
-				{
-					// If we're running a nested minishell, ignore signals in the parent
-					if (is_nested_minishell)
-						ignore_signals();
-						
-					int status;
-					waitpid(pid, &status, 0);
-					
-					// Restore signal handling after child is done
-					if (is_nested_minishell)
-						restore_signals();
-						
-					if (WIFEXITED(status))
-						exit_status = WEXITSTATUS(status);
-					else if (WIFSIGNALED(status))
-						exit_status = 128 + WTERMSIG(status);
-				}
-				else // Fork failed
-				{
-					print_error("fork", NULL, strerror(errno));
-					exit_status = 1;
-				}
+				exit_status = execute_external_command(shell, cmd);
 			}
 		}
 		
@@ -517,25 +473,43 @@ int	execute_commands(t_shell *shell)
 		
 next_command:
 		// Check logical operators for next command
-		if (cmd->next_op == 1 && exit_status == 0) // AND operator with success
-			cmd = cmd->next;
-		else if (cmd->next_op == 1 && exit_status != 0) // AND operator with failure
+		if (cmd->next_op == 1) // && operator
 		{
-			// Skip to next command after the following OR, if any
-			cmd = cmd->next;
-			while (cmd && cmd->next && cmd->next_op == 1)
+			if (exit_status == 0) // Success, continue to next command
 				cmd = cmd->next;
+			else // Failure, skip to next command not connected by AND
+			{
+				// Skip until we find a command that doesn't follow an AND operator
+				cmd = cmd->next;
+				while (cmd && cmd->next && cmd->next_op == 1)
+					cmd = cmd->next;
+				
+				// If we have more commands and the next operator is ||, execute it
+				if (cmd && cmd->next && cmd->next_op == 2)
+					cmd = cmd->next;
+				else
+					cmd = NULL; // End execution if no || is found
+			}
 		}
-		else if (cmd->next_op == 2 && exit_status != 0) // OR operator with failure
-			cmd = cmd->next;
-		else if (cmd->next_op == 2 && exit_status == 0) // OR operator with success
+		else if (cmd->next_op == 2) // || operator
 		{
-			// Skip to next command after the following AND, if any
-			cmd = cmd->next;
-			while (cmd && cmd->next && cmd->next_op == 2)
+			if (exit_status != 0) // Failure, continue to next command
 				cmd = cmd->next;
+			else // Success, skip to next command not connected by OR
+			{
+				// Skip until we find a command that doesn't follow an OR operator
+				cmd = cmd->next;
+				while (cmd && cmd->next && cmd->next_op == 2)
+					cmd = cmd->next;
+				
+				// If we have more commands and the next operator is &&, execute it
+				if (cmd && cmd->next && cmd->next_op == 1)
+					cmd = cmd->next;
+				else
+					cmd = NULL; // End execution if no && is found
+			}
 		}
-		else
+		else // No operator or last command
 			cmd = cmd->next;
 	}
 	
