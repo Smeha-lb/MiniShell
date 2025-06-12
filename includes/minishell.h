@@ -94,6 +94,7 @@ void    add_token(t_token **head, t_token *new_token);
 
 /* redir.c */
 t_token	*handle_redir(t_token *token, t_command *cmd);
+void	add_redir(t_redir **head, int type, char *file);
 
 /* parser.c */
 bool		parse_tokens(t_shell *shell);
