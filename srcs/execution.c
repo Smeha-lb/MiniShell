@@ -470,8 +470,7 @@ int	execute_commands(t_shell *shell)
 		dup2(stdout_backup, STDOUT_FILENO);
 		close(stdin_backup);
 		close(stdout_backup);
-		
-next_command:
+		next_command:
 		// Check logical operators for next command
 		if (cmd->next_op == 1) // && operator
 		{
