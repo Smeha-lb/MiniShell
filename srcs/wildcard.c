@@ -49,7 +49,6 @@ static int is_in_char_class(char c, const char *class_str)
             // Regular character comparison
             if (c == *class_str)
                 return (negate ? 0 : 1);
-            
             class_str++;
         }
     }
