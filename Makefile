@@ -25,6 +25,7 @@ SRCS = main.c \
 		builtins5.c \
 		redirections.c \
 		env_utils.c \
+		env_utils2.c \
 		utils.c \
 		expansion.c \
 		wildcard.c

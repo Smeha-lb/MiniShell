@@ -132,6 +132,8 @@ char	**copy_env(char **env);
 char	*get_env_value(t_shell *shell, const char *name);
 void	set_env_var(t_shell *shell, const char *name, const char *value);
 void	unset_env_var(t_shell *shell, const char *name);
+void	add_env_var(t_shell *shell, char *new_env);
+char	*get_env_name(char *env_var);
 
 /* expansion.c */
 char	*expand_variables(t_shell *shell, char *str, int in_quotes);
