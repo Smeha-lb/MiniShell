@@ -19,6 +19,10 @@ SRCS = main.c \
 		parser.c \
 		execution.c \
 		builtins.c \
+		builtins2.c \
+		builtins3.c \
+		builtins4.c \
+		builtins5.c \
 		redirections.c \
 		env_utils.c \
 		utils.c \
