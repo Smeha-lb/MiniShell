@@ -73,8 +73,7 @@ void	shell_loop(t_shell *shell)
 		input = readline(PROMPT);
 		if (!input)
 		{
-			if (g_signal_code)
-				continue;
+			// Always exit on EOF (Ctrl+D), regardless of previous signal
 			ft_putendl_fd("exit", STDOUT_FILENO);
 			break;
 		}

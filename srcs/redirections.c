@@ -106,13 +106,14 @@ void	heredoc_sig_handler(int signum)
 static void setup_heredoc_signals(void)
 {
 	signal(SIGINT, heredoc_sig_handler);
+	signal(SIGQUIT, SIG_IGN);
 	g_signal_code = 0; // Reset signal code
 }
 
 // Restore original signal handling
 static void restore_heredoc_signals(void)
 {
-	signal(SIGINT, SIG_DFL);
+	setup_signals();
 }
 
 // Create heredoc filename

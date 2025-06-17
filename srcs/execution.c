@@ -149,8 +149,15 @@ int	execute_external_command(t_shell *shell, t_command *cmd)
 	}
 	free(path);
 	
+	// Ignore signals in the parent while the child is running
+	ignore_signals();
+	
 	// Wait for this specific child process to complete
 	waitpid(pid, &status, 0);
+	
+	// Restore signal handling after the child completes
+	setup_signals();
+	
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
 	else if (WIFSIGNALED(status))
@@ -352,7 +359,7 @@ int execute_pipeline(t_shell *shell, t_command *start_cmd)
 	
 	// Restore signal handling after all children are done
 	if (is_nested_minishell)
-		restore_signals();
+		setup_signals();
 	
 	free(pids);
 	return (exit_status);
@@ -558,8 +565,14 @@ int execute_subshell(t_shell *shell, t_command *subshell_cmd)
     }
     else // Parent process
     {
+        // Ignore signals in the parent while the subshell is running
+        ignore_signals();
+        
         // Wait for the subshell to complete
         waitpid(pid, &status, 0);
+        
+        // Restore signal handling after the subshell completes
+        setup_signals();
         
         if (WIFEXITED(status))
             exit_status = WEXITSTATUS(status);
@@ -568,4 +581,4 @@ int execute_subshell(t_shell *shell, t_command *subshell_cmd)
     }
     
     return exit_status;
-} 
+}
