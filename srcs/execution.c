@@ -522,8 +522,6 @@ int	execute_commands(t_shell *shell)
 	return (exit_status);
 }
 
-
-
 // Function to execute a subshell command
 int execute_subshell(t_shell *shell, t_command *subshell_cmd)
 {

@@ -112,11 +112,14 @@ char	*find_command_path(t_shell *shell, char *cmd);
 int		is_builtin(char *cmd);
 int		execute_builtin(t_shell *shell, t_command *cmd);
 int		builtin_echo(t_command *cmd);
+char	*get_cd_path(t_shell *shell, char *arg);
 int		builtin_cd(t_shell *shell, t_command *cmd);
 int		builtin_pwd(void);
 int		is_valid_var_name(char *name);
-int		builtin_export(t_shell *shell, t_command *cmd);
 int		builtin_unset(t_shell *shell, t_command *cmd);
+int		builtin_export(t_shell *shell, t_command *cmd);
+void	process_export_arg(t_shell *shell, char *arg);
+void	sort_env_vars(char **sorted_env, int env_size);
 int		builtin_env(t_shell *shell);
 int		builtin_exit(t_shell *shell, t_command *cmd);
 
