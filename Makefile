@@ -13,6 +13,7 @@ LIBFT = $(LIBFT_DIR)libft.a
 
 SRCS = main.c \
 		shell.c \
+		shell2.c \
 		signals.c \
 		lexer.c \
 		redir.c \
@@ -31,7 +32,12 @@ SRCS = main.c \
 		expansion2.c \
 		wildcard_expansion.c \
 		wildcard_expansion2.c \
-		wildcard.c
+		wildcard.c \
+		wildcard2.c \
+		wildcard3.c \
+		wildcard4.c \
+		wildcard5.c \
+		wildcard6.c
 
 OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.c=.o))
 

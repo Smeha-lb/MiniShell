@@ -26,6 +26,16 @@
 
 extern int	g_signal_code;
 
+typedef struct s_match_data
+{
+	char	**matches;
+	char	*dir_part;
+	char	*file_part;
+	DIR		*dir;
+	int		capacity;
+	int		match_count;
+}	t_match_data;
+
 typedef enum e_token_type
 {
 	TOKEN_WORD,
@@ -80,6 +90,7 @@ typedef struct s_shell
 void	shell_init(t_shell *shell, char **env);
 void	shell_loop(t_shell *shell);
 void	shell_cleanup(t_shell *shell);
+void	clean_tokens(t_shell *shell);
 
 /* signals.c */
 void	setup_signals(void);
@@ -152,14 +163,23 @@ char	*process_quoted_segment(t_shell *shell, char *str, int *i, char quote);
 char	*process_unquoted_segment(t_shell *shell, char *str, int *i);
 int		is_quote(char c);
 char	*init_result(void);
-
-/* wildcard expansion */
 int		has_wildcards(const char *str);
 char	**expand_wildcards(const char *pattern);
 int		does_pattern_match(const char *pattern, const char *filename);
 void	sort_matches(char **matches, int count);
 char	*join_expanded_wildcards(char **matches);
 void	free_matches(char **matches);
+int		is_in_char_class(char c, const char *class_str);
+void	split_path(const char *path, char **dir_part, char **file_part);
+char	**init_matches(int capacity);
+char	**handle_no_wildcards(const char *pattern);
+char	**handle_dir_error(char *dir_part, char *file_part);
+char	**process_wildcard_matches(t_match_data *data, const char *pattern);
+void	swap_matches(char **matches, int i, int j);
+char	*join_path(const char *dir, const char *file);
+int		add_matching_entry(t_match_data *data, char *entry_name);
+void	finalize_matches(char **matches, int match_count,
+		const char *pattern);
 
 /* utils.c */
 char	**split_args(char *str);
