@@ -6,13 +6,12 @@ void	handle_signals(int signum)
 	{
 		g_signal_code = 1;
 		ft_putchar_fd('\n', STDOUT_FILENO);
-		rl_on_new_line();	
+		rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
 	}
 	else if (signum == SIGTSTP)
 	{
-		// Ignore SIGTSTP (Ctrl+Z) in the shell
 		g_signal_code = 0;
 		rl_redisplay();
 	}

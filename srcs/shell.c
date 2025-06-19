@@ -12,14 +12,13 @@ void	shell_init(t_shell *shell, char **env)
 	shell->exit_status = 0;
 	shell->running = 1;
 	shell->previous_cmd = NULL;
-
 	shlvl_value = get_env_value(shell, "SHLVL");
 	if (shlvl_value)
 		shlvl = ft_atoi(shlvl_value);
 	else
 		shlvl = 0;
 	shlvl++;
-	new_shlvl = ft_itoa(shlvl); 
+	new_shlvl = ft_itoa(shlvl);
 	if (new_shlvl)
 	{
 		set_env_var(shell, "SHLVL", new_shlvl);
@@ -27,18 +26,10 @@ void	shell_init(t_shell *shell, char **env)
 	}
 }
 
-void	clean_tokens(t_shell *shell)
-{
-	shell->exit_status = 1;
-	free_tokens(shell->tokens);
-	shell->tokens = NULL;
-}
-
 void	process_input(t_shell *shell, char *input)
 {
 	if (!input || ft_strlen(input) == 0)
-		return;
-
+		return ;
 	if (!shell->previous_cmd || ft_strcmp(input, shell->previous_cmd) != 0)
 	{
 		add_history(input);
@@ -46,12 +37,10 @@ void	process_input(t_shell *shell, char *input)
 			free(shell->previous_cmd);
 		shell->previous_cmd = ft_strdup(input);
 	}
-	
 	if (!tokenize_input(shell, input))
 		return (clean_tokens(shell));
 	if (!parse_tokens(shell))
 		return (clean_tokens(shell));
-
 	shell->exit_status = execute_commands(shell);
 	free_tokens(shell->tokens);
 	free_commands(shell->commands);
@@ -69,9 +58,8 @@ void	shell_loop(t_shell *shell)
 		input = readline(PROMPT);
 		if (!input)
 		{
-			// Always exit on EOF (Ctrl+D), regardless of previous signal
 			ft_putendl_fd("exit", STDOUT_FILENO);
-			break;
+			break ;
 		}
 		process_input(shell, input);
 		free(input);
@@ -86,11 +74,9 @@ void	cleanup_shlvl(t_shell *shell, int *shlvl, char *shlvl_value)
 		*shlvl = ft_atoi(shlvl_value);
 	else
 		*shlvl = 1;
-
 	(*shlvl)--;
-	if (*shlvl < 0) 
+	if (*shlvl < 0)
 		*shlvl = 0;
-
 	new_shlvl = ft_itoa(*shlvl);
 	if (new_shlvl)
 	{
@@ -103,13 +89,12 @@ void	shell_cleanup(t_shell *shell)
 {
 	int		shlvl;
 	char	*shlvl_value;
-	
+
 	if (shell->previous_cmd)
 	{
 		free(shell->previous_cmd);
 		shell->previous_cmd = NULL;
 	}
-
 	shlvl_value = get_env_value(shell, "SHLVL");
 	cleanup_shlvl(shell, &shlvl, shlvl_value);
 	if (shell->tokens)
