@@ -527,56 +527,37 @@ int execute_subshell(t_shell *shell, t_command *subshell_cmd)
 {
     pid_t pid;
     int status;
-    int exit_status = 0;
+    int exit_status;
     
-    // Subshells always execute in a forked process
     pid = fork();
-    
+	exit_status = 0;
     if (pid == -1)
     {
         print_error("fork", NULL, strerror(errno));
         return 1;
     }
-    else if (pid == 0) // Child process
+    else if (pid == 0)
     {
-        // Setup a new signal handling for the subshell
         setup_signals();
-        
-        // Execute the subshell commands
         t_shell subshell;
-        
-        // Copy shell properties to ensure proper environment for variable expansion
         subshell.env = copy_env(shell->env);
         subshell.exit_status = shell->exit_status;
         subshell.running = 1;
         subshell.tokens = NULL;
         subshell.commands = subshell_cmd;
-        
-        // Execute commands in the subshell context
         exit_status = execute_commands(&subshell);
-        
-        // Clean up
         free_array(subshell.env);
-        
-        // Exit with the subshell's exit status
         exit(exit_status);
     }
-    else // Parent process
+    else
     {
-        // Ignore signals in the parent while the subshell is running
         ignore_signals();
-        
-        // Wait for the subshell to complete
         waitpid(pid, &status, 0);
-        
-        // Restore signal handling after the subshell completes
         setup_signals();
-        
         if (WIFEXITED(status))
             exit_status = WEXITSTATUS(status);
         else if (WIFSIGNALED(status))
             exit_status = 128 + WTERMSIG(status);
     }
-    
     return exit_status;
 }

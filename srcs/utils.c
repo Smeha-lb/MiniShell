@@ -5,7 +5,7 @@ void	free_array(char **array)
 	int	i;
 
 	if (!array)
-		return;
+		return ;
 	i = 0;
 	while (array[i])
 	{
@@ -65,4 +65,4 @@ int	ft_isdigit_str(char *str)
 		i++;
 	}
 	return (1);
-} 
+}

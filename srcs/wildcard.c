@@ -56,43 +56,26 @@ static int is_in_char_class(char c, const char *class_str)
 	return (negate ? 1 : 0);
 }
 
-/**
- * Check if a filename matches a wildcard pattern
- */
 int does_pattern_match(const char *pattern, const char *filename)
 {
-	// Skip matching hidden files unless explicitly specified
 	if (filename[0] == '.' && pattern[0] != '.')
 		return (0);
-	
-	// Base cases
 	if (*pattern == '\0' && *filename == '\0')
 		return (1);
-	
-	// If we hit a '*' in the pattern
 	if (*pattern == '*')
 	{
-		// Skip consecutive '*' characters
 		while (*(pattern + 1) == '*')
 			pattern++;
-		
-		// '*' at the end of the pattern matches anything
 		if (*(pattern + 1) == '\0')
 			return (1);
-		
-		// Try to match the rest of the pattern with different positions in the filename
 		while (*filename)
 		{
 			if (does_pattern_match(pattern + 1, filename))
 				return (1);
 			filename++;
-		}
-		
-		// No match found for the rest of the pattern
+		}	
 		return (does_pattern_match(pattern + 1, filename));
 	}
-	
-	// Handle character classes [...]
 	if (*pattern == '[')
 	{
 		const char *closing_bracket = ft_strchr(pattern, ']');
@@ -104,29 +87,24 @@ int does_pattern_match(const char *pattern, const char *filename)
 		
 		return (does_pattern_match(closing_bracket + 1, filename + 1));
 	}
-	
-	// Handle '?' wildcard (match any single character)
 	if (*pattern == '?' && *filename != '\0')
 		return (does_pattern_match(pattern + 1, filename + 1));
-	
-	// Regular character matching
 	if (*pattern == *filename)
 		return (does_pattern_match(pattern + 1, filename + 1));
-	
 	return (0);
 }
 
-/**
- * Sort the matched filenames alphabetically
- */
 void sort_matches(char **matches, int count)
 {
-	int i, j;
-	char *temp;
+	int		i;
+	int		j;
+	char	*temp;
 	
-	for (i = 0; i < count - 1; i++)
+	i = 0;
+	while (i < count - 1)
 	{
-		for (j = i + 1; j < count; j++)
+		j = i + 1;
+		while (j < count)
 		{
 			if (ft_strcmp(matches[i], matches[j]) > 0)
 			{
@@ -134,20 +112,19 @@ void sort_matches(char **matches, int count)
 				matches[i] = matches[j];
 				matches[j] = temp;
 			}
+			j++;
 		}
+		i++;
 	}
 }
 
-/**
- * Free an array of matched filenames
- */
 void free_matches(char **matches)
 {
-	int i = 0;
-	
+	int i;
+
+	i = 0;
 	if (!matches)
 		return;
-	
 	while (matches[i])
 	{
 		free(matches[i]);
@@ -157,44 +134,99 @@ void free_matches(char **matches)
 }
 
 /**
- * Expand a wildcard pattern to matching filenames
+ * Split a path into directory and filename parts
  */
+static void split_path(const char *path, char **dir_part, char **file_part)
+{
+	char *last_slash = ft_strchr(path, '/');
+	
+	if (!last_slash)
+	{
+		// No directory part
+		*dir_part = ft_strdup(".");
+		*file_part = ft_strdup(path);
+	}
+	else
+	{
+		// Split into directory and filename parts
+		int dir_len = last_slash - path + 1;
+		*dir_part = ft_substr(path, 0, dir_len);
+		*file_part = ft_strdup(last_slash + 1);
+	}
+}
+
+/**
+ * Join directory and filename parts
+ */
+static char *join_path(const char *dir, const char *file)
+{
+	char *result;
+	int dir_len = ft_strlen(dir);
+	
+	// Handle special case for current directory
+	if (ft_strcmp(dir, ".") == 0 && dir_len == 1)
+		return ft_strdup(file);
+	
+	// Check if dir already ends with a slash
+	if (dir[dir_len - 1] == '/')
+		result = ft_strjoin(dir, file);
+	else
+	{
+		// Need to add a slash between dir and file
+		result = ft_strjoin(dir, "/");
+		result = ft_strjoin_free(result, file);
+	}
+	
+	return result;
+}
+
 char **expand_wildcards(const char *pattern)
 {
 	DIR *dir;
 	struct dirent *entry;
 	char **matches = NULL;
 	int match_count = 0;
-	int capacity = 10; // Initial capacity
+	int capacity = 10;
+	char *dir_part;
+	char *file_part;
 	
-	// If the pattern doesn't contain wildcards, return it as is
+	// If no wildcards, return the pattern as is
 	if (!has_wildcards(pattern))
 	{
 		matches = (char **)malloc(2 * sizeof(char *));
+		if (!matches)
+			return NULL;
 		matches[0] = ft_strdup(pattern);
 		matches[1] = NULL;
 		return (matches);
 	}
 	
-	// Allocate initial array for matches
+	// Split the pattern into directory and file parts
+	split_path(pattern, &dir_part, &file_part);
+	
 	matches = (char **)malloc(capacity * sizeof(char *));
 	if (!matches)
+	{
+		free(dir_part);
+		free(file_part);
 		return (NULL);
+	}
 	
-	// Open the current directory
-	dir = opendir(".");
+	// Open the directory
+	dir = opendir(dir_part);
 	if (!dir)
 	{
+		free(dir_part);
+		free(file_part);
 		matches[0] = NULL;
 		return (matches);
 	}
 	
-	// Read directory entries
+	// Read directory entries and match against the pattern
 	while ((entry = readdir(dir)) != NULL)
 	{
-		if (does_pattern_match(pattern, entry->d_name))
+		if (does_pattern_match(file_part, entry->d_name))
 		{
-			// Resize if needed
 			if (match_count >= capacity - 1)
 			{
 				capacity *= 2;
@@ -202,26 +234,27 @@ char **expand_wildcards(const char *pattern)
 				if (!new_matches)
 				{
 					free_matches(matches);
+					free(dir_part);
+					free(file_part);
 					closedir(dir);
 					return (NULL);
 				}
 				matches = new_matches;
 			}
-			
-			matches[match_count++] = ft_strdup(entry->d_name);
+			// Join directory and matched filename
+			matches[match_count++] = join_path(dir_part, entry->d_name);
 		}
 	}
 	
-	// NULL-terminate the array
 	matches[match_count] = NULL;
-	
-	// Close directory
 	closedir(dir);
+	free(dir_part);
+	free(file_part);
 	
-	// Sort matches alphabetically
+	// Sort the matches
 	sort_matches(matches, match_count);
 	
-	// If no matches were found, return the original pattern
+	// If no matches, return the original pattern
 	if (match_count == 0)
 	{
 		matches[0] = ft_strdup(pattern);
@@ -231,9 +264,6 @@ char **expand_wildcards(const char *pattern)
 	return (matches);
 }
 
-/**
- * Join the expanded wildcards into a single space-separated string
- */
 char *join_expanded_wildcards(char **matches)
 {
 	int i;
@@ -244,29 +274,30 @@ char *join_expanded_wildcards(char **matches)
 	if (!matches || !matches[0])
 		return (ft_strdup(""));
 	
-	// Calculate total length needed
-	for (i = 0; matches[i]; i++)
+	i = 0;
+	while (matches[i])
 	{
 		total_len += ft_strlen(matches[i]);
-		if (matches[i + 1]) // Add space if not the last word
+		if (matches[i + 1])
 			total_len++;
+		i++;
 	}
 	
-	// Allocate memory for the result
 	result = (char *)malloc((total_len + 1) * sizeof(char));
 	if (!result)
 		return (NULL);
 	
-	// Join the matches with spaces
-	for (i = 0; matches[i]; i++)
+	i = 0;
+	while (matches[i])
 	{
 		ft_strlcpy(result + pos, matches[i], ft_strlen(matches[i]) + 1);
 		pos += ft_strlen(matches[i]);
 		
-		if (matches[i + 1]) // Add space if not the last word
+		if (matches[i + 1])
 			result[pos++] = ' ';
+		i++;
 	}
 	
 	result[total_len] = '\0';
 	return (result);
-} 
+}
