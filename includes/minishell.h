@@ -140,7 +140,18 @@ char	*get_env_name(char *env_var);
 
 /* expansion.c */
 char	*expand_variables(t_shell *shell, char *str, int in_quotes);
+void	copy_variable(t_shell *shell, char *str, int *i, char *expanded);
+char	*expand_variables(t_shell *shell, char *str, int in_quotes);
+char	*allocate_expanded_string(t_shell *shell, char *str);
+void	process_char(char *str, int *i, char *expanded, int *j);
+int		calculate_expanded_length(t_shell *shell, char *str);
+
+/* wildcard_expansion.c */
 char	*handle_expansion(t_shell *shell, char *str);
+char	*process_quoted_segment(t_shell *shell, char *str, int *i, char quote);
+char	*process_unquoted_segment(t_shell *shell, char *str, int *i);
+int		is_quote(char c);
+char	*init_result(void);
 
 /* wildcard expansion */
 int		has_wildcards(const char *str);
