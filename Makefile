@@ -28,6 +28,9 @@ SRCS = main.c \
 		env_utils2.c \
 		utils.c \
 		expansion.c \
+		expansion2.c \
+		wildcard_expansion.c \
+		wildcard_expansion2.c \
 		wildcard.c
 
 OBJS = $(addprefix $(OBJS_DIR), $(SRCS:.c=.o))
