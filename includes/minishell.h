@@ -73,6 +73,7 @@ typedef struct s_shell
 	t_command	*commands;
 	int			exit_status;
 	int			running;
+	char		*previous_cmd;
 }	t_shell;
 
 /* shell.c */

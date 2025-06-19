@@ -22,4 +22,4 @@ int	main(int argc, char **argv, char **env)
 	shell_loop(&shell);
 	shell_cleanup(&shell);
 	return (shell.exit_status);
-} 
+}
