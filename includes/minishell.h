@@ -101,7 +101,7 @@ void	ignore_signals(void);
 bool		tokenize_input(t_shell *shell, char *input);
 void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
-void    add_token(t_token **head, t_token *new_token);
+void	add_to_token_list(t_token **head, t_token *new_token);
 
 /* redir.c */
 t_token	*handle_redir(t_token *token, t_command *cmd);

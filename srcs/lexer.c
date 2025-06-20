@@ -18,7 +18,7 @@ t_token	*create_token(char *value, t_token_type type)
 	return (token);
 }
 
-void	add_token(t_token **head, t_token *new_token)
+void	add_to_token_list(t_token **head, t_token *new_token)
 {
 	t_token	*current;
 
@@ -50,42 +50,42 @@ int	handle_special_char(t_shell *shell, char *input, int *i)
 {
 	if (input[*i] == '(')
 	{
-		add_token(&shell->tokens, create_token("(", TOKEN_LPAREN));
+		add_to_token_list(&shell->tokens, create_token("(", TOKEN_LPAREN));
 		(*i)++;
 	}
 	else if (input[*i] == ')')
 	{
-		add_token(&shell->tokens, create_token(")", TOKEN_RPAREN));
+		add_to_token_list(&shell->tokens, create_token(")", TOKEN_RPAREN));
 		(*i)++;
 	}
 	else if (input[*i] == '|')
 	{
 		if (input[*i + 1] == '|')
 		{
-			add_token(&shell->tokens, create_token("||", TOKEN_OR));
+			add_to_token_list(&shell->tokens, create_token("||", TOKEN_OR));
 			(*i) += 2;
 		}
 		else
 		{
-			add_token(&shell->tokens, create_token("|", TOKEN_PIPE));
+			add_to_token_list(&shell->tokens, create_token("|", TOKEN_PIPE));
 			(*i)++;
 		}
 	}
 	else if (input[*i] == '&' && input[*i + 1] == '&')
 	{
-		add_token(&shell->tokens, create_token("&&", TOKEN_AND));
+		add_to_token_list(&shell->tokens, create_token("&&", TOKEN_AND));
 		(*i) += 2;
 	}
 	else if (input[*i] == '<')
 	{
 		if (input[*i + 1] == '<')
 		{
-			add_token(&shell->tokens, create_token("<<", TOKEN_HEREDOC));
+			add_to_token_list(&shell->tokens, create_token("<<", TOKEN_HEREDOC));
 			(*i) += 2;
 		}
 		else
 		{
-			add_token(&shell->tokens, create_token("<", TOKEN_REDIR_IN));
+			add_to_token_list(&shell->tokens, create_token("<", TOKEN_REDIR_IN));
 			(*i)++;
 		}
 	}
@@ -93,12 +93,12 @@ int	handle_special_char(t_shell *shell, char *input, int *i)
 	{
 		if (input[*i + 1] == '>')
 		{
-			add_token(&shell->tokens, create_token(">>", TOKEN_REDIR_APPEND));
+			add_to_token_list(&shell->tokens, create_token(">>", TOKEN_REDIR_APPEND));
 			(*i) += 2;
 		}
 		else
 		{
-			add_token(&shell->tokens, create_token(">", TOKEN_REDIR_OUT));
+			add_to_token_list(&shell->tokens, create_token(">", TOKEN_REDIR_OUT));
 			(*i)++;
 		}
 	}
@@ -183,7 +183,7 @@ void	add_expanded_tokens(t_shell *shell, char *expanded_value)
 			{
 				// Skip empty tokens
 				if (ft_strlen(split_values[i]) > 0)
-					add_token(&shell->tokens, create_token(split_values[i], TOKEN_WORD));
+					add_to_token_list(&shell->tokens, create_token(split_values[i], TOKEN_WORD));
 				i++;
 			}
 			free_array(split_values);
@@ -193,7 +193,7 @@ void	add_expanded_tokens(t_shell *shell, char *expanded_value)
 	{
 		// Single token, add it directly (if not empty)
 		if (ft_strlen(expanded_value) > 0)
-			add_token(&shell->tokens, create_token(expanded_value, TOKEN_WORD));
+			add_to_token_list(&shell->tokens, create_token(expanded_value, TOKEN_WORD));
 	}
 }
 
@@ -466,7 +466,7 @@ int	handle_complex_word(char *input, int *i, t_shell *shell)
 	word[j] = '\0';
 	
 	// For complex words, don't split - just add as single token
-	add_token(&shell->tokens, create_token(word, TOKEN_WORD));
+	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD));
 	free(word);
 	return (0);
 }

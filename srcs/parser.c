@@ -170,7 +170,7 @@ t_token *copy_tokens_section(t_token *start, t_token *end)
 		}
 		
 		// Add the new token to our copied list
-		add_token(&head, new_token);
+		add_to_token_list(&head, new_token);
 		
 		// Move to next token
 		token = token->next;
