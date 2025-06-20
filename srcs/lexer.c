@@ -237,13 +237,13 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	char	*var_value;
 	int		var_name_len;
 	
-	// Check if this is a simple variable expansion (like $VAR)
+	// Check for simple variable expansion (like $VAR), then skip $
 	if (input[*i] == '$' && (ft_isalnum(input[*i + 1]) || input[*i + 1] == '_' || input[*i + 1] == '?'))
 	{
-		(*i)++; // Skip $
+		(*i)++;
 		var_name_len = 0;
 		while (input[*i + var_name_len] && (ft_isalnum(input[*i + var_name_len]) || input[*i + var_name_len] == '_' || 
-			   (var_name_len == 0 && input[*i + var_name_len] == '?')))
+				(var_name_len == 0 && input[*i + var_name_len] == '?')))
 			var_name_len++;
 		
 		// Check if this is the entire word (no additional characters)
@@ -484,10 +484,7 @@ bool	tokenize_input(t_shell *shell, char *input)
 		else if (handle_special_char(shell, input, &i))
 			continue;
 		else if (handle_word(input, &i, shell))
-			{
-
 				return (false);
-			}
 	}
 	return (true);
 }

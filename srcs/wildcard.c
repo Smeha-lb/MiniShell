@@ -13,6 +13,8 @@ static char	**setup_wildcard_expansion(t_match_data *data, const char *pattern)
 	return (data->matches);
 }
 
+// for consistency's sake a 2d array is always returned, if the pattern cannot
+// be matched the array contains the pattern and a NULL.
 char	**expand_wildcards(const char *pattern)
 {
 	t_match_data	data;

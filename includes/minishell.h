@@ -44,8 +44,8 @@ typedef enum e_token_type
 	TOKEN_HEREDOC,
 	TOKEN_AND,
 	TOKEN_OR,
-	TOKEN_LPAREN,    // Left parenthesis (
-	TOKEN_RPAREN,    // Right parenthesis )
+	TOKEN_LPAREN,
+	TOKEN_RPAREN,
 }	t_token_type;
 
 typedef struct s_token
