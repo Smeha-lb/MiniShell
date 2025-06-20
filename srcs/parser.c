@@ -112,8 +112,6 @@ void	free_commands(t_command *commands)
 	{
 		temp = commands;
 		commands = commands->next;
-		
-		// Free subshell commands if any
 		if (temp->is_subshell && temp->subshell)
 			free_commands(temp->subshell);
 		
@@ -123,9 +121,11 @@ void	free_commands(t_command *commands)
 	}
 }
 
+// paren_count will be 0 If we've found the matching closing parenthesis
+
 t_token *find_matching_paren(t_token *start)
 {
-	int paren_count = 1;  // Start with 1 for the opening parenthesis
+	int paren_count = 1;
 	t_token *token = start->next;
 	
 	if (!token || start->type != TOKEN_LPAREN)
@@ -138,14 +138,13 @@ t_token *find_matching_paren(t_token *start)
 		else if (token->type == TOKEN_RPAREN)
 			paren_count--;
 		
-		// If we've found the matching closing parenthesis
 		if (paren_count == 0)
 			return token;
 		
 		token = token->next;
 	}
 	
-	return NULL;  // No matching closing parenthesis found
+	return NULL;
 }
 
 t_token *copy_tokens_section(t_token *start, t_token *end)
