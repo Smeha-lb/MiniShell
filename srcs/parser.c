@@ -303,8 +303,9 @@ bool	handle_wildcards_token(t_token *token, t_command *cmd)
 		free_matches(matches);
 	}
 	else
+	{
 		add_arg(cmd, token->value);
-
+	}
 	return (true);
 }
 
@@ -397,47 +398,47 @@ bool	process_token(t_token **token_ptr, t_command **cmd_ptr,
 	t_command *cmd = *cmd_ptr;
 	
 	if (!token)
-		return true;
-		
+		return (true);
+
 	if (token->type == TOKEN_LPAREN)
 	{
 		if (!handle_parenthesis(token_ptr, cmd, cmd_head))
-			return false;
+			return (false);
 	}
 	else if (token->type == TOKEN_RPAREN)
 	{
 		ft_putendl_fd(ERR_RPAREN, 2);
 		free_commands(cmd_head);
-		return false;
+		return (false);
 	}
 	else if (token->type == TOKEN_WORD)
 	{
 		if (!handle_word_token(token, cmd))
-			return false;
+			return (false);
 	}
 	else if (token->type == TOKEN_PIPE)
 	{
 		if (!handle_pipe_token(token, cmd_ptr, cmd_head))
-			return false;
+			return (false);
 	}
 	else if (token->type == TOKEN_AND)
 	{
 		if (!handle_and_token(token, cmd_ptr, cmd_head))
-			return false;
+			return (false);
 	}
 	else if (token->type == TOKEN_OR)
 	{
 		if (!handle_or_token(token, cmd_ptr, cmd_head))
-			return false;
+			return (false);
 	}
 	else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
 			token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
 	{
 		if (!handle_redirection_token(token_ptr, cmd, cmd_head))
-			return false;
+			return (false);
 	}
 	
-	return true;
+	return (true);
 }
 
 bool	parse_tokens(t_shell *shell)
