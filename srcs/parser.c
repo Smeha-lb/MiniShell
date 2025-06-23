@@ -10,7 +10,7 @@ t_command	*create_command(void)
 	
 	cmd = (t_command *)malloc(sizeof(t_command));
 	if (!cmd)
-	return (NULL);
+		return (NULL);
 	cmd->args = NULL;
 	cmd->redirs = NULL;
 	cmd->pipe_in = -1;
@@ -43,7 +43,7 @@ void	append_cmd_arg(t_command *cmd, char *expanded_arg)
 
 	i = 0;
 	while (cmd->args[i])
-	i++;
+		i++;
 	new_args = (char **)malloc((i + 2) * sizeof(char *));
 	if (!new_args)
 	{
@@ -123,100 +123,79 @@ void	free_commands(t_command *commands)
 
 // paren_count will be 0 If we've found the matching closing parenthesis
 
-t_token *find_matching_paren(t_token *start)
+t_token	*find_matching_paren(t_token *start)
 {
-	int paren_count = 1;
-	t_token *token = start->next;
-	
+	int		paren_count;
+	t_token	*token;
+
+	paren_count = 1;
+	token = start->next;
 	if (!token || start->type != TOKEN_LPAREN)
-		return NULL;
-	
+		return (NULL);
 	while (token && paren_count > 0)
 	{
 		if (token->type == TOKEN_LPAREN)
 			paren_count++;
 		else if (token->type == TOKEN_RPAREN)
 			paren_count--;
-		
 		if (paren_count == 0)
-			return token;
-		
+			return (token);
 		token = token->next;
 	}
-	
-	return NULL;
+	return (NULL);
 }
 
-t_token *copy_tokens_section(t_token *start, t_token *end)
+t_token	*copy_tokens_section(t_token *start, t_token *end)
 {
-	t_token *head = NULL;
-	t_token *token = start->next;
-	t_token *new_token;
-	
+	t_token	*head;
+	t_token	*token;
+	t_token	*new_token;
+
+	head = NULL;
+	token = start->next;
 	if (!token || token == end)
-		return NULL;  // No tokens to copy or empty parentheses
-	
+		return (NULL);
 	while (token && token != end)
 	{
-		// Create a copy of the current token
 		new_token = create_token(token->value, token->type);
 		if (!new_token)
 		{
-			// Failed to create token, free what we've copied so far
 			if (head)
 				free_tokens(head);
-			return NULL;
+			return (NULL);
 		}
-		
-		// Add the new token to our copied list
 		add_to_token_list(&head, new_token);
-		
-		// Move to next token
 		token = token->next;
 	}
-	
-	return head;
+	return (head);
 }
 
-t_command *parse_subshell(t_token *start, t_token *end)
+t_command	*parse_subshell(t_token *start, t_token *end)
 {
-	t_shell temp_shell;
-	t_token *subshell_tokens;
-	
-	// Initialize the temporary shell
+	t_shell		temp_shell;
+	t_token		*subshell_tokens;
+
 	temp_shell.tokens = NULL;
 	temp_shell.commands = NULL;
 	temp_shell.exit_status = 0;
 	temp_shell.running = 1;
 	temp_shell.env = NULL;
-	
-	// Copy tokens from the subshell (skip the opening parenthesis)
 	subshell_tokens = copy_tokens_section(start, end);
 	if (!subshell_tokens && start->next != end)
 	{
-		// Error if we couldn't copy tokens and there should be tokens between parentheses
 		ft_putendl_fd("Error: Failed to parse subshell", 2);
-		return NULL;
+		return (NULL);
 	}
-	
 	temp_shell.tokens = subshell_tokens;
-	
-	// Parse the subshell tokens
 	if (!parse_tokens(&temp_shell))
 	{
-		// Free subshell tokens if parsing fails
 		if (subshell_tokens)
 			free_tokens(subshell_tokens);
-		return NULL;
+		return (NULL);
 	}
-	
-	// Free the tokens after parsing as they're no longer needed
-	// (the commands structure now contains the parsed information)
 	if (subshell_tokens)
 		free_tokens(subshell_tokens);
-	
-	// Return the commands from parsing
-	return temp_shell.commands;
+	return (temp_shell.commands);
 }
 
 void	parse_tokens_err(t_command *cmd_head, char *msg)
@@ -231,16 +210,15 @@ void	parse_tokens_err(t_command *cmd_head, char *msg)
 
 void	parse_tokens_word(char *value, t_command *cmd)
 {
-	char **matches;
-	
+	char	**matches;
+	int		i;
+
 	if (!has_wildcards(value))
 		return (add_arg(cmd, value));
-
 	matches = expand_wildcards(value);
 	if (!matches)
 		return (add_arg(cmd, value));
-	
-	int i = 0;
+	i = 0;
 	while (matches[i])
 	{
 		add_arg(cmd, matches[i]);
@@ -253,34 +231,24 @@ void	parse_tokens_word(char *value, t_command *cmd)
 bool	handle_parenthesis(t_token **token_ptr, t_command *cmd, 
 							t_command *cmd_head)
 {
-	t_token *token = *token_ptr;
-	t_token *closing_paren;
+	t_token		*end_paren;
+	t_command	*subshell_cmds;
 
-	// Find the matching closing parenthesis
-	closing_paren = find_matching_paren(token);
-	if (!closing_paren)
+	end_paren = find_matching_paren(*token_ptr);
+	if (!end_paren)
 	{
-		ft_putendl_fd("Error: Syntax error: unclosed parenthesis", 2);
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, ERR_RPAREN);
 		return (false);
 	}
-	
-	// Mark this command as a subshell
+	subshell_cmds = parse_subshell(*token_ptr, end_paren);
+	if (!subshell_cmds)
+	{
+		parse_tokens_err(cmd_head, "Failed to parse subshell");
+		return (false);
+	}
 	cmd->is_subshell = 1;
-	
-	// Create subshell commands from the tokens inside parentheses
-	cmd->subshell = parse_subshell(token, closing_paren);
-	
-	// Check if subshell parsing was successful
-	if (!cmd->subshell)
-	{
-		ft_putendl_fd("Error: Failed to parse subshell commands", 2);
-		free_commands(cmd_head);
-		return (false);
-	}
-	
-	// Skip to the closing parenthesis
-	*token_ptr = closing_paren;
+	cmd->subshell = subshell_cmds;
+	*token_ptr = end_paren;
 	return (true);
 }
 
@@ -288,24 +256,16 @@ bool	handle_parenthesis(t_token **token_ptr, t_command *cmd,
 // If wildcard expansion fails, use the original token value
 bool	handle_wildcards_token(t_token *token, t_command *cmd)
 {
-	char **matches;
-	int i;
+	char	*expanded;
 
-	matches = expand_wildcards(token->value);
-	if (matches)
+	expanded = handle_expansion(NULL, token->value);
+	if (expanded)
 	{
-		i = 0;
-		while (matches[i])
-		{
-			add_arg(cmd, matches[i]);
-			i++;
-		}
-		free_matches(matches);
+		add_arg(cmd, expanded);
+		free(expanded);
+		return (true);
 	}
-	else
-	{
-		add_arg(cmd, token->value);
-	}
+	parse_tokens_word(token->value, cmd);
 	return (true);
 }
 
@@ -314,8 +274,6 @@ bool	handle_word_token(t_token *token, t_command *cmd)
 {
 	if (has_wildcards(token->value))
 		return (handle_wildcards_token(token, cmd));
-	
-	// No wildcards, just add the argument as is
 	add_arg(cmd, token->value);
 	return (true);
 }
@@ -324,16 +282,23 @@ bool	handle_word_token(t_token *token, t_command *cmd)
 bool	handle_pipe_token(t_token *token, t_command **cmd_ptr,
 						t_command *cmd_head)
 {
-	t_command *cmd = *cmd_ptr;
+	t_command	*cmd;
+	t_command	*new_cmd;
 
-	if (!token->next)
+	cmd = *cmd_ptr;
+	if (!token->next || token->next->type == TOKEN_PIPE)
 	{
-		ft_putendl_fd("Error: Syntax error near unexpected token `|'", 2);
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, ERR_PIPE);
 		return (false);
 	}
-	cmd->next = create_command();
-	*cmd_ptr = cmd->next;
+	new_cmd = create_command();
+	if (!new_cmd)
+	{
+		parse_tokens_err(cmd_head, "Memory allocation failed");
+		return (false);
+	}
+	cmd->next = new_cmd;
+	*cmd_ptr = new_cmd;
 	return (true);
 }
 
@@ -341,17 +306,25 @@ bool	handle_pipe_token(t_token *token, t_command **cmd_ptr,
 bool	handle_and_token(t_token *token, t_command **cmd_ptr,
 						t_command *cmd_head)
 {
-	t_command *cmd = *cmd_ptr;
+	t_command	*cmd;
+	t_command	*new_cmd;
 
-	if (!token->next)
+	cmd = *cmd_ptr;
+	if (!token->next || token->next->type == TOKEN_AND || 
+		token->next->type == TOKEN_OR || token->next->type == TOKEN_PIPE)
 	{
-		ft_putendl_fd("Error: Syntax error near unexpected token `&&'", 2);
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, ERR_AND);
 		return (false);
 	}
-	cmd->next_op = 1;  // Mark for AND operator
-	cmd->next = create_command();
-	*cmd_ptr = cmd->next;
+	new_cmd = create_command();
+	if (!new_cmd)
+	{
+		parse_tokens_err(cmd_head, "Memory allocation failed");
+		return (false);
+	}
+	cmd->next_op = 1;
+	cmd->next = new_cmd;
+	*cmd_ptr = new_cmd;
 	return (true);
 }
 
@@ -359,17 +332,25 @@ bool	handle_and_token(t_token *token, t_command **cmd_ptr,
 bool	handle_or_token(t_token *token, t_command **cmd_ptr,
 						t_command *cmd_head)
 {
-	t_command *cmd = *cmd_ptr;
+	t_command	*cmd;
+	t_command	*new_cmd;
 
-	if (!token->next)
+	cmd = *cmd_ptr;
+	if (!token->next || token->next->type == TOKEN_AND || 
+		token->next->type == TOKEN_OR || token->next->type == TOKEN_PIPE)
 	{
-		ft_putendl_fd("Error: Syntax error near unexpected token `||'", 2);
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, ERR_OR);
 		return (false);
 	}
-	cmd->next_op = 2;  // Mark for OR operator
-	cmd->next = create_command();
-	*cmd_ptr = cmd->next;
+	new_cmd = create_command();
+	if (!new_cmd)
+	{
+		parse_tokens_err(cmd_head, "Memory allocation failed");
+		return (false);
+	}
+	cmd->next_op = 2;
+	cmd->next = new_cmd;
+	*cmd_ptr = new_cmd;
 	return (true);
 }
 
@@ -377,16 +358,15 @@ bool	handle_or_token(t_token *token, t_command **cmd_ptr,
 bool	handle_redirection_token(t_token **token_ptr, t_command *cmd,
 								t_command *cmd_head)
 {
-	t_token *token = *token_ptr;
-	t_token *next;
+	t_token	*result;
 
-	next = handle_redir(token, cmd);
-	if (!next)
+	result = handle_redir(*token_ptr, cmd);
+	if (!result)
 	{
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, "Redirection error");
 		return (false);
 	}
-	*token_ptr = next;
+	*token_ptr = result;
 	return (true);
 }
 
@@ -394,64 +374,45 @@ bool	handle_redirection_token(t_token **token_ptr, t_command *cmd,
 bool	process_token(t_token **token_ptr, t_command **cmd_ptr,
 					t_command *cmd_head)
 {
-	t_token *token = *token_ptr;
-	t_command *cmd = *cmd_ptr;
-	
-	if (!token)
-		return (true);
+	t_token		*token;
+	t_command	*cmd;
 
-	if (token->type == TOKEN_LPAREN)
-	{
-		if (!handle_parenthesis(token_ptr, cmd, cmd_head))
-			return (false);
-	}
+	token = *token_ptr;
+	cmd = *cmd_ptr;
+	if (token->type == TOKEN_WORD)
+		return (handle_word_token(token, cmd));
+	else if (token->type == TOKEN_PIPE)
+		return (handle_pipe_token(token, cmd_ptr, cmd_head));
+	else if (token->type == TOKEN_AND)
+		return (handle_and_token(token, cmd_ptr, cmd_head));
+	else if (token->type == TOKEN_OR)
+		return (handle_or_token(token, cmd_ptr, cmd_head));
+	else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
+		token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
+		return (handle_redirection_token(token_ptr, cmd, cmd_head));
+	else if (token->type == TOKEN_LPAREN)
+		return (handle_parenthesis(token_ptr, cmd, cmd_head));
 	else if (token->type == TOKEN_RPAREN)
 	{
-		ft_putendl_fd(ERR_RPAREN, 2);
-		free_commands(cmd_head);
+		parse_tokens_err(cmd_head, ERR_RPAREN);
 		return (false);
 	}
-	else if (token->type == TOKEN_WORD)
-	{
-		if (!handle_word_token(token, cmd))
-			return (false);
-	}
-	else if (token->type == TOKEN_PIPE)
-	{
-		if (!handle_pipe_token(token, cmd_ptr, cmd_head))
-			return (false);
-	}
-	else if (token->type == TOKEN_AND)
-	{
-		if (!handle_and_token(token, cmd_ptr, cmd_head))
-			return (false);
-	}
-	else if (token->type == TOKEN_OR)
-	{
-		if (!handle_or_token(token, cmd_ptr, cmd_head))
-			return (false);
-	}
-	else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
-			token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
-	{
-		if (!handle_redirection_token(token_ptr, cmd, cmd_head))
-			return (false);
-	}
-	
 	return (true);
 }
 
 bool	parse_tokens(t_shell *shell)
 {
 	t_token		*token;
-	t_command	*cmd;
 	t_command	*cmd_head;
+	t_command	*cmd;
 
-	token = shell->tokens;
-	if (!token)
+	if (!shell->tokens)
 		return (true);
-	cmd = create_command();
-	cmd_head = cmd;
+	cmd_head = create_command();
+	if (!cmd_head)
+		return (false);
+	cmd = cmd_head;
+	token = shell->tokens;
 	while (token)
 	{
 		if (!process_token(&token, &cmd, cmd_head))

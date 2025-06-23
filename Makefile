@@ -32,6 +32,10 @@ SRCS = main.c \
 		builtins4.c \
 		builtins5.c \
 		redirections.c \
+		redirections_apply.c \
+		redirections_heredoc.c \
+		redirections_heredoc2.c \
+		redirections_cleanup.c \
 		env_utils.c \
 		env_utils2.c \
 		utils.c \

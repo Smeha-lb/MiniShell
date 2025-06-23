@@ -4,21 +4,21 @@ void	add_redir(t_redir **head, int type, char *file)
 {
 	t_redir	*new_redir;
 	t_redir	*current;
-	
+
 	new_redir = (t_redir *)malloc(sizeof(t_redir));
 	if (!new_redir)
-	return;
+		return ;
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
 	new_redir->next = NULL;
 	if (!*head)
 	{
 		*head = new_redir;
-		return;
+		return ;
 	}
 	current = *head;
 	while (current->next)
-	current = current->next;
+		current = current->next;
 	current->next = new_redir;
 }
 
@@ -26,7 +26,7 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 {
 	t_token_type	type;
 	t_token			*next_token;
-	
+
 	type = token->type;
 	next_token = token->next;
 	if (!next_token || next_token->type != TOKEN_WORD)
@@ -35,12 +35,12 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 		return (NULL);
 	}
 	if (type == TOKEN_REDIR_IN)
-	add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
 	else if (type == TOKEN_REDIR_OUT)
-	add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
 	else if (type == TOKEN_REDIR_APPEND)
-	add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
 	else if (type == TOKEN_HEREDOC)
-	add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
 	return (next_token);
 }
