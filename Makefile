@@ -18,7 +18,14 @@ SRCS = main.c \
 		lexer.c \
 		redir.c \
 		parser.c \
-		execution.c \
+		execution_path.c \
+		execution_cmd.c \
+		execution_pipes.c \
+		execution_pipeline.c \
+		execution_pipeline_utils.c \
+		execution_subshell.c \
+		execution_logic.c \
+		execution_commands.c \
 		builtins.c \
 		builtins2.c \
 		builtins3.c \

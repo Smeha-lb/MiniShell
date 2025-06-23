@@ -86,6 +86,25 @@ typedef struct s_shell
 	char		*previous_cmd;
 }	t_shell;
 
+typedef struct s_pipeline_child
+{
+	t_shell		*shell;
+	t_command	*cmd;
+	int			**pipes;
+	int			i;
+	int			cmd_count;
+}	t_pipeline_child;
+
+typedef struct s_pipeline
+{
+	t_shell		*shell;
+	t_command	*start_cmd;
+	pid_t		*pids;
+	int			**pipes;
+	int			cmd_count;
+	int			is_nested;
+}	t_pipeline;
+
 /* shell.c */
 void	shell_init(t_shell *shell, char **env);
 void	shell_loop(t_shell *shell);
@@ -114,11 +133,60 @@ t_token *find_matching_paren(t_token *start);
 t_token *copy_tokens_section(t_token *start, t_token *end);
 t_command *parse_subshell(t_token *start, t_token *end);
 
-/* execution.c */
+/* execution_commands.c */
 int		execute_commands(t_shell *shell);
-int		execute_single_command(t_shell *shell, t_command *cmd);
-int     execute_subshell(t_shell *shell, t_command *subshell_cmd);
+int		execute_command_with_redirects(t_shell *shell, t_command **cmd,
+		int *exit_status);
+
+/* execution_path.c */
+char	*check_direct_path(char *cmd);
+char	*search_in_path(char *cmd, char *path_env);
 char	*find_command_path(t_shell *shell, char *cmd);
+int		is_parent_builtin(char *cmd_name);
+int		execute_single_command(t_shell *shell, t_command *cmd);
+
+/* execution_cmd.c */
+void	setup_child_redirections(t_command *cmd);
+void	handle_child_process(t_shell *shell, t_command *cmd, char *path);
+int		fork_external_command(t_shell *shell, t_command *cmd, char *path);
+int		wait_for_external_command(pid_t pid);
+int		execute_external_command(t_shell *shell, t_command *cmd);
+
+/* execution_pipes.c */
+int		create_pipes(t_command *commands);
+void	close_pipes(t_command *commands);
+int		**allocate_pipes(int cmd_count, pid_t **pids);
+int		setup_pipes(int **pipes, int cmd_count, pid_t *pids);
+void	setup_child_pipes(int **pipes, int i, int cmd_count);
+
+/* execution_pipeline.c */
+int		check_nested_minishell(t_command *start_cmd);
+int		count_pipeline_cmds(t_command *start_cmd);
+void	execute_child_cmd(t_shell *shell, t_command *cmd);
+int		handle_pipeline_child(t_pipeline_child *pc);
+int		wait_for_pipeline(pid_t *pids, int cmd_count, int is_nested);
+
+/* execution_pipeline_utils.c */
+void	free_pipes(int **pipes, int cmd_count);
+void	init_pipeline(t_pipeline *pipeline, t_shell *shell, t_command *start_cmd);
+void	fork_pipeline_processes(t_pipeline *pipeline, t_command *start_cmd);
+int		execute_pipeline(t_shell *shell, t_command *start_cmd);
+int		wait_for_all(pid_t last_pid);
+
+/* execution_subshell.c */
+void	init_subshell(t_shell *subshell, t_shell *shell, t_command *subshell_cmd);
+int		handle_parent_process(pid_t pid, int *exit_status);
+int		execute_subshell(t_shell *shell, t_command *subshell_cmd);
+int		handle_subshell(t_shell *shell, t_command *cmd, int *exit_status);
+int		setup_builtin_redirects(t_shell *shell, t_command *cmd, int *in, int *out);
+
+/* execution_logic.c */
+void	handle_and_operator(t_command **cmd, int exit_status);
+void	handle_or_operator(t_command **cmd, int exit_status);
+void	handle_next_command(t_command **cmd, int exit_status);
+int		handle_redirection_failure(int stdin_backup, int stdout_backup,
+		int *exit_status);
+int		execute_current_command(t_shell *shell, t_command **cmd, int *exit_status);
 
 /* builtins.c */
 int		is_builtin(char *cmd);
