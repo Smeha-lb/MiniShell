@@ -21,6 +21,9 @@
 # define PROMPT "minishell> "
 # define HEREDOC_PROMPT "> "
 # define ERR_RPAREN "Syntax error near unexpected token `)'"
+# define ERR_PIPE "Syntax error near unexpected token `|'"
+# define ERR_AND "Syntax error near unexpected token `&&'"
+# define ERR_OR "Syntax error near unexpected token `||'"
 
 extern int	g_signal_code;
 
@@ -115,7 +118,7 @@ void	handle_signals(int signum);
 void	ignore_signals(void);
 
 /* lexer.c */
-bool		tokenize_input(t_shell *shell, char *input);
+bool	tokenize_input(t_shell *shell, char *input);
 void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
 void	add_to_token_list(t_token **head, t_token *new_token);
@@ -124,12 +127,38 @@ void	add_to_token_list(t_token **head, t_token *new_token);
 t_token	*handle_redir(t_token *token, t_command *cmd);
 void	add_redir(t_redir **head, int type, char *file);
 
-/* parser.c */
-bool		parse_tokens(t_shell *shell);
+/* parser_core.c */
+bool	parse_tokens(t_shell *shell);
+void	parse_tokens_err(t_command *cmd_head, char *msg);
+bool	process_token(t_token **token_ptr, t_command **cmd_ptr, t_command *cmd_head);
+
+/* parser_command.c */
+t_command	*create_command(void);
+bool	handle_pipe_token(t_token *token, t_command **cmd_ptr, t_command *cmd_head);
+bool	handle_and_token(t_token *token, t_command **cmd_ptr, t_command *cmd_head);
+bool	handle_or_token(t_token *token, t_command **cmd_ptr, t_command *cmd_head);
+
+/* parser_args.c */
+void	init_cmd_args(t_command *cmd, char *expanded_arg);
+void	append_cmd_arg(t_command *cmd, char *expanded_arg);
+void	add_arg(t_command *cmd, char *arg);
+void	parse_tokens_word(char *value, t_command *cmd);
+bool	handle_wildcards_token(t_token *token, t_command *cmd);
+
+/* parser_token_handlers.c */
+bool	handle_word_token(t_token *token, t_command *cmd);
+bool	handle_redirection_token(t_token **token_ptr, t_command *cmd, t_command *cmd_head);
+bool	handle_parenthesis(t_token **token_ptr, t_command *cmd, t_command *cmd_head);
+
+/* parser_subshell.c */
+t_token	*find_matching_paren(t_token *start);
+t_token	*copy_tokens_section(t_token *start, t_token *end);
+t_command	*parse_subshell(t_token *start, t_token *end);
+
+/* parser_cleanup.c */
+void	free_redirs(t_redir *redirs);
+void	free_cmd_args(char **args);
 void	free_commands(t_command *commands);
-t_token *find_matching_paren(t_token *start);
-t_token *copy_tokens_section(t_token *start, t_token *end);
-t_command *parse_subshell(t_token *start, t_token *end);
 
 /* execution_commands.c */
 int		execute_commands(t_shell *shell);
@@ -248,26 +277,22 @@ char	**expand_wildcards(const char *pattern);
 int		does_pattern_match(const char *pattern, const char *filename);
 void	sort_matches(char **matches, int count);
 char	*join_expanded_wildcards(char **matches);
-void	free_matches(char **matches);
 int		is_in_char_class(char c, const char *class_str);
 void	split_path(const char *path, char **dir_part, char **file_part);
 char	**init_matches(int capacity);
-char	**handle_no_wildcards(const char *pattern);
-char	**handle_dir_error(char *dir_part, char *file_part);
-char	**process_wildcard_matches(t_match_data *data, const char *pattern);
 void	swap_matches(char **matches, int i, int j);
-char	*join_path(const char *dir, const char *file);
 int		add_matching_entry(t_match_data *data, char *entry_name);
 void	finalize_matches(char **matches, int match_count,
 		const char *pattern);
-
-/* utils.c */
-char	**split_args(char *str);
 void	free_array(char **array);
 int		count_array(char **array);
 void	print_error(char *cmd, char *arg, char *message);
-char	*ft_strjoin_free(char *s1, const char *s2);
 int		ft_strcmp(const char *s1, const char *s2);
 int		ft_isdigit_str(char *str);
+void	free_matches(char **matches);
+char	**handle_no_wildcards(const char *pattern);
+char	**handle_dir_error(char *dir_part, char *file_part);
+char	**process_wildcard_matches(t_match_data *data, const char *pattern);
+char	*join_path(const char *dir, const char *file);
 
 #endif 
