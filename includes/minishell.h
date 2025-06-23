@@ -204,10 +204,24 @@ int		builtin_env(t_shell *shell);
 int		builtin_exit(t_shell *shell, t_command *cmd);
 
 /* redirections.c */
-int             redirect_input(char *file);
-int             redirect_output(char *file, int append);
-int             handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
-int             setup_redirections(t_shell *shell, t_command *cmd);
+int		setup_redirections(t_shell *shell, t_command *cmd);
+
+/* redirections_apply.c */
+int		redirect_input(char *file);
+int		redirect_output(char *file, int append);
+int		apply_all_redirections(t_command *cmd, char **heredoc_tempfiles);
+
+/* redirections_heredoc.c */
+int		handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
+int		apply_heredoc_redirection(char *temp_file);
+char	*create_heredoc_tempfile(void);
+void	setup_heredoc_signals(void);
+int		count_heredocs(t_command *cmd);
+
+/* redirections_cleanup.c */
+void	cleanup_heredoc_tempfiles(char **temp_files, int count);
+char	**init_heredoc_tempfiles(int count);
+int		process_heredocs(t_shell *shell, t_command *cmd, char **tempfiles);
 
 /* env_utils.c */
 char	**copy_env(char **env);
