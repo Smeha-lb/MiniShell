@@ -17,7 +17,12 @@ SRCS = main.c \
 		signals.c \
 		lexer.c \
 		redir.c \
-		parser.c \
+		parser_core.c \
+		parser_command.c \
+		parser_args.c \
+		parser_token_handlers.c \
+		parser_subshell.c \
+		parser_cleanup.c \
 		execution_path.c \
 		execution_cmd.c \
 		execution_pipes.c \
