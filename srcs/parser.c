@@ -285,6 +285,7 @@ bool	handle_parenthesis(t_token **token_ptr, t_command *cmd,
 }
 
 // Helper function to handle word tokens with wildcards
+// If wildcard expansion fails, use the original token value
 bool	handle_wildcards_token(t_token *token, t_command *cmd)
 {
 	char **matches;
@@ -302,10 +303,8 @@ bool	handle_wildcards_token(t_token *token, t_command *cmd)
 		free_matches(matches);
 	}
 	else
-	{
-		// If wildcard expansion fails, use the original token value
 		add_arg(cmd, token->value);
-	}
+
 	return (true);
 }
 
