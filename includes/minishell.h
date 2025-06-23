@@ -65,15 +65,17 @@ typedef struct s_redir
 	struct s_redir	*next;
 }	t_redir;
 
+
+// next_op takes 0 for none, 1 for &&, 2 for ||
 typedef struct s_command
 {
 	char			**args;
 	t_redir			*redirs;
 	int				pipe_in;
 	int				pipe_out;
-	int				next_op;  // 0 for none, 1 for &&, 2 for ||
-	int             is_subshell; // Flag for subshell commands
-	struct s_command	*subshell; // Pointer to subshell commands (if is_subshell is true)
+	int				next_op;  
+	int             is_subshell;
+	struct s_command	*subshell;
 	struct s_command	*next;
 }	t_command;
 
