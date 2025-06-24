@@ -14,4 +14,4 @@ int	ft_isdigit_str(char *str)
 		i++;
 	}
 	return (1);
-} 
+}

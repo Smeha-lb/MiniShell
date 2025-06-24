@@ -40,4 +40,4 @@ char	*ft_itoa(int n)
 		num /= 10;
 	}
 	return (str);
-} 
+}

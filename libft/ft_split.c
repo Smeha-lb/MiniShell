@@ -73,12 +73,9 @@ char	**ft_split(char const *s, char c)
 			i++;
 		split[j] = get_word(s, c, &i);
 		if (!split[j])
-		{
-			free_split(split, j - 1);
-			return (NULL);
-		}
+			return (free_split(split, j - 1), NULL);
 		j++;
 	}
 	split[j] = NULL;
 	return (split);
-} 
+}
