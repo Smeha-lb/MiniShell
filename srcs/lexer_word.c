@@ -43,7 +43,7 @@ int	calculate_word_buffer_size(char *input, int i)
 	return (buffer_size + 1024);
 }
 
-int	process_word_character(temp_var_data data, t_shell *shell)
+int	process_word_character(t_temp_var_data data, t_shell *shell)
 {
 	if (data.input[*data.i] == '\'' || data.input[*data.i] == '\"')
 	{
@@ -68,7 +68,7 @@ int	handle_complex_word(char *input, int *i, t_shell *shell)
 	int				j;
 	char			*word;
 	int				buffer_size;
-	temp_var_data	data;
+	t_temp_var_data	data;
 
 	buffer_size = calculate_word_buffer_size(input, *i);
 	word = (char *)malloc((buffer_size + 1) * sizeof(char));
