@@ -43,47 +43,48 @@ int	calculate_word_buffer_size(char *input, int i)
 	return (buffer_size + 1024);
 }
 
-int	process_word_character(char *input, int *i, char **word, int *j,
-		t_shell *shell)
+int	process_word_character(temp_var_data data, t_shell *shell)
 {
-	if (input[*i] == '\'' || input[*i] == '\"')
+	if (data.input[*data.i] == '\'' || data.input[*data.i] == '\"')
 	{
-		if (handle_quotes(input, i, word, j, shell))
+		if (handle_quotes(data.input, data.i, data.word, data.j, shell))
 			return (1);
 	}
-	else if (input[*i] == '$' && (ft_isalnum(input[*i + 1])
-			|| input[*i + 1] == '_' || input[*i + 1] == '?'))
+	else if (data.input[*data.i] == '$' && (ft_isalnum(data.input[*data.i + 1])
+			|| data.input[*data.i + 1] == '_'
+			|| data.input[*data.i + 1] == '?'))
 	{
-		if (process_variable_expansion(input, i, word, j, shell))
+		if (process_variable_expansion
+			(data.input, data.i, data.word, data.j, shell))
 			return (1);
 	}
 	else
-	{
-		(*word)[(*j)++] = input[(*i)++];
-	}
+		(*data.word)[(*data.j)++] = data.input[(*data.i)++];
 	return (0);
 }
 
 int	handle_complex_word(char *input, int *i, t_shell *shell)
 {
-	int		j;
-	char	*word;
-	int		buffer_size;
+	int				j;
+	char			*word;
+	int				buffer_size;
+	temp_var_data	data;
 
 	buffer_size = calculate_word_buffer_size(input, *i);
 	word = (char *)malloc((buffer_size + 1) * sizeof(char));
+	j = 0;
 	if (!word)
 		return (1);
-	j = 0;
 	while (input[*i] && !is_word_delimiter(input[*i], input[*i + 1]))
 	{
-		if (process_word_character(input, i, &word, &j, shell))
+		data.input = input;
+		data.i = i;
+		data.j = &j;
+		data.word = &word;
+		if (process_word_character(data, shell))
 			return (1);
 		if (j >= buffer_size)
-		{
-			free(word);
-			return (1);
-		}
+			return (free(word), 1);
 	}
 	word[j] = '\0';
 	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD));
@@ -117,8 +118,8 @@ int	extract_word(char *input, int *i, t_shell *shell)
 
 int	handle_word(char *input, int *i, t_shell *shell)
 {
-	int	start_pos;
-	int	result;
+	int				start_pos;
+	int				result;
 
 	start_pos = *i;
 	if (input[*i] == '$' && (ft_isalnum(input[*i + 1])
