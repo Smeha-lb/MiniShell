@@ -7,48 +7,13 @@ void	initialize_minimal_env(t_shell *shell)
 
 	empty_env[0] = NULL;
 	shell->env = copy_env(empty_env);
-	
-	// Set minimal environment variables
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 		set_env_var(shell, "PWD", cwd);
 	else
 		set_env_var(shell, "PWD", "/");
-	
 	set_env_var(shell, "SHLVL", "2");
 	set_env_var(shell, "PATH", "/usr/local/bin:/usr/bin:/bin");
 	set_env_var(shell, "_", "./minishell");
-}
-
-void	shell_init(t_shell *shell, char **env)
-{
-	char	*shlvl_value;
-	int		shlvl;
-	char	*new_shlvl;
-
-	if (!env || !env[0]) {
-		initialize_minimal_env(shell);
-	} else {
-		shell->env = copy_env(env);
-	}
-	
-	shell->tokens = NULL;
-	shell->commands = NULL;
-	shell->exit_status = 0;
-	shell->running = 1;
-	shell->previous_cmd = NULL;
-	
-	shlvl_value = get_env_value(shell, "SHLVL");
-	if (shlvl_value)
-		shlvl = ft_atoi(shlvl_value);
-	else
-		shlvl = 0;
-	shlvl++;
-	new_shlvl = ft_itoa(shlvl);
-	if (new_shlvl)
-	{
-		set_env_var(shell, "SHLVL", new_shlvl);
-		free(new_shlvl);
-	}
 }
 
 void	process_input(t_shell *shell, char *input)

@@ -143,27 +143,31 @@ typedef struct s_var_data
 	int		var_name_len;
 }	t_var_data;
 
-void		add_expanded_tokens(t_shell *shell, char *expanded_value);
-char		*get_variable_value(t_shell *shell, char *var_name);
-int			is_var_delimiter(char c, char next_c);
-int			get_var_name_len(char *input);
-int			handle_simple_variable_part2(t_shell *shell, char *input, int *i,
-				int var_name_len);
-int			handle_simple_variable(t_shell *shell, char *input, int *i);
-int			process_var_expansion(t_var_data *data, char **word, int *j);
-int			process_variable_expansion_part2(char *input, int *i, char **word,
-				int *j, t_shell *shell, int var_name_len);
-int			process_variable_expansion(char *input, int *i, char **word,
-				int *j, t_shell *shell);
+typedef struct temp_var_data
+{
+	char *input;
+	int *i;
+	char **word;
+	int *j;
+}	temp_var_data;
+
+void	add_expanded_tokens(t_shell *shell, char *expanded_value);
+char	*get_variable_value(t_shell *shell, char *var_name);
+int		is_var_delimiter(char c, char next_c);
+int		get_var_name_len(char *input);
+int		handle_simple_variable_part2(t_shell *shell, char *input, int *i, int var_name_len);
+int		handle_simple_variable(t_shell *shell, char *input, int *i);
+int		process_var_expansion(t_var_data *data, char **word, int *j);
+int		process_variable_expansion_part2(char *input, int *i, char **word, int *j, t_shell *shell, int var_name_len);
+int		process_variable_expansion(char *input, int *i, char **word, int *j, t_shell *shell);
 
 /* lexer_word.c */
-int			is_word_delimiter(char c, char next_c);
-int			calculate_word_buffer_size(char *input, int i);
-int			process_word_character(char *input, int *i, char **word, int *j,
-				t_shell *shell);
-int			handle_complex_word(char *input, int *i, t_shell *shell);
-int			extract_word(char *input, int *i, t_shell *shell);
-int			handle_word(char *input, int *i, t_shell *shell);
+int		is_word_delimiter(char c, char next_c);
+int		calculate_word_buffer_size(char *input, int i);
+int		process_word_character(temp_var_data data, t_shell *shell);
+int		handle_complex_word(char *input, int *i, t_shell *shell);
+int		extract_word(char *input, int *i, t_shell *shell);
+int		handle_word(char *input, int *i, t_shell *shell);
 
 /* redir.c */
 t_token		*handle_redir(t_token *token, t_command *cmd);
@@ -304,12 +308,13 @@ char		**init_heredoc_tempfiles(int count);
 int			process_heredocs(t_shell *shell, t_command *cmd, char **tempfiles);
 
 /* env_utils.c */
-char		**copy_env(char **env);
-char		*get_env_value(t_shell *shell, const char *name);
-void		set_env_var(t_shell *shell, const char *name, const char *value);
-void		unset_env_var(t_shell *shell, const char *name);
-void		add_env_var(t_shell *shell, char *new_env);
-char		*get_env_name(char *env_var);
+char	**copy_env(char **env);
+char	*get_env_value(t_shell *shell, const char *name);
+void	set_env_var(t_shell *shell, const char *name, const char *value);
+void	unset_env_var(t_shell *shell, const char *name);
+void	add_env_var(t_shell *shell, char *new_env);
+char	*get_env_name(char *env_var);
+void	initialize_minimal_env(t_shell *shell);
 
 /* expansion.c */
 char		*expand_variables(t_shell *shell, char *str, int in_quotes);
