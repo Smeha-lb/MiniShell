@@ -1,17 +1,5 @@
 #include "../includes/minishell.h"
 
-static int	get_var_name_len(char *str)
-{
-	int	i;
-
-	i = 0;
-	if (str[i] == '?')
-		return (1);
-	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
-		i++;
-	return (i);
-}
-
 static char	*get_var_value(t_shell *shell, char *var_name, int name_len)
 {
 	char	*name;
