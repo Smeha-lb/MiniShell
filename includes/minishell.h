@@ -107,34 +107,6 @@ typedef struct s_pipeline
 	int			is_nested;
 }	t_pipeline;
 
-/* shell.c */
-void		shell_init(t_shell *shell, char **env);
-void		shell_loop(t_shell *shell);
-void		shell_cleanup(t_shell *shell);
-void		clean_tokens(t_shell *shell);
-
-/* signals.c */
-void		setup_signals(void);
-void		handle_signals(int signum);
-void		ignore_signals(void);
-
-/* lexer.c */
-bool		tokenize_input(t_shell *shell, char *input);
-
-/* lexer_utils.c */
-void		free_tokens(t_token *tokens);
-t_token		*create_token(char *value, t_token_type type);
-void		add_to_token_list(t_token **head, t_token *new_token);
-int			handle_special_char(t_shell *shell, char *input, int *i);
-
-/* lexer_quotes.c */
-int			handle_quotes(char *input, int *i, char **word, int *j,
-				t_shell *shell);
-char		*extract_quoted_content(char *input, int start, int end);
-char		*process_quoted_content(t_shell *shell, char *content,
-				char quote_type);
-
-/* lexer_expansion.c */
 typedef struct s_var_data
 {
 	char	*var_name;
@@ -151,6 +123,41 @@ typedef struct t_temp_var_data
 	int		*j;
 }	t_temp_var_data;
 
+/* shell.c */
+void		shell_init(t_shell *shell, char **env);
+void		shell_loop(t_shell *shell);
+void		shell_cleanup(t_shell *shell);
+void		clean_tokens(t_shell *shell);
+
+/* signals.c */
+void		setup_signals(void);
+void		handle_signals(int signum);
+void		ignore_signals(void);
+
+/* lexer.c */
+bool		tokenize_input(t_shell *shell, char *input);
+
+/* lexer_utils.c */
+t_token		*create_token(char *value, t_token_type type);
+void		add_to_token_list(t_token **head, t_token *new_token);
+void		free_tokens(t_token *tokens);
+int			handle_special_char(t_shell *shell, char *input, int *i);
+int			handle_parentheses(t_shell *shell, char *input, int *i);
+int			handle_pipe_or(t_shell *shell, char *input, int *i);
+int			handle_and(t_shell *shell, char *input, int *i);
+int			handle_redirections(t_shell *shell, char *input, int *i);
+int			handle_input_redirection(t_shell *shell, char *input, int *i);
+int			handle_output_redirection(t_shell *shell, char *input, int *i);
+
+/* lexer_quotes.c */
+int			handle_quotes(t_temp_var_data data, t_shell *shell);
+int			extract_and_process_quotes(t_temp_var_data data, t_shell *shell,
+				char quote_type);
+int			copy_expanded_content(t_temp_var_data data, char *expanded);
+char		*extract_quoted_content(char *input, int start, int end);
+char		*process_quoted_content(t_shell *shell, char *content,
+				char quote_type);
+
 void		add_expanded_tokens(t_shell *shell, char *expanded_value);
 char		*get_variable_value(t_shell *shell, char *var_name);
 int			is_var_delimiter(char c, char next_c);
@@ -159,14 +166,25 @@ int			handle_simple_variable_part2(t_shell *shell, char *input,
 				int *i, int var_name_len);
 int			handle_simple_variable(t_shell *shell, char *input, int *i);
 int			process_var_expansion(t_var_data *data, char **word, int *j);
-int			process_variable_expansion_part2(char *input, int *i, char **word,
-				int *j, t_shell *shell, int var_name_len);
-int			process_variable_expansion(char *input, int *i, char **word,
-				int *j, t_shell *shell);
+int			process_variable_expansion_part2(t_temp_var_data input_data,
+				t_shell *shell, int var_name_len);
+int			process_variable_expansion(t_temp_var_data input_data,
+				t_shell *shell);
 
 /* lexer_word.c */
+typedef struct s_buffer_calc
+{
+	char	*input;
+	int		j;
+	int		buffer_size;
+	int		quote_start;
+}	t_buffer_calc;
+
 int			is_word_delimiter(char c, char next_c);
 int			calculate_word_buffer_size(char *input, int i);
+int			handle_quoted_section(t_buffer_calc *calc, char quote);
+int			handle_variable_section(t_buffer_calc *calc);
+int			handle_regular_char(t_buffer_calc *calc);
 int			process_word_character(t_temp_var_data data, t_shell *shell);
 int			handle_complex_word(char *input, int *i, t_shell *shell);
 int			extract_word(char *input, int *i, t_shell *shell);

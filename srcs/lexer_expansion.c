@@ -45,38 +45,37 @@ int	process_var_expansion(t_var_data *data, char **word, int *j)
 	return (0);
 }
 
-int	process_variable_expansion_part2(char *input, int *i, char **word, int *j,
+int	process_variable_expansion_part2(t_temp_var_data input_data,
 		t_shell *shell, int var_name_len)
 {
 	t_var_data	data;
 
-	data.var_name = ft_substr(input, *i, var_name_len);
+	data.var_name = ft_substr(input_data.input, *input_data.i, var_name_len);
 	if (!data.var_name)
 	{
-		free(*word);
+		free(input_data.word);
 		return (1);
 	}
 	data.var_value = get_variable_value(shell, data.var_name);
 	if (!data.var_value)
 	{
 		free(data.var_name);
-		free(*word);
+		free(input_data.word);
 		return (1);
 	}
 	data.value_len = ft_strlen(data.var_value);
-	*i += var_name_len;
-	if (process_var_expansion(&data, word, j))
+	*input_data.i += var_name_len;
+	if (process_var_expansion(&data, input_data.word, input_data.j))
 		return (1);
 	return (0);
 }
 
-int	process_variable_expansion(char *input, int *i, char **word, int *j,
+int	process_variable_expansion(t_temp_var_data input_data,
 		t_shell *shell)
 {
-	int		var_name_len;
+	int					var_name_len;
 
-	(*i)++;
-	var_name_len = get_var_name_len(input + *i);
-	return (process_variable_expansion_part2(input, i, word, j,
-			shell, var_name_len));
+	(*input_data.i)++;
+	var_name_len = get_var_name_len(input_data.input + *input_data.i);
+	return (process_variable_expansion_part2(input_data, shell, var_name_len));
 }

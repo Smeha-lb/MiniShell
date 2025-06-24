@@ -18,41 +18,52 @@ char	*process_quoted_content(t_shell *shell, char *content, char quote_type)
 	return (content);
 }
 
-int	handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell)
+int	copy_expanded_content(t_temp_var_data data, char *expanded)
 {
-	char	quote_type;
+	size_t	content_len;
+
+	if (!expanded)
+		return (1);
+	content_len = ft_strlen(expanded);
+	ft_strlcpy(*data.word + *data.j, expanded, content_len + 1);
+	*data.j += content_len;
+	free(expanded);
+	return (0);
+}
+
+int	extract_and_process_quotes(t_temp_var_data data,
+		t_shell *shell, char quote_type)
+{
 	int		start;
 	char	*quoted_content;
 	char	*expanded;
-	size_t	content_len;
 
-	quote_type = input[*i];
-	(*i)++;
-	start = *i;
-	while (input[*i] && input[*i] != quote_type)
-		(*i)++;
-	if (!input[*i])
+	start = *data.i;
+	while (data.input[*data.i] && data.input[*data.i] != quote_type)
+		(*data.i)++;
+	if (!data.input[*data.i])
 	{
 		ft_putendl_fd("Error: Unclosed quotes", 2);
-		free(*word);
 		return (1);
 	}
-	quoted_content = extract_quoted_content(input, start, *i);
+	quoted_content = extract_quoted_content(data.input,
+			start, *data.i);
 	if (!quoted_content)
-	{
-		free(*word);
 		return (1);
-	}
 	expanded = process_quoted_content(shell, quoted_content, quote_type);
-	if (!expanded)
-	{
-		free(*word);
+	if (copy_expanded_content(data, expanded))
 		return (1);
-	}
-	content_len = ft_strlen(expanded);
-	ft_strlcpy(*word + *j, expanded, content_len + 1);
-	*j += content_len;
-	free(expanded);
-	(*i)++;
+	(*data.i)++;
+	return (0);
+}
+
+int	handle_quotes(t_temp_var_data data, t_shell *shell)
+{
+	char	quote_type;
+
+	quote_type = data.input[*data.i];
+	(*data.i)++;
+	if (extract_and_process_quotes(data, shell, quote_type))
+		return (free(*data.word), 1);
 	return (0);
 }
