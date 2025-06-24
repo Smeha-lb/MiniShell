@@ -67,16 +67,15 @@ typedef struct s_redir
 	struct s_redir	*next;
 }	t_redir;
 
-
 // next_op takes 0 for none, 1 for &&, 2 for ||
 typedef struct s_command
 {
-	char			**args;
-	t_redir			*redirs;
-	int				pipe_in;
-	int				pipe_out;
-	int				next_op;  
-	int             is_subshell;
+	char				**args;
+	t_redir				*redirs;
+	int					pipe_in;
+	int					pipe_out;
+	int					next_op;
+	int					is_subshell;
 	struct s_command	*subshell;
 	struct s_command	*next;
 }	t_command;
@@ -334,4 +333,4 @@ char	**handle_dir_error(char *dir_part, char *file_part);
 char	**process_wildcard_matches(t_match_data *data, const char *pattern);
 char	*join_path(const char *dir, const char *file);
 
-#endif 
+#endif
