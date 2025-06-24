@@ -121,9 +121,44 @@ void	ignore_signals(void);
 
 /* lexer.c */
 bool	tokenize_input(t_shell *shell, char *input);
+
+/* lexer_utils.c */
 void	free_tokens(t_token *tokens);
 t_token	*create_token(char *value, t_token_type type);
 void	add_to_token_list(t_token **head, t_token *new_token);
+int		handle_special_char(t_shell *shell, char *input, int *i);
+
+/* lexer_quotes.c */
+int		handle_quotes(char *input, int *i, char **word, int *j, t_shell *shell);
+char	*extract_quoted_content(char *input, int start, int end);
+char	*process_quoted_content(t_shell *shell, char *content, char quote_type);
+
+/* lexer_expansion.c */
+typedef struct s_var_data
+{
+	char	*var_name;
+	char	*var_value;
+	size_t	value_len;
+	int		var_name_len;
+}	t_var_data;
+
+void	add_expanded_tokens(t_shell *shell, char *expanded_value);
+char	*get_variable_value(t_shell *shell, char *var_name);
+int		is_var_delimiter(char c, char next_c);
+int		get_var_name_len(char *input);
+int		handle_simple_variable_part2(t_shell *shell, char *input, int *i, int var_name_len);
+int		handle_simple_variable(t_shell *shell, char *input, int *i);
+int		process_var_expansion(t_var_data *data, char **word, int *j);
+int		process_variable_expansion_part2(char *input, int *i, char **word, int *j, t_shell *shell, int var_name_len);
+int		process_variable_expansion(char *input, int *i, char **word, int *j, t_shell *shell);
+
+/* lexer_word.c */
+int		is_word_delimiter(char c, char next_c);
+int		calculate_word_buffer_size(char *input, int i);
+int		process_word_character(char *input, int *i, char **word, int *j, t_shell *shell);
+int		handle_complex_word(char *input, int *i, t_shell *shell);
+int		extract_word(char *input, int *i, t_shell *shell);
+int		handle_word(char *input, int *i, t_shell *shell);
 
 /* redir.c */
 t_token	*handle_redir(t_token *token, t_command *cmd);

@@ -16,6 +16,12 @@ SRCS = main.c \
 		shell2.c \
 		signals.c \
 		lexer.c \
+		lexer_utils.c \
+		lexer_quotes.c \
+		lexer_expansion.c \
+		lexer_expansion2.c \
+		lexer_word.c \
+		lexer_word2.c \
 		redir.c \
 		parser_core.c \
 		parser_command.c \
