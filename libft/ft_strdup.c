@@ -18,4 +18,4 @@ char	*ft_strdup(const char *s1)
 	}
 	dup[i] = '\0';
 	return (dup);
-} 
+}
