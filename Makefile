@@ -17,6 +17,7 @@ SRCS = main.c \
 		signals.c \
 		lexer.c \
 		lexer_utils.c \
+		lexer_utils2.c \
 		lexer_quotes.c \
 		lexer_expansion.c \
 		lexer_expansion2.c \
