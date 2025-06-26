@@ -69,7 +69,7 @@ void	parse_tokens_word(char *value, t_command *cmd)
 		add_arg(cmd, matches[i]);
 		i++;
 	}
-	free_matches(matches);
+	free_array(matches);
 }
 
 // Helper function to handle word tokens with wildcards

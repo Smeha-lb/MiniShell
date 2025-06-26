@@ -61,8 +61,6 @@ char	*handle_expansion(t_shell *shell, char *str)
 		return (NULL);
 	i = 0;
 	while (str[i])
-	{
 		result = process_string(shell, str, &i, result);
-	}
 	return (result);
 }

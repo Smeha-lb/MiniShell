@@ -19,38 +19,11 @@ void	sort_matches(char **matches, int count)
 	}
 }
 
-void	free_matches(char **matches)
-{
-	int	i;
-
-	i = 0;
-	if (!matches)
-		return ;
-	while (matches[i])
-	{
-		free(matches[i]);
-		i++;
-	}
-	free(matches);
-}
-
+	// Always use current directory, ignore any directory in the path
 void	split_path(const char *path, char **dir_part, char **file_part)
 {
-	int		dir_len;
-	char	*last_slash;
-
-	last_slash = ft_strchr(path, '/');
-	if (!last_slash)
-	{
-		*dir_part = ft_strdup(".");
-		*file_part = ft_strdup(path);
-	}
-	else
-	{
-		dir_len = last_slash - path + 1;
-		*dir_part = ft_substr(path, 0, dir_len);
-		*file_part = ft_strdup(last_slash + 1);
-	}
+	*dir_part = ft_strdup(".");
+	*file_part = ft_strdup(path);
 }
 
 char	*join_path(const char *dir, const char *file)

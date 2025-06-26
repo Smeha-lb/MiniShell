@@ -37,6 +37,8 @@ void	execute_child_cmd(t_shell *shell, t_command *cmd)
 {
 	char	*path;
 
+	if (!cmd->args || !cmd->args[0])
+		exit(0);
 	if (is_builtin(cmd->args[0]))
 		exit(execute_builtin(shell, cmd));
 	path = find_command_path(shell, cmd->args[0]);
