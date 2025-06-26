@@ -30,6 +30,11 @@ bool	handle_pipe_token(t_token *token, t_command **cmd_ptr,
 		parse_tokens_err(cmd_head, ERR_PIPE);
 		return (false);
 	}
+	if (!cmd->args && !cmd->is_subshell && !cmd->redirs)
+	{
+		parse_tokens_err(cmd_head, ERR_PIPE);
+		return (false);
+	}
 	new_cmd = create_command();
 	if (!new_cmd)
 	{

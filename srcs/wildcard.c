@@ -15,10 +15,13 @@ static char	**setup_wildcard_expansion(t_match_data *data, const char *pattern)
 
 // for consistency's sake a 2d array is always returned, if the pattern cannot
 // be matched the array contains the pattern and a NULL.
+// If pattern contains directory separator, don't expand wildcards
 char	**expand_wildcards(const char *pattern)
 {
 	t_match_data	data;
 
+	if (ft_strchr(pattern, '/') != NULL)
+		return (handle_no_wildcards(pattern));
 	data.capacity = 10;
 	data.matches = NULL;
 	if (!has_wildcards(pattern))
@@ -28,7 +31,10 @@ char	**expand_wildcards(const char *pattern)
 		return (NULL);
 	data.dir = opendir(data.dir_part);
 	if (!data.dir)
+	{
+		printf("dir error");
 		return (handle_dir_error(data.dir_part, data.file_part));
+	}
 	return (process_wildcard_matches(&data, pattern));
 }
 

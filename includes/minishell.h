@@ -369,7 +369,6 @@ int			count_array(char **array);
 void		print_error(char *cmd, char *arg, char *message);
 int			ft_strcmp(const char *s1, const char *s2);
 int			ft_isdigit_str(char *str);
-void		free_matches(char **matches);
 char		**handle_no_wildcards(const char *pattern);
 char		**handle_dir_error(char *dir_part, char *file_part);
 char		**process_wildcard_matches(t_match_data *data,

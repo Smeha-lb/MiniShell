@@ -5,6 +5,8 @@ char	**init_matches(int capacity)
 	char	**matches;
 
 	matches = (char **)malloc(capacity * sizeof(char *));
+	if (!matches)
+		return (NULL);
 	return (matches);
 }
 
@@ -34,7 +36,7 @@ static char	**resize_matches(t_match_data *data)
 			data->capacity * sizeof(char *));
 	if (!new_matches)
 	{
-		free_matches(data->matches);
+		free_array(data->matches);
 		free(data->dir_part);
 		free(data->file_part);
 		closedir(data->dir);
