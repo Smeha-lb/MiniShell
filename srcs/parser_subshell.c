@@ -34,7 +34,7 @@ t_token	*copy_tokens_section(t_token *start, t_token *end)
 		return (NULL);
 	while (token && token != end)
 	{
-		new_token = create_token(token->value, token->type);
+		new_token = create_token(token->value, token->type, token->quoted);
 		if (!new_token)
 		{
 			if (head)

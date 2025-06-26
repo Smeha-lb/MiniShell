@@ -15,7 +15,7 @@ void	add_expanded_tokens(t_shell *shell, char *expanded_value)
 			{
 				if (ft_strlen(split_values[i]) > 0)
 					add_to_token_list(&shell->tokens,
-						create_token(split_values[i], TOKEN_WORD));
+						create_token(split_values[i], TOKEN_WORD, 0));
 				i++;
 			}
 			free_array(split_values);
@@ -25,7 +25,7 @@ void	add_expanded_tokens(t_shell *shell, char *expanded_value)
 	{
 		if (ft_strlen(expanded_value) > 0)
 			add_to_token_list(&shell->tokens,
-				create_token(expanded_value, TOKEN_WORD));
+				create_token(expanded_value, TOKEN_WORD, 0));
 	}
 }
 

@@ -44,7 +44,7 @@ int	handle_word(char *input, int *i, t_shell *shell)
 			return (result);
 		*i = start_pos;
 	}
-	return (handle_complex_word(input, i, shell));
+	return (handle_complex_word(input, i, shell, 0));
 }
 
 int	process_word_loop(char *input, int *i, char *word, t_shell *shell)
@@ -68,7 +68,7 @@ int	process_word_loop(char *input, int *i, char *word, t_shell *shell)
 	return (j);
 }
 
-int	handle_complex_word(char *input, int *i, t_shell *shell)
+int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 {
 	int				j;
 	char			*word;
@@ -84,7 +84,7 @@ int	handle_complex_word(char *input, int *i, t_shell *shell)
 		free(word);
 		return (1);
 	}
-	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD));
+	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD, quoted));
 	free(word);
 	return (0);
 }

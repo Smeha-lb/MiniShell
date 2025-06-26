@@ -2,11 +2,21 @@
 
 int	has_wildcards(const char *str)
 {
+	int	in_single_quotes;
+	int	in_double_quotes;
+
 	if (!str)
 		return (0);
+	in_single_quotes = 0;
+	in_double_quotes = 0;
 	while (*str)
 	{
-		if (*str == '*' || *str == '?' || *str == '[')
+		if (*str == '\'' && !in_double_quotes)
+			in_single_quotes = !in_single_quotes;
+		else if (*str == '\"' && !in_single_quotes)
+			in_double_quotes = !in_double_quotes;
+		else if (!in_single_quotes && (*str == '*'
+				|| *str == '?' || *str == '['))
 			return (1);
 		str++;
 	}
