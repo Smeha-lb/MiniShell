@@ -21,18 +21,26 @@ int	handle_simple_variable_part2(t_shell *shell, char *input, int *i,
 	return (0);
 }
 
+// First check if we're at the end of the string
+// If not at the end, safely check the next character
+// Check if we're at the end of the string or if the next
+// character is a delimiter
 int	handle_simple_variable(t_shell *shell, char *input, int *i)
 {
 	int		var_name_len;
 	int		temp_i;
+	char	next_char;
 
 	(*i)++;
 	var_name_len = get_var_name_len(input + *i);
 	temp_i = *i + var_name_len;
-	if (is_var_delimiter(input[temp_i], input[temp_i + 1]))
-	{
+	if (input[temp_i] == '\0')
 		return (handle_simple_variable_part2(shell, input, i, var_name_len));
-	}
+	next_char = '\0';
+	if (temp_i + 1 < (int)ft_strlen(input))
+		next_char = input[temp_i + 1];
+	if (is_var_delimiter(input[temp_i], next_char))
+		return (handle_simple_variable_part2(shell, input, i, var_name_len));
 	return (-1);
 }
 
