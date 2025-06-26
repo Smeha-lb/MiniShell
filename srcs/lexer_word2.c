@@ -47,30 +47,43 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	return (handle_complex_word(input, i, shell));
 }
 
-int	handle_complex_word(char *input, int *i, t_shell *shell)
+int	process_word_loop(char *input, int *i, char *word, t_shell *shell)
 {
 	int				j;
-	char			*word;
-	int				buffer_size;
 	t_temp_var_data	data;
 
-	buffer_size = calculate_word_buffer_size(input, *i);
-	word = (char *)malloc((buffer_size + 1) * sizeof(char));
 	j = 0;
-	if (!word)
-		return (1);
 	while (input[*i] && !is_word_delimiter(input[*i], input[*i + 1]))
 	{
+		if (input[*i] == '$' && input[*i + 1] == '\"')
+			(*i)++;
 		data.input = input;
 		data.i = i;
 		data.j = &j;
 		data.word = &word;
 		if (process_word_character(data, shell))
-			return (1);
-		if (j >= buffer_size)
-			return (free(word), 1);
+			return (-1);
 	}
 	word[j] = '\0';
+	return (j);
+}
+
+int	handle_complex_word(char *input, int *i, t_shell *shell)
+{
+	int				j;
+	char			*word;
+	int				buffer_size;
+
+	buffer_size = calculate_word_buffer_size(input, *i);
+	word = (char *)malloc((buffer_size + 1) * sizeof(char));
+	if (!word)
+		return (1);
+	j = process_word_loop(input, i, word, shell);
+	if (j < 0 || j >= buffer_size)
+	{
+		free(word);
+		return (1);
+	}
 	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD));
 	free(word);
 	return (0);

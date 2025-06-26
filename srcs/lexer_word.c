@@ -59,8 +59,11 @@ int	calculate_word_buffer_size(char *input, int i)
 	return (calc.buffer_size + 1024);
 }
 
+// Skip the dollar sign if it's directly followed by double quotes
 int	process_word_character(t_temp_var_data data, t_shell *shell)
 {
+	if (data.input[*data.i] == '$' && data.input[*data.i + 1] == '\"')
+		(*data.i)++;
 	if (data.input[*data.i] == '\'' || data.input[*data.i] == '\"')
 	{
 		if (handle_quotes(data, shell))

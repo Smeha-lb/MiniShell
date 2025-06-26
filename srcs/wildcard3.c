@@ -35,8 +35,12 @@ static int	handle_bracket(const char *pattern, const char *filename)
 	return (does_pattern_match(closing_bracket + 1, filename + 1));
 }
 
+// Skip . and .. directories
 int	does_pattern_match(const char *pattern, const char *filename)
 {
+	if ((ft_strcmp(filename, ".") == 0 || ft_strcmp(filename, "..") == 0)
+		&& (pattern[0] == '.' && pattern[1] == '*' && pattern[2] == '\0'))
+		return (0);
 	if (filename[0] == '.' && pattern[0] != '.')
 		return (0);
 	if (*pattern == '\0' && *filename == '\0')
