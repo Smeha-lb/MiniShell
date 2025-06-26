@@ -1,6 +1,6 @@
 #include "../includes/minishell.h"
 
-t_token	*create_token(char *value, t_token_type type)
+t_token	*create_token(char *value, t_token_type type, int quoted)
 {
 	t_token	*token;
 
@@ -14,6 +14,7 @@ t_token	*create_token(char *value, t_token_type type)
 		return (NULL);
 	}
 	token->type = type;
+	token->quoted = quoted;
 	token->next = NULL;
 	return (token);
 }
@@ -50,13 +51,13 @@ int	handle_parentheses(t_shell *shell, char *input, int *i)
 {
 	if (input[*i] == '(')
 	{
-		add_to_token_list(&shell->tokens, create_token("(", TOKEN_LPAREN));
+		add_to_token_list(&shell->tokens, create_token("(", TOKEN_LPAREN, 0));
 		(*i)++;
 		return (1);
 	}
 	else if (input[*i] == ')')
 	{
-		add_to_token_list(&shell->tokens, create_token(")", TOKEN_RPAREN));
+		add_to_token_list(&shell->tokens, create_token(")", TOKEN_RPAREN, 0));
 		(*i)++;
 		return (1);
 	}
@@ -69,12 +70,12 @@ int	handle_pipe_or(t_shell *shell, char *input, int *i)
 	{
 		if (input[*i + 1] == '|')
 		{
-			add_to_token_list(&shell->tokens, create_token("||", TOKEN_OR));
+			add_to_token_list(&shell->tokens, create_token("||", TOKEN_OR, 0));
 			(*i) += 2;
 		}
 		else
 		{
-			add_to_token_list(&shell->tokens, create_token("|", TOKEN_PIPE));
+			add_to_token_list(&shell->tokens, create_token("|", TOKEN_PIPE, 0));
 			(*i)++;
 		}
 		return (1);

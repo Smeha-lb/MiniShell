@@ -4,7 +4,7 @@ int	handle_and(t_shell *shell, char *input, int *i)
 {
 	if (input[*i] == '&' && input[*i + 1] == '&')
 	{
-		add_to_token_list(&shell->tokens, create_token("&&", TOKEN_AND));
+		add_to_token_list(&shell->tokens, create_token("&&", TOKEN_AND, 0));
 		(*i) += 2;
 		return (1);
 	}
@@ -18,13 +18,13 @@ int	handle_input_redirection(t_shell *shell, char *input, int *i)
 		if (input[*i + 1] == '<')
 		{
 			add_to_token_list(&shell->tokens,
-				create_token("<<", TOKEN_HEREDOC));
+				create_token("<<", TOKEN_HEREDOC, 0));
 			(*i) += 2;
 		}
 		else
 		{
 			add_to_token_list(&shell->tokens,
-				create_token("<", TOKEN_REDIR_IN));
+				create_token("<", TOKEN_REDIR_IN, 0));
 			(*i)++;
 		}
 		return (1);
@@ -39,13 +39,13 @@ int	handle_output_redirection(t_shell *shell, char *input, int *i)
 		if (input[*i + 1] == '>')
 		{
 			add_to_token_list(&shell->tokens,
-				create_token(">>", TOKEN_REDIR_APPEND));
+				create_token(">>", TOKEN_REDIR_APPEND, 0));
 			(*i) += 2;
 		}
 		else
 		{
 			add_to_token_list(&shell->tokens,
-				create_token(">", TOKEN_REDIR_OUT));
+				create_token(">", TOKEN_REDIR_OUT, 0));
 			(*i)++;
 		}
 		return (1);

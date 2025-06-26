@@ -57,6 +57,7 @@ typedef struct s_token
 {
 	char			*value;
 	t_token_type	type;
+	int				quoted;
 	struct s_token	*next;
 }	t_token;
 
@@ -140,7 +141,7 @@ void		ignore_signals(void);
 bool		tokenize_input(t_shell *shell, char *input);
 
 /* lexer_utils.c */
-t_token		*create_token(char *value, t_token_type type);
+t_token		*create_token(char *value, t_token_type type, int quoted);
 void		add_to_token_list(t_token **head, t_token *new_token);
 void		free_tokens(t_token *tokens);
 int			handle_special_char(t_shell *shell, char *input, int *i);
@@ -188,7 +189,8 @@ int			handle_quoted_section(t_buffer_calc *calc, char quote);
 int			handle_variable_section(t_buffer_calc *calc);
 int			handle_regular_char(t_buffer_calc *calc);
 int			process_word_character(t_temp_var_data data, t_shell *shell);
-int			handle_complex_word(char *input, int *i, t_shell *shell);
+int			handle_complex_word(char *input, int *i,
+				t_shell *shell, int quoted);
 int			extract_word(char *input, int *i, t_shell *shell);
 int			handle_word(char *input, int *i, t_shell *shell);
 
