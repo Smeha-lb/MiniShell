@@ -2,7 +2,8 @@
 
 static int	is_variable(char c1, char c2)
 {
-	return (c1 == '$' && c2 && (ft_isalnum(c2) || c2 == '_' || c2 == '?'));
+	return (c1 == '$' && c2 && (ft_isalnum(c2) || c2 == '_'
+			|| c2 == '?') && c2 != '\"');
 }
 
 char	*expand_variables(t_shell *shell, char *str, int in_quotes)
