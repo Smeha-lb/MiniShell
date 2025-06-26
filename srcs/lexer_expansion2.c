@@ -50,7 +50,9 @@ char	*get_variable_value(t_shell *shell, char *var_name)
 
 int	is_var_delimiter(char c, char next_c)
 {
-	return (c == '\0' || c == ' ' || c == '\t'
+	if (c == '\0')
+		return (1);
+	return (c == ' ' || c == '\t'
 		|| c == '|' || c == '<' || c == '>'
 		|| c == '(' || c == ')'
 		|| (c == '&' && next_c == '&'));
