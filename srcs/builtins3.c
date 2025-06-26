@@ -18,8 +18,6 @@ static char	*is_valid_export_arg(char *arg)
 	char	*equal_sign;
 
 	equal_sign = ft_strchr(arg, '=');
-	if (equal_sign && ft_strchr(equal_sign + 1, '=') != NULL)
-		return ("not a valid identifier");
 	if (equal_sign)
 	{
 		*equal_sign = '\0';
