@@ -73,18 +73,38 @@ int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 	int				j;
 	char			*word;
 	int				buffer_size;
+	int				has_variables;
+	int				word_end;
 
 	buffer_size = calculate_word_buffer_size(input, *i);
 	word = (char *)malloc((buffer_size + 1) * sizeof(char));
 	if (!word)
 		return (1);
+	word_end = *i;
+	while (input[word_end] && !is_word_delimiter(input[word_end], 
+		input[word_end + 1]))
+		word_end++;
+	has_variables = 0;
+	j = *i;
+	while (j < word_end)
+	{
+		if (input[j] == '$')
+		{
+			has_variables = 1;
+			break ;
+		}
+		j++;
+	}
 	j = process_word_loop(input, i, word, shell);
 	if (j < 0 || j >= buffer_size)
 	{
 		free(word);
 		return (1);
 	}
-	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD, quoted));
+	if (has_variables && !quoted && ft_strchr(word, ' '))
+		add_expanded_tokens(shell, word);
+	else
+		add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD, quoted));
 	free(word);
 	return (0);
 }
