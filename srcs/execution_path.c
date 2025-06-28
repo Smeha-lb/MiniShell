@@ -53,14 +53,6 @@ char	*find_command_path(t_shell *shell, char *cmd)
 	return (search_in_path(cmd, path_env));
 }
 
-int	is_parent_builtin(char *cmd_name)
-{
-	return (ft_strcmp(cmd_name, "cd") == 0
-		|| ft_strcmp(cmd_name, "exit") == 0
-		|| ft_strcmp(cmd_name, "export") == 0
-		|| ft_strcmp(cmd_name, "unset") == 0);
-}
-
 int	execute_single_command(t_shell *shell, t_command *cmd)
 {
 	int	result;
