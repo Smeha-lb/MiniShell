@@ -244,7 +244,6 @@ int			execute_command_with_redirects(t_shell *shell, t_command **cmd,
 char		*check_direct_path(char *cmd);
 char		*search_in_path(char *cmd, char *path_env);
 char		*find_command_path(t_shell *shell, char *cmd);
-int			is_parent_builtin(char *cmd_name);
 int			execute_single_command(t_shell *shell, t_command *cmd);
 
 /* execution_cmd.c */

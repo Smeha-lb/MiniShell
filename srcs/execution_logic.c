@@ -74,7 +74,7 @@ int	execute_current_command(t_shell *shell, t_command **cmd, int *exit_status)
 	{
 		if (!(*cmd)->args)
 			*exit_status = 0;
-		else if (is_parent_builtin((*cmd)->args[0]))
+		else if (is_builtin((*cmd)->args[0]))
 			*exit_status = execute_builtin(shell, *cmd);
 		else
 			*exit_status = execute_external_command(shell, *cmd);
