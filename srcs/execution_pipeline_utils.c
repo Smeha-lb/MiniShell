@@ -59,13 +59,17 @@ int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 	exit_status = 0;
 	init_pipeline(&pipeline, shell, start_cmd);
 	pipeline.pipes = allocate_pipes(pipeline.cmd_count, &pipeline.pids);
-	if (!pipeline.pipes
-		|| setup_pipes(pipeline.pipes, pipeline.cmd_count, pipeline.pids))
+	if (!pipeline.pipes)
 		return (1);
+	if (setup_pipes(pipeline.pipes, pipeline.cmd_count, pipeline.pids))
+	{
+		free(pipeline.pids);
+		return (1);
+	}
 	fork_pipeline_processes(&pipeline, start_cmd);
 	free_pipes(pipeline.pipes, pipeline.cmd_count);
-	exit_status = wait_for_pipeline
-		(pipeline.pids, pipeline.cmd_count, pipeline.is_nested);
+	exit_status = wait_for_pipeline(pipeline.pids,
+			pipeline.cmd_count, pipeline.is_nested);
 	free(pipeline.pids);
 	return (exit_status);
 }

@@ -124,6 +124,13 @@ typedef struct t_temp_var_data
 	int		*j;
 }	t_temp_var_data;
 
+typedef struct s_word_data
+{
+	int		end;
+	int		has_vars;
+	int		j;
+}	t_word_data;
+
 /* shell.c */
 void		shell_init(t_shell *shell, char **env);
 void		shell_loop(t_shell *shell);
@@ -137,6 +144,9 @@ void		ignore_signals(void);
 
 /* lexer.c */
 bool		tokenize_input(t_shell *shell, char *input);
+void		setup_pipeline_redirections(t_command *cmd);
+int			handle_redirection_error(int stdin_backup, int stdout_backup,
+				int *exit_status);
 
 /* lexer_utils.c */
 t_token		*create_token(char *value, t_token_type type, int quoted);
@@ -191,6 +201,7 @@ int			handle_complex_word(char *input, int *i,
 				t_shell *shell, int quoted);
 int			extract_word(char *input, int *i, t_shell *shell);
 int			handle_word(char *input, int *i, t_shell *shell);
+int			prepare_word_data(char *input, int *i, t_word_data *data);
 
 /* redir.c */
 t_token		*handle_redir(t_token *token, t_command *cmd);
@@ -282,6 +293,8 @@ void		init_subshell(t_shell *subshell, t_shell *shell,
 int			handle_parent_process(pid_t pid, int *exit_status);
 int			execute_subshell(t_shell *shell, t_command *subshell_cmd);
 int			handle_subshell(t_shell *shell, t_command *cmd, int *exit_status);
+int			handle_pipeline_subshell(t_shell *shell,
+				t_command *cmd, int *exit_status);
 int			setup_builtin_redirects(t_shell *shell, t_command *cmd,
 				int *in, int *out);
 

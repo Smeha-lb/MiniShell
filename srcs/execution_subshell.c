@@ -49,35 +49,27 @@ int	execute_subshell(t_shell *shell, t_command *subshell_cmd)
 		return (handle_parent_process(pid, &exit_status));
 }
 
-int	handle_subshell(t_shell *shell, t_command *cmd, int *exit_status)
+void	setup_pipeline_redirections(t_command *cmd)
 {
-	int	stdin_backup;
-	int	stdout_backup;
-
-	stdin_backup = dup(STDIN_FILENO);
-	stdout_backup = dup(STDOUT_FILENO);
-	if (cmd->redirs && setup_redirections(shell, cmd) != 0)
+	if (cmd->pipe_in != -1)
 	{
-		dup2(stdin_backup, STDIN_FILENO);
-		dup2(stdout_backup, STDOUT_FILENO);
-		close(stdin_backup);
-		close(stdout_backup);
-		*exit_status = 1;
-		return (1);
+		dup2(cmd->pipe_in, STDIN_FILENO);
+		close(cmd->pipe_in);
 	}
-	*exit_status = execute_subshell(shell, cmd->subshell);
+	if (cmd->pipe_out != -1)
+	{
+		dup2(cmd->pipe_out, STDOUT_FILENO);
+		close(cmd->pipe_out);
+	}
+}
+
+int	handle_redirection_error(int stdin_backup, int stdout_backup,
+									int *exit_status)
+{
 	dup2(stdin_backup, STDIN_FILENO);
 	dup2(stdout_backup, STDOUT_FILENO);
 	close(stdin_backup);
 	close(stdout_backup);
+	*exit_status = 1;
 	return (1);
-}
-
-int	setup_builtin_redirects(t_shell *shell, t_command *cmd, int *in, int *out)
-{
-	*in = dup(STDIN_FILENO);
-	*out = dup(STDOUT_FILENO);
-	if (setup_redirections(shell, cmd) != 0)
-		return (1);
-	return (0);
 }
