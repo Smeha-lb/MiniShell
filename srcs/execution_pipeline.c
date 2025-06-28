@@ -1,36 +1,41 @@
 #include "../includes/minishell.h"
 
-int	check_nested_minishell(t_command *start_cmd)
+static void	execute_child_cmd_helper(char *path, t_shell *shell, t_command *cmd)
 {
-	t_command	*cmd;
-	int			is_nested;
-
-	is_nested = 0;
-	cmd = start_cmd;
-	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
-	{
-		if (cmd->args && cmd->args[0]
-			&& (ft_strcmp(cmd->args[0], "./minishell") == 0
-				|| ft_strcmp(cmd->args[0], "minishell") == 0))
-			is_nested = 1;
-		cmd = cmd->next;
-	}
-	return (is_nested);
+	print_error(cmd->args[0], NULL, "Error in execve");
+	free(path);
+	if (shell->tokens)
+		free_tokens(shell->tokens);
+	if (shell->commands)
+		free_commands(shell->commands);
+	free_array(shell->env);
 }
 
-int	count_pipeline_cmds(t_command *start_cmd)
+static void	execute_builtin_in_child(t_shell *shell, t_command *cmd)
 {
-	t_command	*cmd;
-	int			count;
+	t_shell	builtin_shell;
+	int		exit_code;
 
-	count = 0;
-	cmd = start_cmd;
-	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
-	{
-		count++;
-		cmd = cmd->next;
-	}
-	return (count);
+	builtin_shell.env = copy_env(shell->env);
+	builtin_shell.exit_status = shell->exit_status;
+	builtin_shell.tokens = NULL;
+	builtin_shell.commands = NULL;
+	builtin_shell.running = 1;
+	builtin_shell.previous_cmd = NULL;
+	exit_code = execute_builtin(&builtin_shell, cmd);
+	free_array(builtin_shell.env);
+	exit(exit_code);
+}
+
+static void	handle_command_not_found(t_shell *shell, t_command *cmd)
+{
+	print_error(cmd->args[0], NULL, "command not found");
+	if (shell->tokens)
+		free_tokens(shell->tokens);
+	if (shell->commands)
+		free_commands(shell->commands);
+	free_array(shell->env);
+	exit(127);
 }
 
 void	execute_child_cmd(t_shell *shell, t_command *cmd)
@@ -40,31 +45,15 @@ void	execute_child_cmd(t_shell *shell, t_command *cmd)
 	if (!cmd->args || !cmd->args[0])
 		exit(0);
 	if (is_builtin(cmd->args[0]))
-		exit(execute_builtin(shell, cmd));
+		execute_builtin_in_child(shell, cmd);
 	path = find_command_path(shell, cmd->args[0]);
 	if (!path)
-	{
-		print_error(cmd->args[0], NULL, "command not found");
-		exit(127);
-	}
+		handle_command_not_found(shell, cmd);
 	if (execve(path, cmd->args, shell->env) == -1)
 	{
-		if (errno == ENOEXEC)
-			print_error(cmd->args[0], NULL, "Permission denied");
-		else
-			print_error(cmd->args[0], NULL, strerror(errno));
-		free(path);
+		execute_child_cmd_helper(path, shell, cmd);
 		exit(127);
 	}
-}
-
-int	handle_pipeline_child(t_pipeline_child *pc)
-{
-	setup_child_pipes(pc->pipes, pc->i, pc->cmd_count);
-	if (pc->cmd->redirs && setup_redirections(pc->shell, pc->cmd) != 0)
-		exit(1);
-	execute_child_cmd(pc->shell, pc->cmd);
-	return (0);
 }
 
 int	wait_for_pipeline(pid_t *pids, int cmd_count, int is_nested)

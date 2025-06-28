@@ -28,7 +28,8 @@ int	execute_commands(t_shell *shell)
 	exit_status = 0;
 	while (cmd)
 	{
-		if (cmd->is_subshell && cmd->subshell)
+		if (cmd->is_subshell && cmd->subshell && cmd->pipe_in == -1
+			&& cmd->pipe_out == -1)
 		{
 			if (handle_subshell(shell, cmd, &exit_status))
 			{

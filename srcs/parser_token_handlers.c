@@ -2,13 +2,13 @@
 
 bool	handle_word_token(t_token *token, t_command *cmd)
 {
-	// Check if the command is already a subshell - this would be invalid syntax
 	if (cmd->is_subshell)
 	{
-		ft_putendl_fd("Error: Syntax error: missing operator after subshell", 2);
+		ft_putendl_fd(
+			"Error: Syntax error: missing operator after subshell",
+			2);
 		return (false);
 	}
-
 	if (!token->quoted && has_wildcards(token->value))
 		return (handle_wildcards_token(token, cmd));
 	add_arg(cmd, token->value);
@@ -30,20 +30,18 @@ bool	handle_redirection_token(t_token **token_ptr, t_command *cmd,
 	return (true);
 }
 
-// Helper function to handle parenthesis tokens
 bool	handle_parenthesis(t_token **token_ptr, t_command *cmd,
 			t_command *cmd_head)
 {
 	t_token		*end_paren;
 	t_command	*subshell_cmds;
 
-	// Check if the command already has arguments - this would be invalid syntax
 	if (cmd->args)
 	{
-		parse_tokens_err(cmd_head, "Syntax error: missing operator before subshell");
+		parse_tokens_err(cmd_head,
+			"Syntax error: missing operator before subshell");
 		return (false);
 	}
-
 	end_paren = find_matching_paren(*token_ptr);
 	if (!end_paren)
 	{
