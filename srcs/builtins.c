@@ -14,6 +14,16 @@ char	*get_cd_path(t_shell *shell, char *arg)
 		}
 		return (path);
 	}
+	if (ft_strcmp(arg, "~") == 0)
+	{
+		path = get_env_value(shell, "HOME");
+		if (!path)
+		{
+			ft_putendl_fd("cd: HOME not set", STDERR_FILENO);
+			return (NULL);
+		}
+		return (path);
+	}
 	return (arg);
 }
 
@@ -42,7 +52,7 @@ int	execute_builtin(t_shell *shell, t_command *cmd)
 	else if (ft_strcmp(builtin, "cd") == 0)
 		return (builtin_cd(shell, cmd));
 	else if (ft_strcmp(builtin, "pwd") == 0)
-		return (builtin_pwd());
+		return (builtin_pwd(cmd));
 	else if (ft_strcmp(builtin, "export") == 0)
 		return (builtin_export(shell, cmd));
 	else if (ft_strcmp(builtin, "unset") == 0)
