@@ -51,15 +51,10 @@ void	sort_env_vars(char **sorted_env, int env_size)
 	}
 }
 
-int	builtin_pwd(t_command *cmd)
+int	builtin_pwd(void)
 {
 	char	cwd[1024];
 
-	if (cmd->args[1])
-	{
-		print_error("pwd", NULL, "too many arguments");
-		return (1);
-	}
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
 		ft_putendl_fd(cwd, STDOUT_FILENO);
