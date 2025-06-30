@@ -52,7 +52,7 @@ int	execute_builtin(t_shell *shell, t_command *cmd)
 	else if (ft_strcmp(builtin, "cd") == 0)
 		return (builtin_cd(shell, cmd));
 	else if (ft_strcmp(builtin, "pwd") == 0)
-		return (builtin_pwd(cmd));
+		return (builtin_pwd());
 	else if (ft_strcmp(builtin, "export") == 0)
 		return (builtin_export(shell, cmd));
 	else if (ft_strcmp(builtin, "unset") == 0)
