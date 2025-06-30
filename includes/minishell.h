@@ -315,7 +315,7 @@ int			execute_builtin(t_shell *shell, t_command *cmd);
 int			builtin_echo(t_command *cmd);
 char		*get_cd_path(t_shell *shell, char *arg);
 int			builtin_cd(t_shell *shell, t_command *cmd);
-int			builtin_pwd(void);
+int			builtin_pwd(t_command *cmd);
 int			is_valid_var_name(char *name);
 int			builtin_unset(t_shell *shell, t_command *cmd);
 int			builtin_export(t_shell *shell, t_command *cmd);
