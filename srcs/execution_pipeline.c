@@ -15,14 +15,29 @@ static void	execute_builtin_in_child(t_shell *shell, t_command *cmd)
 {
 	t_shell	builtin_shell;
 	int		exit_code;
+	int		stdout_fd;
 
+	// Save the current stdout file descriptor
+	// This is already set up by setup_child_pipes, but we want to make sure
+	// the builtin command uses it correctly
+	stdout_fd = dup(STDOUT_FILENO);
+	
+	// Create a clean shell environment for the builtin
 	builtin_shell.env = copy_env(shell->env);
 	builtin_shell.exit_status = shell->exit_status;
 	builtin_shell.tokens = NULL;
 	builtin_shell.commands = NULL;
 	builtin_shell.running = 1;
 	builtin_shell.previous_cmd = NULL;
+	
+	// Execute the builtin command - stdout is already redirected by setup_child_pipes
 	exit_code = execute_builtin(&builtin_shell, cmd);
+	
+	// Make sure any buffered output is flushed to the pipe
+	fflush(stdout);
+	
+	// Clean up and exit
+	close(stdout_fd);
 	free_array(builtin_shell.env);
 	exit(exit_code);
 }

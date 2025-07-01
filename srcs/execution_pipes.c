@@ -113,8 +113,10 @@ void	setup_child_pipes(int **pipes, int i, int cmd_count)
 	j = 0;
 	while (j < cmd_count - 1)
 	{
-		close(pipes[j][0]);
-		close(pipes[j][1]);
+		if (pipes[j][0] >= 0)
+			close(pipes[j][0]);
+		if (pipes[j][1] >= 0)
+			close(pipes[j][1]);
 		j++;
 	}
 }
