@@ -8,12 +8,17 @@ int	execute_command_with_redirects(t_shell *shell, t_command **cmd,
 
 	stdin_backup = dup(STDIN_FILENO);
 	stdout_backup = dup(STDOUT_FILENO);
+	
 	if ((*cmd)->redirs && setup_redirections(shell, *cmd) != 0)
 		return (handle_redirection_failure(stdin_backup, stdout_backup,
 				exit_status));
+	
 	execute_current_command(shell, cmd, exit_status);
+	
+	// Always restore stdin/stdout for single commands
 	dup2(stdin_backup, STDIN_FILENO);
 	dup2(stdout_backup, STDOUT_FILENO);
+	
 	close(stdin_backup);
 	close(stdout_backup);
 	return (0);
@@ -23,11 +28,28 @@ int	execute_commands(t_shell *shell)
 {
 	t_command	*cmd;
 	int			exit_status;
+	t_command	*pipeline_start;
 
 	cmd = shell->commands;
 	exit_status = 0;
 	while (cmd)
 	{
+		// Check if this is the start of a pipeline
+		if (cmd->next && cmd->next_op == 0)
+		{
+			pipeline_start = cmd;
+			// Find the end of the pipeline
+			while (cmd->next && cmd->next_op == 0)
+				cmd = cmd->next;
+			
+			// Execute the pipeline
+			exit_status = execute_pipeline(shell, pipeline_start);
+			
+			// Move to the next command after the pipeline
+			cmd = cmd->next;
+			continue;
+		}
+		
 		if (cmd->is_subshell && cmd->subshell && cmd->pipe_in == -1
 			&& cmd->pipe_out == -1)
 		{

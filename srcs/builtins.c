@@ -52,7 +52,7 @@ int	execute_builtin(t_shell *shell, t_command *cmd)
 	else if (ft_strcmp(builtin, "cd") == 0)
 		return (builtin_cd(shell, cmd));
 	else if (ft_strcmp(builtin, "pwd") == 0)
-		return (builtin_pwd());
+		return (builtin_pwd(cmd));
 	else if (ft_strcmp(builtin, "export") == 0)
 		return (builtin_export(shell, cmd));
 	else if (ft_strcmp(builtin, "unset") == 0)
@@ -71,7 +71,8 @@ int	builtin_env(t_shell *shell)
 	i = 0;
 	while (shell->env[i])
 	{
-		ft_putendl_fd(shell->env[i], STDOUT_FILENO);
+		write(STDOUT_FILENO, shell->env[i], ft_strlen(shell->env[i]));
+		write(STDOUT_FILENO, "\n", 1);
 		i++;
 	}
 	return (0);

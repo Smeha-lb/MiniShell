@@ -51,10 +51,22 @@ void	sort_env_vars(char **sorted_env, int env_size)
 	}
 }
 
-int	builtin_pwd(void)
+int	builtin_pwd(t_command *cmd)
 {
 	char	cwd[1024];
+	int		i;
 
+	i = 1;
+	while (cmd->args[i])
+	{
+		if (cmd->args[i][0] == '-')
+		{
+			ft_putstr_fd("pwd: invalid option: ", STDERR_FILENO);
+			ft_putendl_fd(cmd->args[i], STDERR_FILENO);
+			return (1);
+		}
+		i++;
+	}
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
 		ft_putendl_fd(cwd, STDOUT_FILENO);
