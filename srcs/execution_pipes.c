@@ -95,9 +95,21 @@ void	setup_child_pipes(int **pipes, int i, int cmd_count)
 	int	j;
 
 	if (i > 0)
-		dup2(pipes[i - 1][0], STDIN_FILENO);
+	{
+		if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
+		{
+			perror("dup2 stdin");
+			exit(1);
+		}
+	}
 	if (i < cmd_count - 1)
-		dup2(pipes[i][1], STDOUT_FILENO);
+	{
+		if (dup2(pipes[i][1], STDOUT_FILENO) == -1)
+		{
+			perror("dup2 stdout");
+			exit(1);
+		}
+	}
 	j = 0;
 	while (j < cmd_count - 1)
 	{

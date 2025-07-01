@@ -61,23 +61,13 @@ int	handle_redirection_failure(int stdin_backup, int stdout_backup,
 
 int	execute_current_command(t_shell *shell, t_command **cmd, int *exit_status)
 {
-	t_command	*pipeline_start;
-
-	if ((*cmd)->next && (*cmd)->next_op == 0)
-	{
-		pipeline_start = *cmd;
-		while ((*cmd)->next && (*cmd)->next_op == 0)
-			*cmd = (*cmd)->next;
-		*exit_status = execute_pipeline(shell, pipeline_start);
-	}
+	// Pipelines are now handled directly in execute_commands
+	if (!(*cmd)->args)
+		*exit_status = 0;
+	else if (is_builtin((*cmd)->args[0]))
+		*exit_status = execute_builtin(shell, *cmd);
 	else
-	{
-		if (!(*cmd)->args)
-			*exit_status = 0;
-		else if (is_builtin((*cmd)->args[0]))
-			*exit_status = execute_builtin(shell, *cmd);
-		else
-			*exit_status = execute_external_command(shell, *cmd);
-	}
+		*exit_status = execute_external_command(shell, *cmd);
+	
 	return (0);
 }
