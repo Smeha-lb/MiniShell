@@ -1,5 +1,68 @@
 #include "../includes/minishell.h"
 
+// Expand variables in command arguments just before execution
+char	**expand_command_args(t_shell *shell, char **args)
+{
+	int		i;
+	char	*expanded;
+	char	**new_args;
+
+	if (!args)
+		return (NULL);
+	
+	// Count arguments
+	i = 0;
+	while (args[i])
+		i++;
+	
+	// Allocate new args array
+	new_args = (char **)malloc((i + 1) * sizeof(char *));
+	if (!new_args)
+		return (NULL);
+	
+	// Expand each argument
+	i = 0;
+	while (args[i])
+	{
+		expanded = expand_variables(shell, args[i], 0);
+		if (!expanded)
+		{
+			// Handle error - use empty string if expansion fails
+			expanded = ft_strdup("");
+			if (!expanded)
+			{
+				// Clean up on allocation failure
+				while (--i >= 0)
+					free(new_args[i]);
+				free(new_args);
+				return (NULL);
+			}
+		}
+		new_args[i] = expanded;
+		i++;
+	}
+	new_args[i] = NULL;
+	
+	return (new_args);
+}
+
+// Free the expanded arguments array
+void	free_expanded_args(char **args)
+{
+	int	i;
+
+	if (!args)
+		return;
+	
+	i = 0;
+	while (args[i])
+	{
+		free(args[i]);
+		i++;
+	}
+	free(args);
+}
+
 void	setup_child_redirections(t_command *cmd)
 {
 	if (cmd->pipe_in != -1)
@@ -17,17 +80,25 @@ void	setup_child_redirections(t_command *cmd)
 void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 {
 	char	**env_array;
+	char	**expanded_args;
 
 	if (setup_redirections(shell, cmd) != 0)
 		exit(1);
 	setup_child_redirections(cmd);
 	env_array = shell->env;
-	if (execve(path, cmd->args, env_array) == -1)
+	
+	// Expand variables in arguments before execution
+	expanded_args = expand_command_args(shell, cmd->args);
+	if (!expanded_args)
+		exit(1);
+	
+	if (execve(path, expanded_args, env_array) == -1)
 	{
 		if (errno == ENOEXEC)
 			print_error(cmd->args[0], NULL, "Permission denied");
 		else
 			print_error(cmd->args[0], NULL, strerror(errno));
+		free_expanded_args(expanded_args);
 		exit(127);
 	}
 }

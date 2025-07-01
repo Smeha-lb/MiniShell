@@ -7,14 +7,11 @@ char	*extract_quoted_content(char *input, int start, int end)
 
 char	*process_quoted_content(t_shell *shell, char *content, char quote_type)
 {
-	char	*expanded;
-
-	if (quote_type == '\"')
-	{
-		expanded = expand_variables(shell, content, 1);
-		free(content);
-		return (expanded);
-	}
+	// Prevent unused parameter warnings
+	(void)shell;
+	(void)quote_type;
+	
+	// Return the content as is, without expansion
 	return (content);
 }
 

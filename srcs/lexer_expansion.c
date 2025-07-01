@@ -3,21 +3,20 @@
 int	handle_simple_variable_part2(t_shell *shell, char *input, int *i,
 		int var_name_len)
 {
-	t_var_data	data;
-
-	data.var_name = ft_substr(input, *i, var_name_len);
-	if (!data.var_name)
+	char	*var_ref;
+	int		start;
+	
+	// Preserve the original variable reference (including $)
+	start = *i - 1; // Include the $ character
+	var_ref = ft_substr(input, start, var_name_len + 1);
+	if (!var_ref)
 		return (1);
-	data.var_value = get_variable_value(shell, data.var_name);
-	if (!data.var_value)
-	{
-		free(data.var_name);
-		return (1);
-	}
+	
+	// Add the variable reference as a token
+	add_to_token_list(&shell->tokens, create_token(var_ref, TOKEN_WORD, 0));
+	free(var_ref);
+	
 	*i += var_name_len;
-	add_expanded_tokens(shell, data.var_value);
-	free(data.var_name);
-	free(data.var_value);
 	return (0);
 }
 
@@ -46,8 +45,16 @@ int	handle_simple_variable(t_shell *shell, char *input, int *i)
 
 int	process_var_expansion(t_var_data *data, char **word, int *j)
 {
-	ft_strlcpy(*word + *j, data->var_value, data->value_len + 1);
-	*j += data->value_len;
+	// Copy the variable reference as is (including $)
+	(*word)[(*j)++] = '$';
+	
+	// Copy the variable name
+	int i = 0;
+	while (i < data->var_name_len)
+	{
+		(*word)[(*j)++] = data->var_name[i++];
+	}
+	
 	free(data->var_name);
 	free(data->var_value);
 	return (0);
@@ -72,6 +79,7 @@ int	process_variable_expansion_part2(t_temp_var_data input_data,
 		return (1);
 	}
 	data.value_len = ft_strlen(data.var_value);
+	data.var_name_len = var_name_len;
 	*input_data.i += var_name_len;
 	if (process_var_expansion(&data, input_data.word, input_data.j))
 		return (1);

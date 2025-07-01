@@ -23,9 +23,9 @@ int	count_pipeline_cmds(t_command *start_cmd)
 	t_command	*cmd;
 	int			count;
 
-	count = 0;
+	count = 1;  // Start with 1 for the first command
 	cmd = start_cmd;
-	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
+	while (cmd->next && cmd->next_op == 0)
 	{
 		count++;
 		cmd = cmd->next;

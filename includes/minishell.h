@@ -258,11 +258,13 @@ char		*find_command_path(t_shell *shell, char *cmd);
 int			execute_single_command(t_shell *shell, t_command *cmd);
 
 /* execution_cmd.c */
-void		setup_child_redirections(t_command *cmd);
-void		handle_child_process(t_shell *shell, t_command *cmd, char *path);
-int			fork_external_command(t_shell *shell, t_command *cmd, char *path);
-int			wait_for_external_command(pid_t pid);
-int			execute_external_command(t_shell *shell, t_command *cmd);
+char	**expand_command_args(t_shell *shell, char **args);
+void	free_expanded_args(char **args);
+void	setup_child_redirections(t_command *cmd);
+void	handle_child_process(t_shell *shell, t_command *cmd, char *path);
+int		fork_external_command(t_shell *shell, t_command *cmd, char *path);
+int		wait_for_external_command(pid_t pid);
+int		execute_external_command(t_shell *shell, t_command *cmd);
 
 /* execution_pipes.c */
 int			create_pipes(t_command *commands);
@@ -302,6 +304,7 @@ int			setup_builtin_redirects(t_shell *shell, t_command *cmd,
 void		handle_and_operator(t_command **cmd, int exit_status);
 void		handle_or_operator(t_command **cmd, int exit_status);
 void		handle_next_command(t_command **cmd, int exit_status);
+void		handle_pipeline_next_command(t_command **cmd, int exit_status);
 int			handle_redirection_failure(int stdin_backup, int stdout_backup,
 				int *exit_status);
 int			execute_current_command(t_shell *shell, t_command **cmd,
@@ -321,6 +324,7 @@ void		process_export_arg(t_shell *shell, char *arg);
 void		sort_env_vars(char **sorted_env, int env_size);
 int			builtin_env(t_shell *shell);
 int			builtin_exit(t_shell *shell, t_command *cmd);
+int			execute_builtin_with_expanded_args(t_shell *shell, t_command *cmd, char **expanded_args);
 
 /* redirections.c */
 int			setup_redirections(t_shell *shell, t_command *cmd);

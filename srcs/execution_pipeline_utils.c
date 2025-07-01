@@ -7,8 +7,10 @@ void	free_pipes(int **pipes, int cmd_count)
 	i = 0;
 	while (i < cmd_count - 1)
 	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
+		if (pipes[i][0] >= 0)
+			close(pipes[i][0]);
+		if (pipes[i][1] >= 0)
+			close(pipes[i][1]);
 		free(pipes[i]);
 		i++;
 	}
@@ -58,6 +60,7 @@ int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 
 	exit_status = 0;
 	init_pipeline(&pipeline, shell, start_cmd);
+	
 	pipeline.pipes = allocate_pipes(pipeline.cmd_count, &pipeline.pids);
 	if (!pipeline.pipes)
 		return (1);
@@ -66,10 +69,18 @@ int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 		free(pipeline.pids);
 		return (1);
 	}
+	
+	// Fork all child processes first
 	fork_pipeline_processes(&pipeline, start_cmd);
+	
+	// Only after all children are forked, parent closes its copies of all pipes
+	// This ensures children have time to set up their stdin/stdout properly
 	free_pipes(pipeline.pipes, pipeline.cmd_count);
+	
+	// Wait for all child processes to complete
 	exit_status = wait_for_pipeline(pipeline.pids,
 			pipeline.cmd_count, pipeline.is_nested);
+	
 	free(pipeline.pids);
 	return (exit_status);
 }
@@ -90,3 +101,5 @@ int	wait_for_all(pid_t last_pid)
 	}
 	return (exit_status);
 }
+
+

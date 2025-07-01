@@ -11,6 +11,8 @@ bool	handle_word_token(t_token *token, t_command *cmd)
 	}
 	if (!token->quoted && has_wildcards(token->value))
 		return (handle_wildcards_token(token, cmd));
+	
+	// Store the original token value without expansion
 	add_arg(cmd, token->value);
 	return (true);
 }
