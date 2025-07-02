@@ -56,7 +56,7 @@ int	setup_redirections(t_shell *shell, t_command *cmd)
 		if (result != 0)
 			return (result);
 	}
-	result = apply_all_redirections(cmd, heredoc_tempfiles);
+	result = apply_all_redirections(shell, cmd, heredoc_tempfiles);
 	if (result != 0)
 		return (handle_redirection_result(result,
 				heredoc_tempfiles, heredoc_count));

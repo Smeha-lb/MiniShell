@@ -22,8 +22,6 @@ int	extract_word(char *input, int *i, t_shell *shell)
 	while (start < *i)
 		word[j++] = input[start++];
 	word[j] = '\0';
-	
-	// Add the word as a token without expansion
 	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD, 0));
 	free(word);
 	return (0);
@@ -84,8 +82,6 @@ int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 		free(word);
 		return (1);
 	}
-	
-	// Add the word as a token without splitting
 	add_to_token_list(&shell->tokens, create_token(word, TOKEN_WORD, quoted));
 	free(word);
 	return (0);

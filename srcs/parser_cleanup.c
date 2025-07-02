@@ -39,6 +39,7 @@ void	free_commands(t_command *commands)
 		if (temp->is_subshell && temp->subshell)
 			free_commands(temp->subshell);
 		free_cmd_args(temp->args);
+		free(temp->arg_quoted);
 		free_redirs(temp->redirs);
 		free(temp);
 	}

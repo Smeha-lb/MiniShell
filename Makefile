@@ -57,6 +57,7 @@ SRCS = main.c \
 		utils.c \
 		expansion.c \
 		expansion2.c \
+		expansion_core.c \
 		wildcard_expansion.c \
 		wildcard_expansion2.c \
 		wildcard.c \

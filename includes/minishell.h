@@ -72,6 +72,7 @@ typedef struct s_redir
 typedef struct s_command
 {
 	char				**args;
+	int					*arg_quoted;
 	t_redir				*redirs;
 	int					pipe_in;
 	int					pipe_out;
@@ -164,6 +165,9 @@ int			handle_output_redirection(t_shell *shell, char *input, int *i);
 
 /* lexer_quotes.c */
 int			handle_quotes(t_temp_var_data data, t_shell *shell);
+int			find_matching_quote(char *input, int start, char quote_type);
+char		*process_quote_content(t_shell *shell, char *content, char quote_type);
+int			handle_quote_section(t_temp_var_data data, t_shell *shell);
 int			extract_and_process_quotes(t_temp_var_data data, t_shell *shell,
 				char quote_type);
 int			copy_expanded_content(t_temp_var_data data, char *expanded);
@@ -174,7 +178,7 @@ char		*process_quoted_content(t_shell *shell, char *content,
 void		add_expanded_tokens(t_shell *shell, char *expanded_value);
 char		*get_variable_value(t_shell *shell, char *var_name);
 int			is_var_delimiter(char c, char next_c);
-int			get_var_name_len(char *input);
+int			get_lexer_var_name_len(char *input);
 int			handle_simple_variable_part2(t_shell *shell, char *input,
 				int *i, int var_name_len);
 int			handle_simple_variable(t_shell *shell, char *input, int *i);
@@ -225,9 +229,10 @@ bool		handle_or_token(t_token *token, t_command **cmd_ptr,
 				t_command *cmd_head);
 
 /* parser_args.c */
-void		init_cmd_args(t_command *cmd, char *expanded_arg);
-void		append_cmd_arg(t_command *cmd, char *expanded_arg);
+void		init_cmd_args(t_command *cmd, char *expanded_arg, int quoted);
+void		append_cmd_arg(t_command *cmd, char *expanded_arg, int quoted);
 void		add_arg(t_command *cmd, char *arg);
+void		add_arg_with_quoted(t_command *cmd, char *arg, int quoted);
 void		parse_tokens_word(char *value, t_command *cmd);
 bool		handle_wildcards_token(t_token *token, t_command *cmd);
 
@@ -260,13 +265,13 @@ char		*find_command_path(t_shell *shell, char *cmd);
 int			execute_single_command(t_shell *shell, t_command *cmd);
 
 /* execution_cmd.c */
-char	**expand_command_args(t_shell *shell, char **args);
-void	free_expanded_args(char **args);
-void	setup_child_redirections(t_command *cmd);
-void	handle_child_process(t_shell *shell, t_command *cmd, char *path);
-int		fork_external_command(t_shell *shell, t_command *cmd, char *path);
-int		wait_for_external_command(pid_t pid);
-int		execute_external_command(t_shell *shell, t_command *cmd);
+char		**expand_command_args(t_shell *shell, char **args);
+void		free_expanded_args(char **args);
+void		setup_child_redirections(t_command *cmd);
+void		handle_child_process(t_shell *shell, t_command *cmd, char *path);
+int			fork_external_command(t_shell *shell, t_command *cmd, char *path);
+int			wait_for_external_command(pid_t pid);
+int			execute_external_command(t_shell *shell, t_command *cmd);
 
 /* execution_pipes.c */
 int			create_pipes(t_command *commands);
@@ -309,6 +314,9 @@ void		handle_next_command(t_command **cmd, int exit_status);
 void		handle_pipeline_next_command(t_command **cmd, int exit_status);
 int			handle_redirection_failure(int stdin_backup, int stdout_backup,
 				int *exit_status);
+char		*strip_quotes(char *str);
+int			should_split_arg(const char *arg);
+void		split_command_if_needed(t_shell *shell, t_command *cmd);
 int			execute_current_command(t_shell *shell, t_command **cmd,
 				int *exit_status);
 
@@ -326,7 +334,8 @@ void		process_export_arg(t_shell *shell, char *arg);
 void		sort_env_vars(char **sorted_env, int env_size);
 int			builtin_env(t_shell *shell);
 int			builtin_exit(t_shell *shell, t_command *cmd);
-int			execute_builtin_with_expanded_args(t_shell *shell, t_command *cmd, char **expanded_args);
+int			execute_builtin_with_expanded_args(t_shell *shell, t_command *cmd,
+				char **expanded_args);
 
 /* redirections.c */
 int			setup_redirections(t_shell *shell, t_command *cmd);
@@ -334,7 +343,8 @@ int			setup_redirections(t_shell *shell, t_command *cmd);
 /* redirections_apply.c */
 int			redirect_input(char *file);
 int			redirect_output(char *file, int append);
-int			apply_all_redirections(t_command *cmd, char **heredoc_tempfiles);
+int			apply_redirection(t_shell *shell, t_redir *redir, char **heredoc_tempfiles, int *heredoc_index);
+int			apply_all_redirections(t_shell *shell, t_command *cmd, char **heredoc_tempfiles);
 
 /* redirections_heredoc.c */
 int			handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
@@ -357,10 +367,18 @@ void		add_env_var(t_shell *shell, char *new_env);
 char		*get_env_name(char *env_var);
 void		initialize_minimal_env(t_shell *shell);
 
+/* expansion_core.c */
+int			is_inside_single_quotes(const char *str, int pos);
+int			is_inside_double_quotes(const char *str, int pos);
+int			get_var_name_len(const char *str);
+char		*get_var_value(t_shell *shell, const char *var_name, int name_len);
+int			calculate_expanded_size(t_shell *shell, const char *str);
+char		*expand_variables_core(t_shell *shell, const char *str);
+char		*expand_token(t_shell *shell, const char *token);
+
 /* expansion.c */
 char		*expand_variables(t_shell *shell, char *str, int in_quotes);
 void		copy_variable(t_shell *shell, char *str, int *i, char *expanded);
-char		*expand_variables(t_shell *shell, char *str, int in_quotes);
 char		*allocate_expanded_string(t_shell *shell, char *str);
 void		process_char(char *str, int *i, char *expanded, int *j);
 int			calculate_expanded_length(t_shell *shell, char *str);

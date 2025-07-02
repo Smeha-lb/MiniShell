@@ -58,7 +58,7 @@ int	is_var_delimiter(char c, char next_c)
 		|| (c == '&' && next_c == '&'));
 }
 
-int	get_var_name_len(char *input)
+int	get_lexer_var_name_len(char *input)
 {
 	int	len;
 
