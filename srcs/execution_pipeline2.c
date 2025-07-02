@@ -14,11 +14,7 @@ int	handle_pipeline_child(t_pipeline_child *pc)
 	int		exit_status;
 	t_shell	subshell;
 
-	// Set up pipes for this child process
-	// This redirects stdin/stdout as needed
 	setup_child_pipes(pc->pipes, pc->i, pc->cmd_count);
-	
-	// Handle subshell execution if needed
 	if (pc->cmd->is_subshell && pc->cmd->subshell)
 	{
 		subshell.env = copy_env(pc->shell->env);
@@ -27,8 +23,6 @@ int	handle_pipeline_child(t_pipeline_child *pc)
 		free_array(subshell.env);
 		exit(exit_status);
 	}
-	
-	// Handle redirections if needed
 	if (pc->cmd->redirs && setup_redirections(pc->shell, pc->cmd) != 0)
 	{
 		if (pc->shell->tokens)
@@ -37,8 +31,6 @@ int	handle_pipeline_child(t_pipeline_child *pc)
 			free_commands(pc->shell->commands);
 		exit(1);
 	}
-	
-	// Execute the command - this will not return
 	execute_child_cmd(pc->shell, pc->cmd);
-	return (0);  // Never reached
+	return (0);
 }

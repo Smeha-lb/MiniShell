@@ -20,7 +20,6 @@ void	process_input(t_shell *shell, char *input)
 {
 	if (!input || ft_strlen(input) == 0)
 		return ;
-	
 	if (!shell->previous_cmd || ft_strcmp(input, shell->previous_cmd) != 0)
 	{
 		add_history(input);
@@ -30,10 +29,8 @@ void	process_input(t_shell *shell, char *input)
 	}
 	if (!tokenize_input(shell, input))
 		return (clean_tokens(shell));
-	
 	if (!parse_tokens(shell))
 		return (clean_tokens(shell));
-	
 	shell->exit_status = execute_commands(shell);
 	free_tokens(shell->tokens);
 	free_commands(shell->commands);

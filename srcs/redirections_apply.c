@@ -54,22 +54,33 @@ int	redirect_output(char *file, int append)
 	return (0);
 }
 
-int	apply_redirection(t_redir *redir,
+int	apply_redirection(t_shell *shell, t_redir *redir,
 		char **heredoc_tempfiles, int *heredoc_index)
 {
-	if (redir->type == TOKEN_REDIR_IN)
-		return (redirect_input(redir->file));
-	else if (redir->type == TOKEN_REDIR_OUT)
-		return (redirect_output(redir->file, 0));
-	else if (redir->type == TOKEN_REDIR_APPEND)
-		return (redirect_output(redir->file, 1));
-	else if (redir->type == TOKEN_HEREDOC)
+	char	*expanded_file;
+	int		result;
+
+	if (redir->type == TOKEN_HEREDOC)
 		return (apply_heredoc_redirection(
 				heredoc_tempfiles[(*heredoc_index)++]));
-	return (0);
+	expanded_file = expand_token(shell, redir->file);
+	if (!expanded_file)
+		expanded_file = ft_strdup(redir->file);
+	if (!expanded_file)
+		return (1);
+	if (redir->type == TOKEN_REDIR_IN)
+		result = redirect_input(expanded_file);
+	else if (redir->type == TOKEN_REDIR_OUT)
+		result = redirect_output(expanded_file, 0);
+	else if (redir->type == TOKEN_REDIR_APPEND)
+		result = redirect_output(expanded_file, 1);
+	else
+		result = 0;
+	free(expanded_file);
+	return (result);
 }
 
-int	apply_all_redirections(t_command *cmd, char **heredoc_tempfiles)
+int	apply_all_redirections(t_shell *shell, t_command *cmd, char **heredoc_tempfiles)
 {
 	t_redir	*redir;
 	int		heredoc_index;
@@ -79,7 +90,7 @@ int	apply_all_redirections(t_command *cmd, char **heredoc_tempfiles)
 	redir = cmd->redirs;
 	while (redir)
 	{
-		result = apply_redirection(redir, heredoc_tempfiles, &heredoc_index);
+		result = apply_redirection(shell, redir, heredoc_tempfiles, &heredoc_index);
 		if (result != 0)
 			return (result);
 		redir = redir->next;

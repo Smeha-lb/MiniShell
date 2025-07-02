@@ -12,7 +12,6 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 	int		j;
 	char	*expanded;
 
-	(void)in_quotes;
 	if (!str)
 		return (NULL);
 	expanded = allocate_expanded_string(shell, str);
@@ -24,8 +23,15 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 	{
 		if (is_variable(str[i], str[i + 1]))
 		{
-			copy_variable(shell, str, &i, expanded + j);
-			j += ft_strlen(expanded + j);
+			if (in_quotes || !is_inside_single_quotes(str, i))
+			{
+				copy_variable(shell, str, &i, expanded + j);
+				j += ft_strlen(expanded + j);
+			}
+			else
+			{
+				process_char(str, &i, expanded, &j);
+			}
 		}
 		else
 			process_char(str, &i, expanded, &j);

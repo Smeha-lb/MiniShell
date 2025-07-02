@@ -1,66 +1,59 @@
 #include "../includes/minishell.h"
 
-char	*extract_quoted_content(char *input, int start, int end)
+// Find the matching closing quote, respecting nesting rules
+int	find_matching_quote(char *input, int start, char quote_type)
 {
-	return (ft_substr(input, start, end - start));
+	int	i;
+
+	i = start + 1;
+	while (input[i] && input[i] != quote_type)
+		i++;
+	if (input[i] == quote_type)
+		return (i);
+	return (-1);
 }
 
-char	*process_quoted_content(t_shell *shell, char *content, char quote_type)
+// Process content based on the OUTERMOST quote type
+char	*process_quote_content(t_shell *shell, char *content, char quote_type)
 {
-	// Prevent unused parameter warnings
-	(void)shell;
-	(void)quote_type;
-	
-	// Return the content as is, without expansion
-	return (content);
+	if (quote_type == '\'')
+		return (ft_strdup(content));
+	return (expand_variables(shell, content, 1));
 }
 
-int	copy_expanded_content(t_temp_var_data data, char *expanded)
+// Handle a quoted section - the outermost quote determines all behavior
+int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 {
-	size_t	content_len;
+	char	quote_type;
+	int		end_pos;
+	char	*content;
+	char	*processed;
+	int		content_len;
 
-	if (!expanded)
-		return (1);
-	content_len = ft_strlen(expanded);
-	ft_strlcpy(*data.word + *data.j, expanded, content_len + 1);
-	*data.j += content_len;
-	free(expanded);
-	return (0);
-}
-
-int	extract_and_process_quotes(t_temp_var_data data,
-		t_shell *shell, char quote_type)
-{
-	int		start;
-	char	*quoted_content;
-	char	*expanded;
-
-	start = *data.i;
-	while (data.input[*data.i] && data.input[*data.i] != quote_type)
-		(*data.i)++;
-	if (!data.input[*data.i])
+	quote_type = data.input[*data.i];
+	end_pos = find_matching_quote(data.input, *data.i, quote_type);
+	if (end_pos == -1)
 	{
 		ft_putendl_fd("Error: Unclosed quotes", 2);
 		return (1);
 	}
-	quoted_content = extract_quoted_content(data.input,
-			start, *data.i);
-	if (!quoted_content)
+	content = ft_substr(data.input, *data.i + 1, end_pos - *data.i - 1);
+	if (!content)
 		return (1);
-	expanded = process_quoted_content(shell, quoted_content, quote_type);
-	if (copy_expanded_content(data, expanded))
+	processed = process_quote_content(shell, content, quote_type);
+	free(content);
+	if (!processed)
 		return (1);
-	(*data.i)++;
+	content_len = ft_strlen(processed);
+	ft_strlcpy(*data.word + *data.j, processed, content_len + 1);
+	*data.j += content_len;
+	free(processed);
+	*data.i = end_pos + 1;
 	return (0);
 }
 
+// Legacy functions for compatibility
 int	handle_quotes(t_temp_var_data data, t_shell *shell)
 {
-	char	quote_type;
-
-	quote_type = data.input[*data.i];
-	(*data.i)++;
-	if (extract_and_process_quotes(data, shell, quote_type))
-		return (free(*data.word), 1);
-	return (0);
+	return (handle_quote_section(data, shell));
 }

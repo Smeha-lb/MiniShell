@@ -8,6 +8,7 @@ t_command	*create_command(void)
 	if (!cmd)
 		return (NULL);
 	cmd->args = NULL;
+	cmd->arg_quoted = NULL;
 	cmd->redirs = NULL;
 	cmd->pipe_in = -1;
 	cmd->pipe_out = -1;

@@ -1,6 +1,6 @@
 #include "../includes/minishell.h"
 
-static char	*get_var_value(t_shell *shell, char *var_name, int name_len)
+static char	*get_legacy_var_value(t_shell *shell, char *var_name, int name_len)
 {
 	char	*name;
 	char	*value;
@@ -31,7 +31,7 @@ static int	process_variable(t_shell *shell, char *str, int *i,
 
 	(*i)++;
 	var_name_len = get_var_name_len(str + *i);
-	var_value = get_var_value(shell, str + *i, var_name_len);
+	var_value = get_legacy_var_value(shell, str + *i, var_name_len);
 	if (var_value)
 	{
 		*length += ft_strlen(var_value);
@@ -71,7 +71,7 @@ void	copy_variable(t_shell *shell, char *str, int *i, char *expanded)
 
 	(*i)++;
 	var_name_len = get_var_name_len(str + *i);
-	var_value = get_var_value(shell, str + *i, var_name_len);
+	var_value = get_legacy_var_value(shell, str + *i, var_name_len);
 	if (var_value)
 	{
 		j = 0;

@@ -45,12 +45,21 @@ char	*find_command_path(t_shell *shell, char *cmd)
 {
 	char	*direct_path;
 	char	*path_env;
+	char	*expanded_cmd;
 
-	direct_path = check_direct_path(cmd);
+	expanded_cmd = expand_token(shell, cmd);
+	if (!expanded_cmd)
+		return (NULL);
+	direct_path = check_direct_path(expanded_cmd);
 	if (direct_path)
+	{
+		free(expanded_cmd);
 		return (direct_path);
+	}
 	path_env = get_env_value(shell, "PATH");
-	return (search_in_path(cmd, path_env));
+	direct_path = search_in_path(expanded_cmd, path_env);
+	free(expanded_cmd);
+	return (direct_path);
 }
 
 int	execute_single_command(t_shell *shell, t_command *cmd)
