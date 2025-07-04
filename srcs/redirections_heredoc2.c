@@ -64,8 +64,7 @@ int	handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file)
 	if (fd == -1)
 	{
 		print_error(*temp_file, NULL, strerror(errno));
-		free(*temp_file);
-		*temp_file = NULL;
+		free_array(temp_file);
 		return (1);
 	}
 	setup_heredoc_signals();
