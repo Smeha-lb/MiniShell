@@ -43,11 +43,10 @@ int	process_var_expansion(t_var_data *data, char **word, int *j)
 {
 	int	i;
 
-	(*word)[(*j)++] = '$';
 	i = 0;
-	while (i < data->var_name_len)
+	while (i < (int)data->value_len)
 	{
-		(*word)[(*j)++] = data->var_name[i++];
+		(*word)[(*j)++] = data->var_value[i++];
 	}
 	free(data->var_name);
 	free(data->var_value);
