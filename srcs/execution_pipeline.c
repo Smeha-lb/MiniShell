@@ -25,7 +25,6 @@ static void	execute_builtin_in_child(t_shell *shell, t_command *cmd)
 	builtin_shell.running = 1;
 	builtin_shell.previous_cmd = NULL;
 	exit_code = execute_builtin(&builtin_shell, cmd);
-	fflush(stdout);
 	close(stdout_fd);
 	free_array(builtin_shell.env);
 	exit(exit_code);

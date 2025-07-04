@@ -99,7 +99,6 @@ int	builtin_env(t_shell *shell)
 			return (1);
 		i++;
 	}
-	fflush(stdout);
 	return (0);
 }
 
