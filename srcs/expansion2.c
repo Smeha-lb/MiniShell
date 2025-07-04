@@ -24,9 +24,9 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 		if (is_variable(str[i], str[i + 1]))
 		{
 			if (in_quotes || !is_inside_single_quotes(str, i))
-			{
-				copy_variable(shell, str, &i, expanded + j);
-				j += ft_strlen(expanded + j);
+		{
+			copy_variable(shell, str, &i, expanded + j);
+			j += ft_strlen(expanded + j);
 			}
 			else
 			{

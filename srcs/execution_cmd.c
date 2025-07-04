@@ -71,8 +71,6 @@ void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 {
 	char	**env_array;
 
-	if (setup_redirections(shell, cmd) != 0)
-		exit(1);
 	setup_child_redirections(cmd);
 	env_array = shell->env;
 	if (execve(path, cmd->args, env_array) == -1)

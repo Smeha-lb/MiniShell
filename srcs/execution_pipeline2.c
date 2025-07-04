@@ -23,6 +23,10 @@ int	handle_pipeline_child(t_pipeline_child *pc)
 		free_array(subshell.env);
 		exit(exit_status);
 	}
+	
+	// Expand variables in command arguments before execution
+	split_command_if_needed(pc->shell, pc->cmd);
+	
 	if (pc->cmd->redirs && setup_redirections(pc->shell, pc->cmd) != 0)
 	{
 		if (pc->shell->tokens)

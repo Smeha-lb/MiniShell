@@ -19,7 +19,7 @@ char	*process_quote_content(t_shell *shell, char *content, char quote_type)
 	if (quote_type == '\'')
 		return (ft_strdup(content));
 	return (expand_variables(shell, content, 1));
-}
+	}
 
 // Handle a quoted section - the outermost quote determines all behavior
 int	handle_quote_section(t_temp_var_data data, t_shell *shell)

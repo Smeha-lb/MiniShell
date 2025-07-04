@@ -170,15 +170,15 @@ void	split_command_if_needed(t_shell *shell, t_command *cmd)
 			split_args = ft_split(expanded, ' ');
 			if (split_args)
 			{
-				j = 0;
-				while (split_args[j])
+			j = 0;
+			while (split_args[j])
 				{
 					new_args[k] = split_args[j];
 					new_quoted[k] = 0;
 					k++;
 					j++;
 				}
-				free(split_args);
+			free(split_args);
 			}
 			free(expanded);
 		}
