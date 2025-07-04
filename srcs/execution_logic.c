@@ -152,35 +152,44 @@ void	split_command_if_needed(t_shell *shell, t_command *cmd)
 	while (cmd->args[i])
 	{
 		should_split = should_split_arg(cmd->args[i]);
-		expanded = expand_token(shell, cmd->args[i]);
-		if (!expanded)
+		if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
 		{
 			new_args[k] = ft_strdup(cmd->args[i]);
-			new_quoted[k] = (cmd->arg_quoted ? cmd->arg_quoted[i] : 0);
-			k++;
-		}
-		else if (!should_split)
-		{
-			new_args[k] = expanded;
-			new_quoted[k] = (cmd->arg_quoted ? cmd->arg_quoted[i] : 0);
+			new_quoted[k] = 1;
 			k++;
 		}
 		else
 		{
-			split_args = ft_split(expanded, ' ');
-			if (split_args)
+			expanded = expand_token(shell, cmd->args[i]);
+			if (!expanded)
 			{
-			j = 0;
-			while (split_args[j])
-				{
-					new_args[k] = split_args[j];
-					new_quoted[k] = 0;
-					k++;
-					j++;
-				}
-			free(split_args);
+				new_args[k] = ft_strdup(cmd->args[i]);
+				new_quoted[k] = (cmd->arg_quoted ? cmd->arg_quoted[i] : 0);
+				k++;
 			}
-			free(expanded);
+			else if (!should_split)
+			{
+				new_args[k] = expanded;
+				new_quoted[k] = (cmd->arg_quoted ? cmd->arg_quoted[i] : 0);
+				k++;
+			}
+			else
+			{
+				split_args = ft_split(expanded, ' ');
+				if (split_args)
+				{
+				j = 0;
+				while (split_args[j])
+					{
+						new_args[k] = split_args[j];
+						new_quoted[k] = 0;
+						k++;
+						j++;
+					}
+				free(split_args);
+				}
+				free(expanded);
+			}
 		}
 		i++;
 	}

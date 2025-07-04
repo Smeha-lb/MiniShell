@@ -29,8 +29,10 @@ int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 	char	*content;
 	char	*processed;
 	int		content_len;
+	int		quote_flag;
 
 	quote_type = data.input[*data.i];
+	quote_flag = (quote_type == '\'') ? 1 : 2;
 	end_pos = find_matching_quote(data.input, *data.i, quote_type);
 	if (end_pos == -1)
 	{
@@ -49,7 +51,7 @@ int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 	*data.j += content_len;
 	free(processed);
 	*data.i = end_pos + 1;
-	return (0);
+	return (quote_flag);
 }
 
 // Legacy functions for compatibility
