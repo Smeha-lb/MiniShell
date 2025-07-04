@@ -106,6 +106,11 @@ int	builtin_exit(t_shell *shell, t_command *cmd)
 {
 	int	exit_status;
 
+	if (cmd->args[1] && cmd->args[2])
+	{
+		ft_putendl_fd("exit: too many arguments", STDERR_FILENO);
+		return (1);
+	}
 	ft_putendl_fd("exit", STDOUT_FILENO);
 	if (cmd->args[1])
 	{
