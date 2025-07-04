@@ -5,7 +5,6 @@ static int	handle_eof_or_signal(void)
 {
 	if (g_signal_code == 130)
 		return (130);
-	ft_putendl_fd("warning: here-document delimited by end-of-file", 2);
 	return (0);
 }
 

@@ -53,12 +53,73 @@ void	fork_pipeline_processes(t_pipeline *pipeline, t_command *start_cmd)
 	}
 }
 
+int	update_heredoc_redirs(t_command *cmd, char **heredoc_tempfiles)
+{
+	t_redir	*redir;
+	int		i;
+
+	i = 0;
+	redir = cmd->redirs;
+	while (redir)
+	{
+		if (redir->type == TOKEN_HEREDOC)
+		{
+			free(redir->file);
+			redir->file = ft_strdup(heredoc_tempfiles[i]);
+			if (!redir->file)
+				return (1);
+			// Convert heredoc to input redirection since temp file is ready
+			redir->type = TOKEN_REDIR_IN;
+			i++;
+		}
+		redir = redir->next;
+	}
+	return (0);
+}
+
+int	process_all_pipeline_heredocs(t_shell *shell, t_command *start_cmd)
+{
+	t_command	*cmd;
+	int			heredoc_count;
+	char		**heredoc_tempfiles;
+	int			result;
+
+	cmd = start_cmd;
+	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
+	{
+		heredoc_count = count_heredocs(cmd);
+		if (heredoc_count > 0)
+		{
+			heredoc_tempfiles = init_heredoc_tempfiles(heredoc_count);
+			if (!heredoc_tempfiles)
+				return (1);
+			result = process_heredocs(shell, cmd, heredoc_tempfiles);
+			if (result != 0)
+			{
+				cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
+				return (result);
+			}
+			if (update_heredoc_redirs(cmd, heredoc_tempfiles) != 0)
+			{
+				cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
+				return (1);
+			}
+			cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
+		}
+		cmd = cmd->next;
+	}
+	return (0);
+}
+
 int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 {
 	t_pipeline	pipeline;
 	int			exit_status;
 
 	exit_status = 0;
+	// Process ALL heredocs in parent process BEFORE forking children
+	if (process_all_pipeline_heredocs(shell, start_cmd) != 0)
+		return (1);
 	init_pipeline(&pipeline, shell, start_cmd);
 	pipeline.pipes = allocate_pipes(pipeline.cmd_count, &pipeline.pids);
 	if (!pipeline.pipes)
