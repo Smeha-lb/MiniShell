@@ -42,7 +42,9 @@ bool	tokenize_input(t_shell *shell, char *input)
 	while (input[i])
 	{
 		if (!process_token_at_position(shell, input, &i))
+		{
 			return (false);
+		}
 	}
 	return (true);
 }

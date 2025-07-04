@@ -32,10 +32,7 @@ static char	*expand_segment_wildcards(char *str)
 		return (ft_strdup(str));
 	matches = expand_wildcards(str);
 	if (!matches)
-	{
-		printf(" expand segment wildcards ");
 		return (ft_strdup(str));
-	}
 	result = join_expanded_wildcards(matches);
 	free_array(matches);
 	return (result);

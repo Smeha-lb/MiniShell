@@ -101,6 +101,6 @@ void	parse_tokens_word(char *value, t_command *cmd)
 // Store the original token value with wildcards
 bool	handle_wildcards_token(t_token *token, t_command *cmd)
 {
-	add_arg(cmd, token->value);
+	parse_tokens_word(token->value, cmd);
 	return (true);
 }
