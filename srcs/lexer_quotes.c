@@ -37,15 +37,15 @@ int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 	if (end_pos == -1)
 	{
 		ft_putendl_fd("Error: Unclosed quotes", 2);
-		return (1);
+		return (-1);
 	}
 	content = ft_substr(data.input, *data.i + 1, end_pos - *data.i - 1);
 	if (!content)
-		return (1);
+		return (-1);
 	processed = process_quote_content(shell, content, quote_type);
 	free(content);
 	if (!processed)
-		return (1);
+		return (-1);
 	content_len = ft_strlen(processed);
 	ft_strlcpy(*data.word + *data.j, processed, content_len + 1);
 	*data.j += content_len;

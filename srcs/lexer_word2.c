@@ -83,7 +83,12 @@ int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 		return (1);
 	prepare_word_data(input, i, &word_data);
 	word_data.j = process_word_loop(input, i, word, shell, &quote_type);
-	if (word_data.j < 0 || word_data.j >= buffer_size)
+	if (word_data.j < 0)
+	{
+		free(word);
+		return (1);
+	}
+	if (word_data.j >= buffer_size)
 	{
 		free(word);
 		return (1);
