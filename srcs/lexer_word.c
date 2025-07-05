@@ -74,9 +74,9 @@ int	process_word_character(t_temp_var_data data, t_shell *shell)
 		return (quote_result);
 	}
 	else if (data.input[*data.i] == '$' && (ft_isalnum(data.input[*data.i + 1])
-			|| data.input[*data.i + 1] == '_'
-			|| data.input[*data.i + 1] == '?')
-			&& !is_inside_single_quotes(data.input, *data.i))
+		|| data.input[*data.i + 1] == '_'
+		|| data.input[*data.i + 1] == '?')
+		&& !is_inside_single_quotes(data.input, *data.i))
 	{
 		if (process_variable_expansion
 			(data, shell))

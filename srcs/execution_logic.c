@@ -99,8 +99,8 @@ char	*strip_quotes(char *str)
 		free(str);
 		return (result);
 	}
-	if ((str[0] == '\'' && str[len - 1] == '\'') ||
-		(str[0] == '\"' && str[len - 1] == '\"'))
+	if ((str[0] == '\'' && str[len - 1] == '\'')
+		|| (str[0] == '\"' && str[len - 1] == '\"'))
 	{
 		result = ft_substr(str, 1, len - 2);
 		free(str);
