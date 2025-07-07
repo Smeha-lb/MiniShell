@@ -68,7 +68,6 @@ int	update_heredoc_redirs(t_command *cmd, char **heredoc_tempfiles)
 			redir->file = ft_strdup(heredoc_tempfiles[i]);
 			if (!redir->file)
 				return (1);
-			// Convert heredoc to input redirection since temp file is ready
 			redir->type = TOKEN_REDIR_IN;
 			i++;
 		}
@@ -117,7 +116,6 @@ int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 	int			exit_status;
 
 	exit_status = 0;
-	// Process ALL heredocs in parent process BEFORE forking children
 	if (process_all_pipeline_heredocs(shell, start_cmd) != 0)
 		return (1);
 	init_pipeline(&pipeline, shell, start_cmd);

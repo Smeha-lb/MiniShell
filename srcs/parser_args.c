@@ -95,12 +95,3 @@ void	parse_tokens_word(char *value, t_command *cmd)
 	}
 	free_array(matches);
 }
-
-// Helper function to handle word tokens with wildcards
-// If wildcard expansion fails, use the original token value
-// Store the original token value with wildcards
-bool	handle_wildcards_token(t_token *token, t_command *cmd)
-{
-	parse_tokens_word(token->value, cmd);
-	return (true);
-}

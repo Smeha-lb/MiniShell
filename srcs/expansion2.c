@@ -29,9 +29,7 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 				j += ft_strlen(expanded + j);
 			}
 			else
-			{
 				process_char(str, &i, expanded, &j);
-			}
 		}
 		else
 			process_char(str, &i, expanded, &j);

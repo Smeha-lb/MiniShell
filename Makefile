@@ -28,6 +28,7 @@ SRCS = main.c \
 		parser_core.c \
 		parser_command.c \
 		parser_args.c \
+		parser_args2.c \
 		parser_token_handlers.c \
 		parser_subshell.c \
 		parser_cleanup.c \
@@ -47,6 +48,7 @@ SRCS = main.c \
 		builtins3.c \
 		builtins4.c \
 		builtins5.c \
+		builtins6.c \
 		redirections.c \
 		redirections_apply.c \
 		redirections_heredoc.c \

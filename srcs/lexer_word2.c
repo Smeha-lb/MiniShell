@@ -44,7 +44,8 @@ int	handle_word(char *input, int *i, t_shell *shell)
 	return (handle_complex_word(input, i, shell, 0));
 }
 
-int	process_word_loop(char *input, int *i, char *word, t_shell *shell, int *quote_type)
+int	process_word_loop(char *input, int *i, char *word,
+		t_shell *shell, int *quote_type)
 {
 	int				j;
 	int				result;

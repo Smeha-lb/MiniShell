@@ -80,7 +80,8 @@ int	apply_redirection(t_shell *shell, t_redir *redir,
 	return (result);
 }
 
-int	apply_all_redirections(t_shell *shell, t_command *cmd, char **heredoc_tempfiles)
+int	apply_all_redirections(t_shell *shell,
+		t_command *cmd, char **heredoc_tempfiles)
 {
 	t_redir	*redir;
 	int		heredoc_index;
@@ -90,7 +91,8 @@ int	apply_all_redirections(t_shell *shell, t_command *cmd, char **heredoc_tempfi
 	redir = cmd->redirs;
 	while (redir)
 	{
-		result = apply_redirection(shell, redir, heredoc_tempfiles, &heredoc_index);
+		result = apply_redirection(shell, redir,
+				heredoc_tempfiles, &heredoc_index);
 		if (result != 0)
 			return (result);
 		redir = redir->next;

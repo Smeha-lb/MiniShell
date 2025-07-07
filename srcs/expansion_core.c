@@ -11,21 +11,14 @@ int	is_inside_single_quotes(const char *str, int pos)
 	i = 0;
 	in_single_quotes = 0;
 	in_double_quotes = 0;
-	
 	while (i < pos && str[i])
 	{
-		// Handle single quotes (but only if we're not in double quotes)
 		if (str[i] == '\'' && !in_double_quotes
 			&& (i == 0 || str[i - 1] != '\\'))
-		{
 			in_single_quotes = !in_single_quotes;
-		}
-		// Handle double quotes (but only if we're not in single quotes)
 		else if (str[i] == '\"' && !in_single_quotes
 			&& (i == 0 || str[i - 1] != '\\'))
-		{
 			in_double_quotes = !in_double_quotes;
-		}
 		i++;
 	}
 	return (in_single_quotes);
