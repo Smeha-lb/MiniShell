@@ -69,11 +69,8 @@ void	setup_child_redirections(t_command *cmd)
 
 void	handle_child_process(t_shell *shell, t_command *cmd, char *path)
 {
-	char	**env_array;
-
 	setup_child_redirections(cmd);
-	env_array = shell->env;
-	if (execve(path, cmd->args, env_array) == -1)
+	if (execve(path, cmd->args, shell->env) == -1)
 	{
 		if (errno == ENOEXEC)
 			print_error(cmd->args[0], NULL, "Permission denied");
@@ -118,7 +115,13 @@ int	execute_external_command(t_shell *shell, t_command *cmd)
 {
 	char	*path;
 	pid_t	pid;
+	char	**temp_cmd_args;
 
+	if(!(*cmd->arg_quoted == 2) && !cmd->args[1])
+	{
+		temp_cmd_args = ft_split(cmd->args[0], ' ');
+		cmd->args = temp_cmd_args;
+	}
 	path = find_command_path(shell, cmd->args[0]);
 	if (!path)
 	{
