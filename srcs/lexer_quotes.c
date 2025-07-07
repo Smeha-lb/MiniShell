@@ -19,7 +19,7 @@ char	*process_quote_content(t_shell *shell, char *content, char quote_type)
 	if (quote_type == '\'')
 		return (ft_strdup(content));
 	return (expand_variables(shell, content, 1));
-	}
+}
 
 // Handle a quoted section - the outermost quote determines all behavior
 int	handle_quote_section(t_temp_var_data data, t_shell *shell)
@@ -32,7 +32,10 @@ int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 	int		quote_flag;
 
 	quote_type = data.input[*data.i];
-	quote_flag = (quote_type == '\'') ? 1 : 2;
+	if (quote_type == '\'')
+		quote_flag = 1;
+	else
+		quote_flag = 2;
 	end_pos = find_matching_quote(data.input, *data.i, quote_type);
 	if (end_pos == -1)
 	{

@@ -25,8 +25,9 @@ static bool	process_token_at_position(t_shell *shell, char *input, int *i)
 		if (token_len >= 2)
 		{
 			if (token_value[0] == '\'' && token_value[token_len - 1] == '\'')
-		last_token->quoted = 1;
-			else if (token_value[0] == '\"' && token_value[token_len - 1] == '\"')
+				last_token->quoted = 1;
+			else if (token_value[0] == '\"'
+				&& token_value[token_len - 1] == '\"')
 				last_token->quoted = 2;
 		}
 	}

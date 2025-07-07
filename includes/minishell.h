@@ -166,8 +166,8 @@ int			handle_output_redirection(t_shell *shell, char *input, int *i);
 /* lexer_quotes.c */
 int			handle_quotes(t_temp_var_data data, t_shell *shell);
 int			find_matching_quote(char *input, int start, char quote_type);
-char		*process_quote_content(t_shell *shell, char *content, \
-				char quote_type);
+char		*process_quote_content(t_shell *shell,
+				char *content, char quote_type);
 int			handle_quote_section(t_temp_var_data data, t_shell *shell);
 int			extract_and_process_quotes(t_temp_var_data data, t_shell *shell,
 				char quote_type);
@@ -344,10 +344,10 @@ int			setup_redirections(t_shell *shell, t_command *cmd);
 /* redirections_apply.c */
 int			redirect_input(char *file);
 int			redirect_output(char *file, int append);
-int			apply_redirection(t_shell *shell, t_redir *redir, \
+int			apply_redirection(t_shell *shell, t_redir *redir,
 				char **heredoc_tempfiles, int *heredoc_index);
-int			apply_all_redirections(t_shell *shell, t_command *cmd, \
-				char **heredoc_tempfiles);
+int			apply_all_redirections(t_shell *shell,
+				t_command *cmd, char **heredoc_tempfiles);
 
 /* redirections_heredoc.c */
 int			handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
