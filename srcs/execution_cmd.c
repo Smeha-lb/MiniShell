@@ -120,7 +120,10 @@ int	execute_external_command(t_shell *shell, t_command *cmd)
 	if(!(*cmd->arg_quoted == 2) && !cmd->args[1])
 	{
 		temp_cmd_args = ft_split(cmd->args[0], ' ');
+		free_cmd_args(cmd->args);
+		free(cmd->arg_quoted);
 		cmd->args = temp_cmd_args;
+		cmd->arg_quoted = NULL;
 	}
 	path = find_command_path(shell, cmd->args[0]);
 	if (!path)
