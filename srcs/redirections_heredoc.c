@@ -42,26 +42,6 @@ char	*build_heredoc_path(char *num_str, char *pid_str)
 	return (filename);
 }
 
-static char	*create_heredoc_filename(int counter, pid_t pid)
-{
-	char	*num_str;
-	char	*pid_str;
-	char	*filename;
-
-	num_str = ft_itoa(counter);
-	pid_str = ft_itoa(pid);
-	if (!num_str || !pid_str)
-	{
-		free(num_str);
-		free(pid_str);
-		return (NULL);
-	}
-	filename = build_heredoc_path(num_str, pid_str);
-	free(num_str);
-	free(pid_str);
-	return (filename);
-}
-
 char	*create_heredoc_tempfile(void)
 {
 	static int	counter = 0;

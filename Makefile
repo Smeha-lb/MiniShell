@@ -29,11 +29,13 @@ SRCS = main.c \
 		parser_command.c \
 		parser_args.c \
 		parser_args2.c \
+		parser_args3.c \
 		parser_token_handlers.c \
 		parser_subshell.c \
 		parser_cleanup.c \
 		execution_path.c \
 		execution_cmd.c \
+		execution_cmd2.c \
 		execution_pipes.c \
 		execution_pipeline.c \
 		execution_pipeline2.c \
@@ -43,6 +45,7 @@ SRCS = main.c \
 		execution_subshell2.c \
 		execution_logic.c \
 		execution_logic2.c \
+		execution_logic3.c \
 		execution_logic4.c \
 		execution_commands.c \
 		builtins.c \
@@ -51,6 +54,7 @@ SRCS = main.c \
 		builtins4.c \
 		builtins5.c \
 		builtins6.c \
+		builtins7.c \
 		redirections.c \
 		redirections_apply.c \
 		redirections_heredoc.c \
@@ -59,9 +63,12 @@ SRCS = main.c \
 		env_utils.c \
 		env_utils2.c \
 		utils.c \
+		utils2.c \
 		expansion.c \
 		expansion2.c \
 		expansion_core.c \
+		expansion_quotes.c \
+		expansion_vars.c \
 		wildcard_expansion.c \
 		wildcard_expansion2.c \
 		wildcard.c \
@@ -97,4 +104,4 @@ re: fclean all
 
 bonus: all
 
-.PHONY: all clean fclean re bonus 
+.PHONY: all clean fclean re bonus
