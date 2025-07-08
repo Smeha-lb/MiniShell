@@ -42,6 +42,8 @@ SRCS = main.c \
 		execution_subshell.c \
 		execution_subshell2.c \
 		execution_logic.c \
+		execution_logic2.c \
+		execution_logic4.c \
 		execution_commands.c \
 		builtins.c \
 		builtins2.c \

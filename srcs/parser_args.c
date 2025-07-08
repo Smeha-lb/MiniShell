@@ -4,20 +4,24 @@
 void	init_cmd_args(t_command *cmd, char *arg, int quoted)
 {
 	cmd->args = (char **)malloc(2 * sizeof(char *));
-	cmd->arg_quoted = (int *)malloc(2 * sizeof(int));
-	if (!cmd->args || !cmd->arg_quoted)
+	if (!cmd->args)
 	{
 		free(arg);
-		free(cmd->args);
-		free(cmd->arg_quoted);
-		cmd->args = NULL;
-		cmd->arg_quoted = NULL;
-		return ;
+		return;
 	}
+	
+	cmd->arg_quoted = (int *)malloc(1 * sizeof(int));
+	if (!cmd->arg_quoted)
+	{
+		free(cmd->args);
+		free(arg);
+		cmd->args = NULL;
+		return;
+	}
+	
 	cmd->args[0] = arg;
 	cmd->args[1] = NULL;
 	cmd->arg_quoted[0] = quoted;
-	cmd->arg_quoted[1] = 0;
 }
 
 // Helper function for add_arg when cmd->args already exists
@@ -30,15 +34,22 @@ void	append_cmd_arg(t_command *cmd, char *arg, int quoted)
 	i = 0;
 	while (cmd->args[i])
 		i++;
+		
 	new_args = (char **)malloc((i + 2) * sizeof(char *));
-	new_quoted = (int *)malloc((i + 2) * sizeof(int));
-	if (!new_args || !new_quoted)
+	if (!new_args)
 	{
 		free(arg);
-		free(new_args);
-		free(new_quoted);
-		return ;
+		return;
 	}
+	
+	new_quoted = (int *)malloc((i + 1) * sizeof(int));
+	if (!new_quoted)
+	{
+		free(new_args);
+		free(arg);
+		return;
+	}
+	
 	i = 0;
 	while (cmd->args[i])
 	{
@@ -46,10 +57,11 @@ void	append_cmd_arg(t_command *cmd, char *arg, int quoted)
 		new_quoted[i] = cmd->arg_quoted[i];
 		i++;
 	}
+	
 	new_args[i] = arg;
 	new_args[i + 1] = NULL;
 	new_quoted[i] = quoted;
-	new_quoted[i + 1] = 0;
+	
 	free(cmd->args);
 	free(cmd->arg_quoted);
 	cmd->args = new_args;
