@@ -56,7 +56,8 @@ void	handle_dollar_quote(char *input, int *i)
 /**
  * Process a single character in word loop
  */
-int	process_single_character(t_temp_var_data data, t_shell *shell, int *quote_type)
+int	process_single_character(t_temp_var_data data,
+		t_shell *shell, int *quote_type)
 {
 	int	result;
 
@@ -127,15 +128,13 @@ int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 	word = (char *)malloc((buffer_size + 1) * sizeof(char));
 	if (!word)
 		return (1);
-
-	quote_type = process_word_with_validation(input, i, word, 
-		shell, buffer_size);
+	quote_type = process_word_with_validation(input, i, word,
+			shell, buffer_size);
 	if (quote_type < 0)
 	{
 		free(word);
 		return (1);
 	}
-
 	if (quote_type > 0)
 		quoted = quote_type;
 	create_word_token(word, quoted, shell);

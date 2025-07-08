@@ -53,7 +53,10 @@ int	handle_quote_section(t_temp_var_data data, t_shell *shell)
 	int		quote_flag;
 
 	quote_type = data.input[*data.i];
-	quote_flag = (quote_type == '\'') ? 1 : 2;
+	if (quote_type == '\'')
+		quote_flag = 1;
+	else
+		quote_flag = 2;
 	end_pos = find_matching_quote(data.input, *data.i, quote_type);
 	if (end_pos == -1)
 	{

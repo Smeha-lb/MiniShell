@@ -10,7 +10,7 @@ void	update_last_token_quotes(t_shell *shell)
 	int		token_len;
 
 	if (!shell->tokens)
-		return;
+		return ;
 	last_token = shell->tokens;
 	while (last_token->next)
 		last_token = last_token->next;

@@ -32,4 +32,4 @@ char	*expand_token(t_shell *shell, const char *token)
 	if (!token || !*token)
 		return (NULL);
 	return (expand_variables_core(shell, token));
-} 
+}

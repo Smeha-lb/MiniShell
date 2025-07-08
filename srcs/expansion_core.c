@@ -3,7 +3,7 @@
 /**
  * Update quote state for a character
  */
-void	update_quote_state(char c, int prev_escaped, 
+void	update_quote_state(char c, int prev_escaped,
 	int *in_single_quotes, int *in_double_quotes)
 {
 	if (c == '\'' && !*in_double_quotes && !prev_escaped)
@@ -33,7 +33,7 @@ int	is_inside_single_quotes(const char *str, int pos)
 	in_double_quotes = 0;
 	while (i < pos && str[i])
 	{
-		update_quote_state(str[i], is_escaped(str, i), 
+		update_quote_state(str[i], is_escaped(str, i),
 			&in_single_quotes, &in_double_quotes);
 		i++;
 	}
@@ -53,7 +53,7 @@ int	is_inside_double_quotes(const char *str, int pos)
 	in_single_quotes = 0;
 	while (i < pos && str[i])
 	{
-		update_quote_state(str[i], is_escaped(str, i), 
+		update_quote_state(str[i], is_escaped(str, i),
 			&in_single_quotes, &in_double_quotes);
 		i++;
 	}
@@ -148,7 +148,7 @@ int	calculate_expanded_size(t_shell *shell, const char *str)
 /**
  * Copy variable value to expanded string
  */
-void	copy_var_to_expanded(t_shell *shell, const char *str, 
+void	copy_var_to_expanded(t_shell *shell, const char *str,
 	int *i, char *expanded, int *j)
 {
 	int		var_name_len;
