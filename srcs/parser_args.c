@@ -7,18 +7,16 @@ void	init_cmd_args(t_command *cmd, char *arg, int quoted)
 	if (!cmd->args)
 	{
 		free(arg);
-		return;
+		return ;
 	}
-	
 	cmd->arg_quoted = (int *)malloc(1 * sizeof(int));
 	if (!cmd->arg_quoted)
 	{
 		free(cmd->args);
 		free(arg);
 		cmd->args = NULL;
-		return;
+		return ;
 	}
-	
 	cmd->args[0] = arg;
 	cmd->args[1] = NULL;
 	cmd->arg_quoted[0] = quoted;
@@ -74,7 +72,7 @@ void	append_cmd_arg(t_command *cmd, char *arg, int quoted)
 	if (allocate_expanded_arg_arrays(i, &new_args, &new_quoted) != 0)
 	{
 		free(arg);
-		return;
+		return ;
 	}
 	copy_and_add_arg(cmd, arg, quoted, new_args, new_quoted);
 	free(cmd->args);
