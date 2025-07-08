@@ -6,6 +6,26 @@ static int	is_variable(char c1, char c2)
 			|| c2 == '?') && c2 != '\"');
 }
 
+/**
+ * Process a single character during expansion
+ */
+void	process_expansion_char(t_shell *shell, char *str, int *i,
+	char *expanded, int *j, int in_quotes)
+{
+	if (is_variable(str[*i], str[*i + 1]))
+	{
+		if (in_quotes || !is_inside_single_quotes(str, *i))
+		{
+			copy_variable(shell, str, i, expanded + *j);
+			*j += ft_strlen(expanded + *j);
+		}
+		else
+			process_char(str, i, expanded, j);
+	}
+	else
+		process_char(str, i, expanded, j);
+}
+
 char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 {
 	int		i;
@@ -21,18 +41,7 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 	j = 0;
 	while (str[i])
 	{
-		if (is_variable(str[i], str[i + 1]))
-		{
-			if (in_quotes || !is_inside_single_quotes(str, i))
-			{
-				copy_variable(shell, str, &i, expanded + j);
-				j += ft_strlen(expanded + j);
-			}
-			else
-				process_char(str, &i, expanded, &j);
-		}
-		else
-			process_char(str, &i, expanded, &j);
+		process_expansion_char(shell, str, &i, expanded, &j, in_quotes);
 	}
 	expanded[j] = '\0';
 	return (expanded);

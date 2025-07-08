@@ -5,8 +5,6 @@ char	*expand_variables_core(t_shell *shell, const char *str)
 	int		i;
 	int		j;
 	char	*expanded;
-	int		var_name_len;
-	char	*var_value;
 
 	if (!str)
 		return (NULL);
@@ -18,20 +16,9 @@ char	*expand_variables_core(t_shell *shell, const char *str)
 	j = 0;
 	while (str[i])
 	{
-		if (str[i] == '$' && !is_inside_single_quotes(str, i)
-			&& str[i + 1] && (ft_isalnum(str[i + 1])
-				|| str[i + 1] == '_' || str[i + 1] == '?'))
+		if (needs_var_expansion(str, i))
 		{
-			i++;
-			var_name_len = get_var_name_len(str + i);
-			var_value = get_var_value(shell, str + i, var_name_len);
-			if (var_value)
-			{
-				ft_strlcpy(expanded + j, var_value, ft_strlen(var_value) + 1);
-				j += ft_strlen(var_value);
-				free(var_value);
-			}
-			i += var_name_len;
+			copy_var_to_expanded(shell, str, &i, expanded, &j);
 		}
 		else
 			expanded[j++] = str[i++];
@@ -42,14 +29,7 @@ char	*expand_variables_core(t_shell *shell, const char *str)
 
 char	*expand_token(t_shell *shell, const char *token)
 {
-	char	*result;
-
-	print_error("DEBUG", "expand_token input", (char *)token);
 	if (!token || !*token)
 		return (NULL);
-	
-	result = expand_variables_core(shell, token);
-	print_error("DEBUG", "expand_token result", result ? result : "NULL");
-	
-	return (result);
+	return (expand_variables_core(shell, token));
 } 

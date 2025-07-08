@@ -37,21 +37,31 @@ void	close_pipes(t_command *commands)
 	}
 }
 
-int	**allocate_pipes(int cmd_count, pid_t **pids)
+/**
+ * Allocate process ID array
+ */
+pid_t	*allocate_pids(int cmd_count)
+{
+	pid_t	*pids;
+
+	pids = (pid_t *)malloc(sizeof(pid_t) * cmd_count);
+	if (!pids)
+		print_error("malloc", NULL, strerror(errno));
+	return (pids);
+}
+
+/**
+ * Allocate individual pipe arrays
+ */
+int	**allocate_pipe_arrays(int cmd_count, pid_t *pids)
 {
 	int	**pipes;
 	int	i;
 
-	*pids = (pid_t *)malloc(sizeof(pid_t) * cmd_count);
-	if (!*pids)
-	{
-		print_error("malloc", NULL, strerror(errno));
-		return (NULL);
-	}
 	pipes = (int **)malloc(sizeof(int *) * (cmd_count - 1));
 	if (!pipes)
 	{
-		free(*pids);
+		free(pids);
 		print_error("malloc", NULL, strerror(errno));
 		return (NULL);
 	}
@@ -66,7 +76,32 @@ int	**allocate_pipes(int cmd_count, pid_t **pids)
 	return (pipes);
 }
 
-int	setup_pipes(int **pipes, int cmd_count, pid_t *pids)
+int	**allocate_pipes(int cmd_count, pid_t **pids)
+{
+	*pids = allocate_pids(cmd_count);
+	if (!*pids)
+		return (NULL);
+	return (allocate_pipe_arrays(cmd_count, *pids));
+}
+
+/**
+ * Cleanup on pipe creation failure
+ */
+void	cleanup_pipes_on_error(int **pipes, int current_index, pid_t *pids)
+{
+	while (current_index >= 0)
+	{
+		free(pipes[current_index]);
+		current_index--;
+	}
+	free(pipes);
+	free(pids);
+}
+
+/**
+ * Create all pipes in the array
+ */
+int	create_all_pipes(int **pipes, int cmd_count)
 {
 	int	i;
 
@@ -75,25 +110,32 @@ int	setup_pipes(int **pipes, int cmd_count, pid_t *pids)
 	{
 		if (pipe(pipes[i]) == -1)
 		{
-			while (i >= 0)
-			{
-				free(pipes[i]);
-				i--;
-			}
-			free(pipes);
-			free(pids);
 			print_error("pipe", NULL, strerror(errno));
-			return (1);
+			return (i);
 		}
 		i++;
+	}
+	return (-1);
+}
+
+int	setup_pipes(int **pipes, int cmd_count, pid_t *pids)
+{
+	int	failed_index;
+
+	failed_index = create_all_pipes(pipes, cmd_count);
+	if (failed_index >= 0)
+	{
+		cleanup_pipes_on_error(pipes, failed_index, pids);
+		return (1);
 	}
 	return (0);
 }
 
-void	setup_child_pipes(int **pipes, int i, int cmd_count)
+/**
+ * Setup input pipe for child process
+ */
+void	setup_child_input(int **pipes, int i)
 {
-	int	j;
-
 	if (i > 0)
 	{
 		if (dup2(pipes[i - 1][0], STDIN_FILENO) == -1)
@@ -102,6 +144,13 @@ void	setup_child_pipes(int **pipes, int i, int cmd_count)
 			exit(1);
 		}
 	}
+}
+
+/**
+ * Setup output pipe for child process
+ */
+void	setup_child_output(int **pipes, int i, int cmd_count)
+{
 	if (i < cmd_count - 1)
 	{
 		if (dup2(pipes[i][1], STDOUT_FILENO) == -1)
@@ -110,6 +159,15 @@ void	setup_child_pipes(int **pipes, int i, int cmd_count)
 			exit(1);
 		}
 	}
+}
+
+/**
+ * Close all pipe file descriptors
+ */
+void	close_all_pipes(int **pipes, int cmd_count)
+{
+	int	j;
+
 	j = 0;
 	while (j < cmd_count - 1)
 	{
@@ -119,4 +177,11 @@ void	setup_child_pipes(int **pipes, int i, int cmd_count)
 			close(pipes[j][1]);
 		j++;
 	}
+}
+
+void	setup_child_pipes(int **pipes, int i, int cmd_count)
+{
+	setup_child_input(pipes, i);
+	setup_child_output(pipes, i, cmd_count);
+	close_all_pipes(pipes, cmd_count);
 }

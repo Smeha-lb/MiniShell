@@ -76,63 +76,108 @@ int	update_heredoc_redirs(t_command *cmd, char **heredoc_tempfiles)
 	return (0);
 }
 
+/**
+ * Handle heredoc processing with error cleanup
+ */
+int	process_heredocs_with_cleanup(t_shell *shell, t_command *cmd,
+	char **heredoc_tempfiles, int heredoc_count)
+{
+	int	result;
+
+	result = process_heredocs(shell, cmd, heredoc_tempfiles);
+	if (result != 0)
+	{
+		cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
+		return (result);
+	}
+	if (update_heredoc_redirs(cmd, heredoc_tempfiles) != 0)
+	{
+		cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
+		return (1);
+	}
+	return (0);
+}
+
+/**
+ * Process heredocs for a single command
+ */
+int	process_cmd_heredocs(t_shell *shell, t_command *cmd)
+{
+	int		heredoc_count;
+	char	**heredoc_tempfiles;
+	int		result;
+
+	heredoc_count = count_heredocs(cmd);
+	if (heredoc_count <= 0)
+		return (0);
+	heredoc_tempfiles = init_heredoc_tempfiles(heredoc_count);
+	if (!heredoc_tempfiles)
+		return (1);
+	result = process_heredocs_with_cleanup(shell, cmd,
+			heredoc_tempfiles, heredoc_count);
+	if (result != 0)
+		return (result);
+	free(heredoc_tempfiles);
+	return (0);
+}
+
 int	process_all_pipeline_heredocs(t_shell *shell, t_command *start_cmd)
 {
 	t_command	*cmd;
-	int			heredoc_count;
-	char		**heredoc_tempfiles;
 	int			result;
 
 	cmd = start_cmd;
 	while (cmd && (cmd == start_cmd || cmd->next_op == 0))
 	{
-		heredoc_count = count_heredocs(cmd);
-		if (heredoc_count > 0)
-		{
-			heredoc_tempfiles = init_heredoc_tempfiles(heredoc_count);
-			if (!heredoc_tempfiles)
-				return (1);
-			result = process_heredocs(shell, cmd, heredoc_tempfiles);
-			if (result != 0)
-			{
-				cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
-				return (result);
-			}
-			if (update_heredoc_redirs(cmd, heredoc_tempfiles) != 0)
-			{
-				cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
-				return (1);
-			}
-			cleanup_heredoc_tempfiles(heredoc_tempfiles, heredoc_count);
-		}
+		result = process_cmd_heredocs(shell, cmd);
+		if (result != 0)
+			return (result);
 		cmd = cmd->next;
 	}
 	return (0);
 }
 
+/**
+ * Setup pipeline infrastructure (pipes and process arrays)
+ */
+int	setup_pipeline_infrastructure(t_pipeline *pipeline)
+{
+	pipeline->pipes = allocate_pipes(pipeline->cmd_count, &pipeline->pids);
+	if (!pipeline->pipes)
+		return (1);
+	if (setup_pipes(pipeline->pipes, pipeline->cmd_count, pipeline->pids))
+	{
+		free(pipeline->pids);
+		return (1);
+	}
+	return (0);
+}
+
+/**
+ * Execute and wait for pipeline completion
+ */
+int	run_pipeline(t_pipeline *pipeline, t_command *start_cmd)
+{
+	int	exit_status;
+
+	fork_pipeline_processes(pipeline, start_cmd);
+	free_pipes(pipeline->pipes, pipeline->cmd_count);
+	exit_status = wait_for_pipeline(pipeline->pids,
+			pipeline->cmd_count, pipeline->is_nested);
+	free(pipeline->pids);
+	return (exit_status);
+}
+
 int	execute_pipeline(t_shell *shell, t_command *start_cmd)
 {
 	t_pipeline	pipeline;
-	int			exit_status;
 
-	exit_status = 0;
 	if (process_all_pipeline_heredocs(shell, start_cmd) != 0)
 		return (1);
 	init_pipeline(&pipeline, shell, start_cmd);
-	pipeline.pipes = allocate_pipes(pipeline.cmd_count, &pipeline.pids);
-	if (!pipeline.pipes)
+	if (setup_pipeline_infrastructure(&pipeline) != 0)
 		return (1);
-	if (setup_pipes(pipeline.pipes, pipeline.cmd_count, pipeline.pids))
-	{
-		free(pipeline.pids);
-		return (1);
-	}
-	fork_pipeline_processes(&pipeline, start_cmd);
-	free_pipes(pipeline.pipes, pipeline.cmd_count);
-	exit_status = wait_for_pipeline(pipeline.pids,
-			pipeline.cmd_count, pipeline.is_nested);
-	free(pipeline.pids);
-	return (exit_status);
+	return (run_pipeline(&pipeline, start_cmd));
 }
 
 int	wait_for_all(pid_t last_pid)
