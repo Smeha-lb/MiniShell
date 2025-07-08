@@ -40,6 +40,28 @@ int	is_builtin(char *cmd)
 		|| ft_strcmp(cmd, "exit") == 0);
 }
 
+/**
+ * Route builtin command to appropriate function
+ */
+int	route_builtin_command(t_shell *shell, t_command *cmd, char *builtin)
+{
+	if (ft_strcmp(builtin, "echo") == 0)
+		return (builtin_echo(cmd));
+	else if (ft_strcmp(builtin, "cd") == 0)
+		return (builtin_cd(shell, cmd));
+	else if (ft_strcmp(builtin, "pwd") == 0)
+		return (builtin_pwd(cmd));
+	else if (ft_strcmp(builtin, "export") == 0)
+		return (builtin_export(shell, cmd));
+	else if (ft_strcmp(builtin, "unset") == 0)
+		return (builtin_unset(shell, cmd));
+	else if (ft_strcmp(builtin, "env") == 0)
+		return (builtin_env(shell));
+	else if (ft_strcmp(builtin, "exit") == 0)
+		return (builtin_exit(shell, cmd));
+	return (1);
+}
+
 // Execute builtin with variable expansion
 // Create a temporary command with expanded arguments
 int	execute_builtin_with_expanded_args(t_shell *shell,
@@ -53,21 +75,7 @@ int	execute_builtin_with_expanded_args(t_shell *shell,
 	temp_cmd = *cmd;
 	temp_cmd.args = expanded_args;
 	builtin = expanded_args[0];
-	if (ft_strcmp(builtin, "echo") == 0)
-		return (builtin_echo(&temp_cmd));
-	else if (ft_strcmp(builtin, "cd") == 0)
-		return (builtin_cd(shell, &temp_cmd));
-	else if (ft_strcmp(builtin, "pwd") == 0)
-		return (builtin_pwd(&temp_cmd));
-	else if (ft_strcmp(builtin, "export") == 0)
-		return (builtin_export(shell, &temp_cmd));
-	else if (ft_strcmp(builtin, "unset") == 0)
-		return (builtin_unset(shell, &temp_cmd));
-	else if (ft_strcmp(builtin, "env") == 0)
-		return (builtin_env(shell));
-	else if (ft_strcmp(builtin, "exit") == 0)
-		return (builtin_exit(shell, &temp_cmd));
-	return (1);
+	return (route_builtin_command(shell, &temp_cmd, builtin));
 }
 
 // The args are already expanded in execute_current_command

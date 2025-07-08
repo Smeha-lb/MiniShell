@@ -18,12 +18,34 @@ void	setup_heredoc_signals(void)
 	g_signal_code = 0;
 }
 
+/**
+ * Build the heredoc filename from components
+ */
+char	*build_heredoc_path(char *num_str, char *pid_str)
+{
+	char	*temp1;
+	char	*temp2;
+	char	*filename;
+
+	temp1 = ft_strjoin("/tmp/minishell_heredoc_", pid_str);
+	if (!temp1)
+		return (NULL);
+	temp2 = ft_strjoin(temp1, "_");
+	if (!temp2)
+	{
+		free(temp1);
+		return (NULL);
+	}
+	filename = ft_strjoin(temp2, num_str);
+	free(temp1);
+	free(temp2);
+	return (filename);
+}
+
 static char	*create_heredoc_filename(int counter, pid_t pid)
 {
 	char	*num_str;
 	char	*pid_str;
-	char	*temp1;
-	char	*temp2;
 	char	*filename;
 
 	num_str = ft_itoa(counter);
@@ -34,26 +56,9 @@ static char	*create_heredoc_filename(int counter, pid_t pid)
 		free(pid_str);
 		return (NULL);
 	}
-	temp1 = ft_strjoin("/tmp/minishell_heredoc_", pid_str);
-	if (!temp1)
-	{
-		free(num_str);
-		free(pid_str);
-		return (NULL);
-	}
-	temp2 = ft_strjoin(temp1, "_");
-	if (!temp2)
-	{
-		free(num_str);
-		free(pid_str);
-		free(temp1);
-		return (NULL);
-	}
-	filename = ft_strjoin(temp2, num_str);
+	filename = build_heredoc_path(num_str, pid_str);
 	free(num_str);
 	free(pid_str);
-	free(temp1);
-	free(temp2);
 	return (filename);
 }
 

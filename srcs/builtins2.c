@@ -6,7 +6,6 @@ static int	is_valid_n_flag(char *arg)
 
 	if (!arg || arg[0] != '-' || arg[1] != 'n')
 		return (0);
-	
 	i = 2;
 	while (arg[i])
 	{
