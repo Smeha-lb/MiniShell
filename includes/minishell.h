@@ -337,6 +337,12 @@ int			builtin_env(t_shell *shell);
 int			builtin_exit(t_shell *shell, t_command *cmd);
 int			execute_builtin_with_expanded_args(t_shell *shell, t_command *cmd,
 				char **expanded_args);
+char		**prepare_sorted_env(t_shell *shell, int *env_size);
+void		display_and_cleanup_env(char **sorted_env, int env_size);
+int			process_export_args(t_shell *shell, t_command *cmd);
+void		display_env_var(char *var);
+char		*is_valid_export_arg(char *arg);
+
 
 /* redirections.c */
 int			setup_redirections(t_shell *shell, t_command *cmd);
@@ -352,6 +358,8 @@ int			apply_all_redirections(t_shell *shell,
 /* redirections_heredoc.c */
 int			handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file);
 int			apply_heredoc_redirection(char *temp_file);
+char		*build_heredoc_path(char *num_str, char *pid_str);
+char		*create_heredoc_filename(int counter, pid_t pid);
 char		*create_heredoc_tempfile(void);
 void		setup_heredoc_signals(void);
 int			count_heredocs(t_command *cmd);
@@ -375,6 +383,7 @@ int			is_inside_single_quotes(const char *str, int pos);
 int			is_inside_double_quotes(const char *str, int pos);
 int			get_var_name_len(const char *str);
 char		*get_var_value(t_shell *shell, const char *var_name, int name_len);
+int			needs_var_expansion(const char *str, int i);
 int			calculate_expanded_size(t_shell *shell, const char *str);
 char		*expand_variables_core(t_shell *shell, const char *str);
 char		*expand_token(t_shell *shell, const char *token);
