@@ -25,8 +25,6 @@
 # define ERR_AND "Syntax error near unexpected token `&&'"
 # define ERR_OR "Syntax error near unexpected token `||'"
 
-# define ERR_RPAREN "Syntax error near unexpected token `)'"
-
 extern int	g_signal_code;
 
 typedef struct s_match_data
@@ -271,7 +269,7 @@ void		init_cmd_args(t_command *cmd, char *expanded_arg, int quoted);
 void		append_cmd_arg(t_command *cmd, char *expanded_arg, int quoted);
 void		add_arg(t_command *cmd, char *arg);
 void		add_arg_with_quoted(t_command *cmd, char *arg, int quoted);
-void		parse_tokens_word(char *value, t_command *cmd);
+void		parse_tokens_word(char *value, t_command *cmd, int quoted);
 bool		handle_wildcards_token(t_token *token, t_command *cmd);
 
 /* parser_token_handlers.c */

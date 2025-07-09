@@ -21,16 +21,16 @@ void	add_arg_with_quoted(t_command *cmd, char *arg, int quoted)
 
 // If wildcard expansion fails, use the original token value
 // otherwise just add the argument as is
-void	parse_tokens_word(char *value, t_command *cmd)
+void	parse_tokens_word(char *value, t_command *cmd, int quoted)
 {
 	char	**matches;
 	int		i;
 
 	if (!has_wildcards(value))
-		return (add_arg(cmd, value));
+		return (add_arg_with_quoted(cmd, value, quoted));
 	matches = expand_wildcards(value);
 	if (!matches)
-		return (add_arg(cmd, value));
+		return (add_arg_with_quoted(cmd, value, quoted));
 	i = 0;
 	while (matches[i])
 	{

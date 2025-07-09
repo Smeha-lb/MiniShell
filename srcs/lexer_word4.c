@@ -11,8 +11,13 @@ int	process_single_character(t_temp_var_data data,
 	result = process_word_character(data, shell);
 	if (result < 0)
 		return (-1);
-	if (result > 0 && *quote_type == 0)
-		*quote_type = result;
+	if (result > 0)
+	{
+		if (*quote_type == 0)
+			*quote_type = result;
+		else if (*quote_type != result)
+			*quote_type = 3;
+	}
 	return (0);
 }
 
