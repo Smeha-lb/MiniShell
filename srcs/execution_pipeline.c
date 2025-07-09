@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execution_pipeline.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 16:00:13 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 16:00:14 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minishell.h"
 
 static void	execute_child_cmd_helper(char *path, t_shell *shell, t_command *cmd)

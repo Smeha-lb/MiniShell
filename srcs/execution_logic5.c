@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execution_logic5.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 15:59:42 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 15:59:42 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minishell.h"
+
 /**
  * Execute the current command and handle its exit status
  * Returns 0 on success, 1 on error
- */
-
+*/
 int	execute_current_command(t_shell *shell, t_command **cmd, int *exit_status)
 {
 	if (!cmd || !*cmd)

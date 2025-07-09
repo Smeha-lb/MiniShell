@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   shell.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 16:13:34 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 16:13:34 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minishell.h"
 
 void	initialize_minimal_env(t_shell *shell)
@@ -27,7 +39,6 @@ void	process_input(t_shell *shell, char *input)
 			free(shell->previous_cmd);
 		shell->previous_cmd = ft_strdup(input);
 	}
-	
 	if (!tokenize_input(shell, input))
 		return (clean_tokens(shell));
 	if (!parse_tokens(shell))

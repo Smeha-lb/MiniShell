@@ -1,12 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_token_handlers.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 16:12:11 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 16:12:12 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minishell.h"
 
-bool	handle_word_token(t_token *token, t_command *cmd)
+bool	handle_word_token(t_token *token, t_command *cmd, t_command *cmd_head)
 {
 	if (cmd->is_subshell)
 	{
-		ft_putendl_fd(
-			"Error: Syntax error: missing operator after subshell",
-			2);
+		parse_tokens_err(cmd_head,
+			"Syntax error: missing operator after subshell");
 		return (false);
 	}
 	if (!token->quoted && has_wildcards(token->value))

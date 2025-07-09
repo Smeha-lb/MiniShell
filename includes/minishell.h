@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 15:57:56 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 15:57:56 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -7,8 +19,6 @@
 # include <stdbool.h>
 # include <fcntl.h>
 # include <sys/wait.h>
-# include <sys/stat.h>
-# include <sys/types.h>
 # include <errno.h>
 # include <signal.h>
 # include <dirent.h>
@@ -271,7 +281,8 @@ void		parse_tokens_word(char *value, t_command *cmd, int quoted);
 bool		handle_wildcards_token(t_token *token, t_command *cmd);
 
 /* parser_token_handlers.c */
-bool		handle_word_token(t_token *token, t_command *cmd);
+bool		handle_word_token(t_token *token, t_command *cmd,
+				t_command *cmd_head);
 bool		handle_redirection_token(t_token **token_ptr, t_command *cmd,
 				t_command *cmd_head);
 bool		handle_parenthesis(t_token **token_ptr, t_command *cmd,

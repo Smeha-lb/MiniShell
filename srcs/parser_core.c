@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_core.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: csamaha <csamaha@student.42beirut.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/09 16:12:04 by csamaha           #+#    #+#             */
+/*   Updated: 2025/07/09 16:12:05 by csamaha          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/minishell.h"
 
 void	parse_tokens_err(t_command *cmd_head, char *msg)
@@ -16,7 +28,7 @@ bool	process_token(t_token **token_ptr, t_command **cmd_ptr,
 	token = *token_ptr;
 	cmd = *cmd_ptr;
 	if (token->type == TOKEN_WORD)
-		return (handle_word_token(token, cmd));
+		return (handle_word_token(token, cmd, cmd_head));
 	else if (token->type == TOKEN_PIPE)
 		return (handle_pipe_token(token, cmd_ptr, cmd_head));
 	else if (token->type == TOKEN_AND)
