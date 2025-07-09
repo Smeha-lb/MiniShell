@@ -106,7 +106,10 @@ int	process_cmd_heredocs(t_shell *shell, t_command *cmd)
 	int		heredoc_count;
 	char	**heredoc_tempfiles;
 	int		result;
+	int		i;
 
+	i = 0;
+	heredoc_count = 0;
 	heredoc_count = count_heredocs(cmd);
 	if (heredoc_count <= 0)
 		return (0);
@@ -117,6 +120,11 @@ int	process_cmd_heredocs(t_shell *shell, t_command *cmd)
 			heredoc_tempfiles, heredoc_count);
 	if (result != 0)
 		return (result);
+	while (i < heredoc_count)
+	{
+		free(heredoc_tempfiles[i]);
+		i++;
+	}
 	free(heredoc_tempfiles);
 	return (0);
 }

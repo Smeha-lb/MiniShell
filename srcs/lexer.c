@@ -2,6 +2,7 @@
 
 /**
  * Update quote status for the last token based on its value
+ * Only update if not already set by quote processing
  */
 void	update_last_token_quotes(t_shell *shell)
 {
@@ -14,6 +15,8 @@ void	update_last_token_quotes(t_shell *shell)
 	last_token = shell->tokens;
 	while (last_token->next)
 		last_token = last_token->next;
+	if (last_token->quoted != 0)
+		return ;
 	token_value = last_token->value;
 	token_len = ft_strlen(token_value);
 	if (token_len >= 2)
@@ -50,9 +53,7 @@ bool	tokenize_input(t_shell *shell, char *input)
 	while (input[i])
 	{
 		if (!process_token_at_position(shell, input, &i))
-		{
 			return (false);
-		}
 	}
 	return (true);
 }

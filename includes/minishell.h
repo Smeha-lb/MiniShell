@@ -65,6 +65,7 @@ typedef struct s_redir
 {
 	int				type;
 	char			*file;
+	int				quoted;
 	struct s_redir	*next;
 }	t_redir;
 
@@ -212,7 +213,7 @@ int			prepare_word_data(char *input, int *i, t_word_data *data);
 
 /* redir.c */
 t_token		*handle_redir(t_token *token, t_command *cmd);
-void		add_redir(t_redir **head, int type, char *file);
+void		add_redir(t_redir **head, int type, char *file, int quoted);
 
 /* parser_core.c */
 bool		parse_tokens(t_shell *shell);
@@ -343,7 +344,6 @@ int			process_export_args(t_shell *shell, t_command *cmd);
 void		display_env_var(char *var);
 char		*is_valid_export_arg(char *arg);
 
-
 /* redirections.c */
 int			setup_redirections(t_shell *shell, t_command *cmd);
 
@@ -387,9 +387,16 @@ int			needs_var_expansion(const char *str, int i);
 int			calculate_expanded_size(t_shell *shell, const char *str);
 char		*expand_variables_core(t_shell *shell, const char *str);
 char		*expand_token(t_shell *shell, const char *token);
+void		copy_var_to_expanded(t_shell *shell, const char *str,
+				int *i, char *expanded, int *j);
+int			calculate_var_size(t_shell *shell, const char *str, int *i);
+
+/* lexer_quotes.c */
+char		*expand_variables_no_inner_quotes(t_shell *shell, const char *str);
+int			calculate_expanded_size_no_quotes(t_shell *shell, const char *str);
 
 /* expansion.c */
-char		*expand_variables(t_shell *shell, char *str, int in_quotes);
+char		*expand_variables(t_shell *shell, char *str, int quotes);
 void		copy_variable(t_shell *shell, char *str, int *i, char *expanded);
 char		*allocate_expanded_string(t_shell *shell, char *str);
 void		process_char(char *str, int *i, char *expanded, int *j);

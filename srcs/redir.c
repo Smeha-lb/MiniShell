@@ -1,6 +1,6 @@
 #include "../includes/minishell.h"
 
-void	add_redir(t_redir **head, int type, char *file)
+void	add_redir(t_redir **head, int type, char *file, int quoted)
 {
 	t_redir	*new_redir;
 	t_redir	*current;
@@ -10,6 +10,7 @@ void	add_redir(t_redir **head, int type, char *file)
 		return ;
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
+	new_redir->quoted = quoted;
 	new_redir->next = NULL;
 	if (!*head)
 	{
@@ -35,12 +36,16 @@ t_token	*handle_redir(t_token *token, t_command *cmd)
 		return (NULL);
 	}
 	if (type == TOKEN_REDIR_IN)
-		add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_IN, next_token->value,
+			next_token->quoted);
 	else if (type == TOKEN_REDIR_OUT)
-		add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_OUT, next_token->value,
+			next_token->quoted);
 	else if (type == TOKEN_REDIR_APPEND)
-		add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_REDIR_APPEND, next_token->value,
+			next_token->quoted);
 	else if (type == TOKEN_HEREDOC)
-		add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value);
+		add_redir(&cmd->redirs, TOKEN_HEREDOC, next_token->value,
+			next_token->quoted);
 	return (next_token);
 }
