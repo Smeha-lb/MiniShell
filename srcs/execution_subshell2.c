@@ -9,7 +9,7 @@ int	handle_pipeline_subshell(t_shell *shell, t_command *cmd, int *exit_status)
 	stdout_backup = dup(STDOUT_FILENO);
 	setup_pipeline_redirections(cmd);
 	if (cmd->redirs && setup_redirections(shell, cmd) != 0)
-		return (handle_redirection_error(stdin_backup,
+		return (handle_redirection_failure(stdin_backup,
 				stdout_backup, exit_status));
 	*exit_status = execute_subshell(shell, cmd->subshell);
 	dup2(stdin_backup, STDIN_FILENO);

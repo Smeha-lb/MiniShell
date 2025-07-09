@@ -183,8 +183,6 @@ void		ignore_signals(void);
 /* lexer.c */
 bool		tokenize_input(t_shell *shell, char *input);
 void		setup_pipeline_redirections(t_command *cmd);
-int			handle_redirection_error(int stdin_backup, int stdout_backup,
-				int *exit_status);
 
 /* lexer_utils.c */
 t_token		*create_token(char *value, t_token_type type, int quoted);

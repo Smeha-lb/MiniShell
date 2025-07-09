@@ -62,14 +62,3 @@ void	setup_pipeline_redirections(t_command *cmd)
 		close(cmd->pipe_out);
 	}
 }
-
-int	handle_redirection_error(int stdin_backup, int stdout_backup,
-									int *exit_status)
-{
-	dup2(stdin_backup, STDIN_FILENO);
-	dup2(stdout_backup, STDOUT_FILENO);
-	close(stdin_backup);
-	close(stdout_backup);
-	*exit_status = 1;
-	return (1);
-}
