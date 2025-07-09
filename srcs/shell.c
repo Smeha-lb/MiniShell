@@ -27,7 +27,6 @@ void	process_input(t_shell *shell, char *input)
 			free(shell->previous_cmd);
 		shell->previous_cmd = ft_strdup(input);
 	}
-	
 	if (!tokenize_input(shell, input))
 		return (clean_tokens(shell));
 	if (!parse_tokens(shell))
