@@ -68,7 +68,7 @@ int	process_word_character(t_temp_var_data data, t_shell *shell)
 		(*data.i)++;
 	if (data.input[*data.i] == '\'' || data.input[*data.i] == '\"')
 	{
-		quote_result = handle_quotes(data, shell);
+		quote_result = handle_quote_section(data, shell);
 		if (quote_result < 0)
 			return (-1);
 		return (quote_result);

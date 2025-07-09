@@ -9,28 +9,29 @@ static int	is_variable(char c1, char c2)
 /**
  * Process a single character during expansion
  */
-void	process_expansion_char(t_shell *shell, char *str, int *i,
-	char *expanded, int *j, int in_quotes)
+void	process_expansion_char(t_shell *shell, t_var_expansion_data *data)
 {
-	if (is_variable(str[*i], str[*i + 1]))
+	if (is_variable(data->str[*data->i], data->str[*data->i + 1]))
 	{
-		if (in_quotes || !is_inside_single_quotes(str, *i))
+		if (data->in_quotes || !is_inside_single_quotes(data->str, *data->i))
 		{
-			copy_variable(shell, str, i, expanded + *j);
-			*j += ft_strlen(expanded + *j);
+			copy_variable(shell, (char *)data->str,
+				data->i, data->expanded + *data->j);
+			*data->j += ft_strlen(data->expanded + *data->j);
 		}
 		else
-			process_char(str, i, expanded, j);
+			process_char((char *)data->str, data->i, data->expanded, data->j);
 	}
 	else
-		process_char(str, i, expanded, j);
+		process_char((char *)data->str, data->i, data->expanded, data->j);
 }
 
 char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 {
-	int		i;
-	int		j;
-	char	*expanded;
+	int						i;
+	int						j;
+	char					*expanded;
+	t_var_expansion_data	data;
 
 	if (!str)
 		return (NULL);
@@ -39,9 +40,14 @@ char	*expand_variables(t_shell *shell, char *str, int in_quotes)
 		return (NULL);
 	i = 0;
 	j = 0;
+	data.str = str;
+	data.i = &i;
+	data.expanded = expanded;
+	data.j = &j;
+	data.in_quotes = in_quotes;
 	while (str[i])
 	{
-		process_expansion_char(shell, str, &i, expanded, &j, in_quotes);
+		process_expansion_char(shell, &data);
 	}
 	expanded[j] = '\0';
 	return (expanded);

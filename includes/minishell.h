@@ -135,6 +135,42 @@ typedef struct s_word_data
 	int		j;
 }	t_word_data;
 
+// Helper struct for argument expansion functions
+typedef struct s_arg_expansion_data
+{
+	char	***new_args;
+	int		**new_quoted;
+	int		*k;
+}	t_arg_expansion_data;
+
+// Helper struct for variable expansion functions  
+typedef struct s_var_expansion_data
+{
+	const char	*str;
+	int			*i;
+	char		*expanded;
+	int			*j;
+	int			in_quotes;
+}	t_var_expansion_data;
+
+// Helper struct for word processing functions
+typedef struct s_word_processing_data
+{
+	char		*input;
+	int			*i;
+	char		*word;
+	t_shell		*shell;
+}	t_word_processing_data;
+
+// Helper struct for argument copying
+typedef struct s_arg_copy_data
+{
+	char		*arg;
+	int			quoted;
+	char		**new_args;
+	int			*new_quoted;
+}	t_arg_copy_data;
+
 /* shell.c */
 void		shell_init(t_shell *shell, char **env);
 void		shell_loop(t_shell *shell);
@@ -165,7 +201,7 @@ int			handle_input_redirection(t_shell *shell, char *input, int *i);
 int			handle_output_redirection(t_shell *shell, char *input, int *i);
 
 /* lexer_quotes.c */
-int			handle_quotes(t_temp_var_data data, t_shell *shell);
+int			handle_quote_section(t_temp_var_data data, t_shell *shell);
 int			find_matching_quote(char *input, int start, char quote_type);
 char		*process_quote_content(t_shell *shell,
 				char *content, char quote_type);
@@ -321,7 +357,18 @@ int			should_split_arg(const char *arg);
 void		split_command_if_needed(t_shell *shell, t_command *cmd);
 int			execute_current_command(t_shell *shell, t_command **cmd,
 				int *exit_status);
-
+int			process_cmd_heredocs(t_shell *shell, t_command *cmd);
+int			create_all_pipes(int **pipes, int cmd_count);
+void		cleanup_pipes_on_error(int **pipes, int current_index, pid_t *pids);
+void		set_quoted_flag(int *new_quoted, int k, t_command *cmd, int i);
+void		handle_quoted_arg(t_shell *shell, t_command *cmd,
+				t_arg_expansion_data *data, int i);
+void		handle_non_split_arg(t_shell *shell, t_command *cmd,
+				t_arg_expansion_data *data, int i);
+int			arg_needs_expansion(t_command *cmd, int i);
+int			count_split_tokens(t_shell *shell, t_command *cmd);
+void		handle_expanded_args(t_shell *shell, t_command *cmd,
+				char ***new_args, int **new_quoted);
 /* builtins.c */
 int			is_builtin(char *cmd);
 int			execute_builtin(t_shell *shell, t_command *cmd);
@@ -387,13 +434,17 @@ int			needs_var_expansion(const char *str, int i);
 int			calculate_expanded_size(t_shell *shell, const char *str);
 char		*expand_variables_core(t_shell *shell, const char *str);
 char		*expand_token(t_shell *shell, const char *token);
-void		copy_var_to_expanded(t_shell *shell, const char *str,
-				int *i, char *expanded, int *j);
+void		copy_var_to_expanded(t_shell *shell, t_var_expansion_data *data);
 int			calculate_var_size(t_shell *shell, const char *str, int *i);
+void		init_expansion_data(t_var_expansion_data *data);
+void		process_expansion_loop(t_shell *shell, t_var_expansion_data *data);
 
 /* lexer_quotes.c */
 char		*expand_variables_no_inner_quotes(t_shell *shell, const char *str);
 int			calculate_expanded_size_no_quotes(t_shell *shell, const char *str);
+int			needs_var_expansion_no_quotes(const char *str, int i);
+void		process_expansion_loop_no_quotes(t_shell *shell,
+				t_var_expansion_data *data);
 
 /* expansion.c */
 char		*expand_variables(t_shell *shell, char *str, int quotes);
@@ -401,6 +452,7 @@ void		copy_variable(t_shell *shell, char *str, int *i, char *expanded);
 char		*allocate_expanded_string(t_shell *shell, char *str);
 void		process_char(char *str, int *i, char *expanded, int *j);
 int			calculate_expanded_length(t_shell *shell, char *str);
+void		process_expansion_char(t_shell *shell, t_var_expansion_data *data);
 
 /* wildcard_expansion.c */
 char		*handle_expansion(t_shell *shell, char *str);

@@ -16,40 +16,40 @@ int	process_single_character(t_temp_var_data data,
 	return (0);
 }
 
-int	process_word_loop(char *input, int *i, char *word,
-	t_shell *shell, int *quote_type)
+int	process_word_loop(t_word_processing_data *wdata, int *quote_type)
 {
 	int				j;
 	t_temp_var_data	data;
 
 	j = 0;
 	*quote_type = 0;
-	while (input[*i] && !is_word_delimiter(input[*i], input[*i + 1]))
+	while (wdata->input[*wdata->i] && !is_word_delimiter
+		(wdata->input[*wdata->i], wdata->input[*wdata->i + 1]))
 	{
-		if (input[*i] == '$' && input[*i + 1] == '\"')
-			(*i)++;
-		data.input = input;
-		data.i = i;
+		if (wdata->input[*wdata->i] == '$'
+			&& wdata->input[*wdata->i + 1] == '\"')
+			(*wdata->i)++;
+		data.input = wdata->input;
+		data.i = wdata->i;
 		data.j = &j;
-		data.word = &word;
-		if (process_single_character(data, shell, quote_type) < 0)
+		data.word = &wdata->word;
+		if (process_single_character(data, wdata->shell, quote_type) < 0)
 			return (-1);
 	}
-	word[j] = '\0';
+	wdata->word[j] = '\0';
 	return (j);
 }
 
 /**
 * Process word with proper buffer validation
 */
-int	process_word_with_validation(char *input, int *i, char *word,
-t_shell *shell, int buffer_size)
+int	process_word_with_validation(t_word_processing_data *wdata, int buffer_size)
 {
 	int				quote_type;
 	t_word_data		word_data;
 
-	prepare_word_data(input, i, &word_data);
-	word_data.j = process_word_loop(input, i, word, shell, &quote_type);
+	prepare_word_data(wdata->input, wdata->i, &word_data);
+	word_data.j = process_word_loop(wdata, &quote_type);
 	if (word_data.j < 0)
 		return (-1);
 	if (word_data.j >= buffer_size)
@@ -68,16 +68,20 @@ int	create_word_token(char *word, int quoted, t_shell *shell)
 
 int	handle_complex_word(char *input, int *i, t_shell *shell, int quoted)
 {
-	char			*word;
-	int				buffer_size;
-	int				quote_type;
+	char					*word;
+	int						buffer_size;
+	int						quote_type;
+	t_word_processing_data	wdata;
 
 	buffer_size = calculate_word_buffer_size(input, *i);
 	word = (char *)malloc((buffer_size + 1) * sizeof(char));
 	if (!word)
 		return (1);
-	quote_type = process_word_with_validation(input, i, word,
-			shell, buffer_size);
+	wdata.input = input;
+	wdata.i = i;
+	wdata.word = word;
+	wdata.shell = shell;
+	quote_type = process_word_with_validation(&wdata, buffer_size);
 	if (quote_type < 0)
 	{
 		free(word);
