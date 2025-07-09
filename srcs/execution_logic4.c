@@ -42,7 +42,7 @@ void	handle_split_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
-	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
+	if (cmd->arg_quoted && (cmd->arg_quoted[i] == 1 || cmd->arg_quoted[i] == 3))
 	{
 		handle_no_expansion(cmd, data, i);
 		return ;
@@ -64,7 +64,7 @@ void	process_single_arg(t_shell *shell, t_command *cmd,
 
 	should_split = should_split_arg(cmd->args[i])
 		&& (!cmd->arg_quoted || !cmd->arg_quoted[i]);
-	if (cmd->arg_quoted && cmd->arg_quoted[i])
+	if (cmd->arg_quoted && (cmd->arg_quoted[i] == 1 || cmd->arg_quoted[i] == 3))
 		handle_quoted_arg(shell, cmd, data, i);
 	else if (!should_split)
 		handle_non_split_arg(shell, cmd, data, i);

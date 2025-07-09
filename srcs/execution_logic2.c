@@ -74,7 +74,7 @@ void	handle_quoted_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
-	if (cmd->arg_quoted[i] == 1)
+	if (cmd->arg_quoted[i] == 1 || cmd->arg_quoted[i] == 3)
 		expanded = ft_strdup(cmd->args[i]);
 	else
 	{
@@ -95,7 +95,7 @@ void	handle_non_split_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
-	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
+	if (cmd->arg_quoted && (cmd->arg_quoted[i] == 1 || cmd->arg_quoted[i] == 3))
 	{
 		(*data->new_args)[*data->k] = ft_strdup(cmd->args[i]);
 		set_quoted_flag(*data->new_quoted, *data->k, cmd, i);

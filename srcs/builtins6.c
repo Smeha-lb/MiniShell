@@ -23,6 +23,8 @@ int	builtin_exit(t_shell *shell, t_command *cmd)
 			shell->exit_status = 2;
 		}
 	}
+	else
+		exit_status = shell->exit_status;
 	shell->running = 0;
 	return (shell->exit_status);
 }
