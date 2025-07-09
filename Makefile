@@ -19,6 +19,7 @@ SRCS = main.c \
 		lexer_utils.c \
 		lexer_utils2.c \
 		lexer_quotes.c \
+		lexer_quotes2.c \
 		lexer_expansion.c \
 		lexer_expansion2.c \
 		lexer_word.c \
@@ -38,16 +39,22 @@ SRCS = main.c \
 		execution_cmd.c \
 		execution_cmd2.c \
 		execution_pipes.c \
+		execution_pipes2.c \
+		execution_pipes3.c \
 		execution_pipeline.c \
 		execution_pipeline2.c \
 		execution_pipeline3.c \
 		execution_pipeline_utils.c \
+		execution_pipeline_utils2.c \
+		execution_pipeline_utils3.c \
 		execution_subshell.c \
 		execution_subshell2.c \
 		execution_logic.c \
 		execution_logic2.c \
 		execution_logic3.c \
 		execution_logic4.c \
+		execution_logic5.c \
+		execution_logic6.c \
 		execution_commands.c \
 		builtins.c \
 		builtins2.c \

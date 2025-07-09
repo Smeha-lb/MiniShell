@@ -1,27 +1,96 @@
 #include "../includes/minishell.h"
 
 /**
- * Execute the current command and handle its exit status
- * Returns 0 on success, 1 on error
+ * Handle case where expansion fails - copy original argument
  */
-int	execute_current_command(t_shell *shell, t_command **cmd, int *exit_status)
+void	handle_no_expansion(t_command *cmd, t_arg_expansion_data *data, int i)
 {
-	if (!cmd || !*cmd)
-		return (1);
-	if (!(*cmd)->args)
+	(*data->new_args)[*data->k] = ft_strdup(cmd->args[i]);
+	set_quoted_flag(*data->new_quoted, *data->k, cmd, i);
+	(*data->k)++;
+}
+
+/**
+ * Handle successful expansion and splitting
+ */
+void	handle_successful_split(char *expanded, t_arg_expansion_data *data)
+{
+	char	**split_args;
+	int		j;
+
+	split_args = ft_split(expanded, ' ');
+	if (split_args)
 	{
-		*exit_status = 0;
-		return (0);
+		j = 0;
+		while (split_args[j])
+		{
+			(*data->new_args)[*data->k] = split_args[j];
+			(*data->new_quoted)[*data->k] = 0;
+			(*data->k)++;
+			j++;
+		}
+		free(split_args);
 	}
-	split_command_if_needed(shell, *cmd);
-	if (!(*cmd)->args || !(*cmd)->args[0])
+	free(expanded);
+}
+
+/**
+ * Handle splitting argument expansion
+ */
+void	handle_split_arg(t_shell *shell, t_command *cmd,
+	t_arg_expansion_data *data, int i)
+{
+	char	*expanded;
+
+	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
 	{
-		*exit_status = 0;
-		return (0);
+		handle_no_expansion(cmd, data, i);
+		return ;
 	}
-	if (is_builtin((*cmd)->args[0]))
-		*exit_status = execute_builtin(shell, *cmd);
+	expanded = expand_token(shell, cmd->args[i]);
+	if (!expanded)
+		handle_no_expansion(cmd, data, i);
 	else
-		*exit_status = execute_external_command(shell, *cmd);
-	return (0);
+		handle_successful_split(expanded, data);
+}
+
+/**
+ * Process a single argument for expansion
+ */
+void	process_single_arg(t_shell *shell, t_command *cmd,
+	t_arg_expansion_data *data, int i)
+{
+	int	should_split;
+
+	should_split = should_split_arg(cmd->args[i])
+		&& (!cmd->arg_quoted || !cmd->arg_quoted[i]);
+	if (cmd->arg_quoted && cmd->arg_quoted[i])
+		handle_quoted_arg(shell, cmd, data, i);
+	else if (!should_split)
+		handle_non_split_arg(shell, cmd, data, i);
+	else
+		handle_split_arg(shell, cmd, data, i);
+}
+
+/**
+ * Handle expanded arguments
+ */
+void	handle_expanded_args(t_shell *shell, t_command *cmd,
+	char ***new_args, int **new_quoted)
+{
+	int						i;
+	int						k;
+	t_arg_expansion_data	data;
+
+	i = 0;
+	k = 0;
+	data.new_args = new_args;
+	data.new_quoted = new_quoted;
+	data.k = &k;
+	while (cmd->args[i])
+	{
+		process_single_arg(shell, cmd, &data, i);
+		i++;
+	}
+	(*new_args)[k] = NULL;
 }

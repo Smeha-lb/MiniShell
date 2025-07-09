@@ -2,9 +2,10 @@
 
 char	*expand_variables_core(t_shell *shell, const char *str)
 {
-	int		i;
-	int		j;
-	char	*expanded;
+	int						i;
+	int						j;
+	char					*expanded;
+	t_var_expansion_data	data;
 
 	if (!str)
 		return (NULL);
@@ -14,15 +15,12 @@ char	*expand_variables_core(t_shell *shell, const char *str)
 		return (NULL);
 	i = 0;
 	j = 0;
-	while (str[i])
-	{
-		if (needs_var_expansion(str, i))
-		{
-			copy_var_to_expanded(shell, str, &i, expanded, &j);
-		}
-		else
-			expanded[j++] = str[i++];
-	}
+	data.str = str;
+	data.i = &i;
+	data.expanded = expanded;
+	data.j = &j;
+	init_expansion_data(&data);
+	process_expansion_loop(shell, &data);
 	expanded[j] = '\0';
 	return (expanded);
 }

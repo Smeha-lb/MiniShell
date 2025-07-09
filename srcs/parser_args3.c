@@ -42,29 +42,29 @@ int	allocate_expanded_arg_arrays(int count, char ***new_args, int **new_quoted)
 /**
  * Copy existing arguments to new arrays and add new argument
  */
-void	copy_and_add_arg(t_command *cmd, char *arg, int quoted,
-	char **new_args, int *new_quoted)
+void	copy_and_add_arg(t_command *cmd, t_arg_copy_data *data)
 {
 	int	i;
 
 	i = 0;
 	while (cmd->args[i])
 	{
-		new_args[i] = cmd->args[i];
-		new_quoted[i] = cmd->arg_quoted[i];
+		data->new_args[i] = cmd->args[i];
+		data->new_quoted[i] = cmd->arg_quoted[i];
 		i++;
 	}
-	new_args[i] = arg;
-	new_args[i + 1] = NULL;
-	new_quoted[i] = quoted;
+	data->new_args[i] = data->arg;
+	data->new_args[i + 1] = NULL;
+	data->new_quoted[i] = data->quoted;
 }
 
 // Helper function for add_arg when cmd->args already exists
 void	append_cmd_arg(t_command *cmd, char *arg, int quoted)
 {
-	int		i;
-	char	**new_args;
-	int		*new_quoted;
+	int				i;
+	char			**new_args;
+	int				*new_quoted;
+	t_arg_copy_data	data;
 
 	i = 0;
 	while (cmd->args[i])
@@ -74,7 +74,11 @@ void	append_cmd_arg(t_command *cmd, char *arg, int quoted)
 		free(arg);
 		return ;
 	}
-	copy_and_add_arg(cmd, arg, quoted, new_args, new_quoted);
+	data.arg = arg;
+	data.quoted = quoted;
+	data.new_args = new_args;
+	data.new_quoted = new_quoted;
+	copy_and_add_arg(cmd, &data);
 	free(cmd->args);
 	free(cmd->arg_quoted);
 	cmd->args = new_args;
