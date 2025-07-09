@@ -24,6 +24,7 @@ SRCS = main.c \
 		lexer_word.c \
 		lexer_word2.c \
 		lexer_word3.c \
+		lexer_word4.c \
 		redir.c \
 		parser_core.c \
 		parser_command.c \

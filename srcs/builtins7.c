@@ -1,6 +1,5 @@
 #include "../includes/minishell.h"
 
-
 static void	copy_env_vars(char **env, char **sorted_env, int env_size)
 {
 	int	i;
@@ -51,7 +50,6 @@ void	display_and_cleanup_env(char **sorted_env, int env_size)
 	}
 	free(sorted_env);
 }
-
 
 /**
  * Process a single export argument

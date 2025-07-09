@@ -74,9 +74,14 @@ void	handle_quoted_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
-	expanded = expand_token(shell, cmd->args[i]);
-	if (!expanded)
+	if (cmd->arg_quoted[i] == 1)
 		expanded = ft_strdup(cmd->args[i]);
+	else
+	{
+		expanded = expand_token(shell, cmd->args[i]);
+		if (!expanded)
+			expanded = ft_strdup(cmd->args[i]);
+	}
 	(*new_args)[*k] = expanded;
 	(*new_quoted)[*k] = cmd->arg_quoted[i];
 	(*k)++;
@@ -90,6 +95,13 @@ void	handle_non_split_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
+	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
+	{
+		(*new_args)[*k] = ft_strdup(cmd->args[i]);
+		set_quoted_flag(*new_quoted, *k, cmd, i);
+		(*k)++;
+		return ;
+	}
 	expanded = expand_token(shell, cmd->args[i]);
 	if (!expanded)
 	{
@@ -149,6 +161,11 @@ void	handle_split_arg(t_shell *shell, t_command *cmd,
 {
 	char	*expanded;
 
+	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
+	{
+		handle_no_expansion(cmd, new_args, new_quoted, i, k);
+		return ;
+	}
 	expanded = expand_token(shell, cmd->args[i]);
 	if (!expanded)
 		handle_no_expansion(cmd, new_args, new_quoted, i, k);
@@ -201,6 +218,8 @@ int	arg_needs_expansion(t_command *cmd, int i)
 	if (should_split_arg(cmd->args[i])
 		&& (!cmd->arg_quoted || !cmd->arg_quoted[i]))
 		return (1);
+	if (cmd->arg_quoted && cmd->arg_quoted[i] == 1)
+		return (0);
 	if (cmd->arg_quoted && cmd->arg_quoted[i]
 		&& ft_strchr(cmd->args[i], '$'))
 		return (1);

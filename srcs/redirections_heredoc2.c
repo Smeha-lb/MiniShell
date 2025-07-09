@@ -18,10 +18,16 @@ static int	check_delimiter(char *line, char *delimiter)
 	return (0);
 }
 
-static void	write_line_to_fd(t_shell *shell, char *line, int fd)
+static void	write_line_to_fd(t_shell *shell, char *line, int fd, int quoted)
 {
 	char	*expanded_line;
 
+	if (quoted)
+	{
+		ft_putendl_fd(line, fd);
+		free(line);
+		return ;
+	}
 	expanded_line = expand_variables(shell, line, 0);
 	if (expanded_line)
 	{
@@ -33,7 +39,8 @@ static void	write_line_to_fd(t_shell *shell, char *line, int fd)
 	free(line);
 }
 
-static int	process_heredoc_lines(t_shell *shell, char *delimiter, int fd)
+static int	process_heredoc_lines(t_shell *shell,
+		char *delimiter, int fd, int quoted)
 {
 	char	*line;
 
@@ -44,7 +51,7 @@ static int	process_heredoc_lines(t_shell *shell, char *delimiter, int fd)
 			return (handle_eof_or_signal());
 		if (check_delimiter(line, delimiter))
 			break ;
-		write_line_to_fd(shell, line, fd);
+		write_line_to_fd(shell, line, fd, quoted);
 	}
 	return (0);
 }
@@ -64,11 +71,12 @@ int	handle_heredoc(t_shell *shell, t_redir *redir, char **temp_file)
 	if (fd == -1)
 	{
 		print_error(*temp_file, NULL, strerror(errno));
-		free_array(temp_file);
+		free(*temp_file);
+		*temp_file = NULL;
 		return (1);
 	}
 	setup_heredoc_signals();
-	result = process_heredoc_lines(shell, redir->file, fd);
+	result = process_heredoc_lines(shell, redir->file, fd, redir->quoted);
 	setup_signals();
 	close(fd);
 	return (result);

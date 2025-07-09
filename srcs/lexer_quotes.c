@@ -13,12 +13,67 @@ int	find_matching_quote(char *input, int start, char quote_type)
 	return (-1);
 }
 
+// Expand variables without treating inner quotes as quote delimiters
+char	*expand_variables_no_inner_quotes(t_shell *shell, const char *str)
+{
+	int		i;
+	int		j;
+	char	*expanded;
+
+	if (!str)
+		return (NULL);
+	expanded = (char *)malloc((calculate_expanded_size_no_quotes
+				(shell, str) + 1) * sizeof(char));
+	if (!expanded)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (str[i])
+	{
+		if (str[i] == '$' && str[i + 1] && (ft_isalnum(str[i + 1])
+				|| str[i + 1] == '_' || str[i + 1] == '?'))
+		{
+			copy_var_to_expanded(shell, str, &i, expanded, &j);
+		}
+		else
+			expanded[j++] = str[i++];
+	}
+	expanded[j] = '\0';
+	return (expanded);
+}
+
+// Calculate size for expansion without considering inner quotes
+int	calculate_expanded_size_no_quotes(t_shell *shell, const char *str)
+{
+	int		i;
+	int		size;
+
+	if (!str)
+		return (0);
+	i = 0;
+	size = 0;
+	while (str[i])
+	{
+		if (str[i] == '$' && str[i + 1] && (ft_isalnum(str[i + 1])
+				|| str[i + 1] == '_' || str[i + 1] == '?'))
+		{
+			size += calculate_var_size(shell, str, &i);
+		}
+		else
+		{
+			size++;
+			i++;
+		}
+	}
+	return (size);
+}
+
 // Process content based on the OUTERMOST quote type
 char	*process_quote_content(t_shell *shell, char *content, char quote_type)
 {
 	if (quote_type == '\'')
 		return (ft_strdup(content));
-	return (expand_variables(shell, content, 1));
+	return (expand_variables_no_inner_quotes(shell, content));
 }
 
 /**
